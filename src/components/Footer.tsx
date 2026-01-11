@@ -6,7 +6,7 @@ const Footer = () => {
           <div className="flex items-center gap-2">
             <span className="font-serif font-semibold text-foreground text-lg">bebloo</span>
           </div>
-          <p>© 2026 bebloo. Premium baby equipment subscription.</p>
+          <p>© 2026 bebloo. Suscripción premium de equipamiento para bebés.</p>
         </div>
       </div>
     </footer>

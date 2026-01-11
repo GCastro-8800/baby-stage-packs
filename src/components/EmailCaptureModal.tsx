@@ -55,10 +55,10 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 <Mail className="h-7 w-7 text-primary" />
               </div>
               <h3 className="text-2xl font-serif font-semibold text-foreground mb-2">
-                You selected {selectedPlan}
+                Has seleccionado {selectedPlan}
               </h3>
               <p className="text-muted-foreground">
-                We're currently opening this service in limited areas. If this is something you'd consider using, leave your email and we'll notify you when spots open.
+                Actualmente estamos abriendo este servicio en zonas limitadas. Si es algo que considerarías usar, déjanos tu email y te avisaremos cuando haya plazas disponibles.
               </p>
             </div>
 
@@ -66,7 +66,7 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 type="email"
-                placeholder="your@email.com"
+                placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -77,12 +77,12 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 className="w-full h-12 cta-tension"
                 disabled={isLoading}
               >
-                {isLoading ? "Submitting..." : "Notify me when available"}
+                {isLoading ? "Enviando..." : "Avísame cuando esté disponible"}
               </Button>
             </form>
 
             <p className="text-xs text-muted-foreground text-center mt-4">
-              No spam. Just one email when we launch in your area.
+              Sin spam. Solo un email cuando lancemos en tu zona.
             </p>
           </>
         ) : (
@@ -92,13 +92,13 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
               <CheckCircle className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-serif font-semibold text-foreground mb-2">
-              You're on the list!
+              ¡Estás en la lista!
             </h3>
             <p className="text-muted-foreground mb-6">
-              We'll reach out as soon as bebloo is available in your area.
+              Te contactaremos en cuanto bebloo esté disponible en tu zona.
             </p>
             <Button variant="outline" onClick={onClose}>
-              Close
+              Cerrar
             </Button>
           </div>
         )}

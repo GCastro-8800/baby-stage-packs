@@ -2,16 +2,16 @@ import { Check } from "lucide-react";
 
 const solutions = [
   {
-    title: "Stage-based packs",
-    description: "Curated equipment for each developmental stage, starting with 0–3 months.",
+    title: "Packs por etapas",
+    description: "Equipamiento seleccionado para cada etapa de desarrollo, empezando por 0–3 meses.",
   },
   {
-    title: "Delivery & pickup included",
-    description: "We bring everything to your door and collect it when your baby's ready for the next stage.",
+    title: "Entrega y recogida incluidas",
+    description: "Lo llevamos todo a tu puerta y lo recogemos cuando tu bebé esté listo para la siguiente etapa.",
   },
   {
-    title: "Professional cleaning & inspection",
-    description: "Every item is hospital-grade cleaned, safety-checked, and ready to use.",
+    title: "Limpieza e inspección profesional",
+    description: "Cada artículo se limpia con estándares hospitalarios, se revisa la seguridad y está listo para usar.",
   },
 ];
 
@@ -21,10 +21,10 @@ const SolutionSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            How bebloo works
+            Cómo funciona bebloo
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Subscribe. Receive. Swap. That's it.
+            Suscríbete. Recibe. Renueva. Así de simple.
           </p>
         </div>
 

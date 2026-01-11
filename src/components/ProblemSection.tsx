@@ -3,23 +3,23 @@ import { Brain, Clock, Package, RefreshCcw } from "lucide-react";
 const problems = [
   {
     icon: Brain,
-    title: "Decision overload",
-    description: "Hours researching which crib, monitor, or swing to buy — only to use it for 8 weeks.",
+    title: "Sobrecarga de decisiones",
+    description: "Horas investigando qué cuna, monitor o columpio comprar — para usarlo solo 8 semanas.",
   },
   {
     icon: Clock,
-    title: "Short product lifecycles",
-    description: "Babies outgrow equipment faster than you expect. What fits today is useless next month.",
+    title: "Ciclos de vida cortos",
+    description: "Los bebés superan el equipamiento más rápido de lo esperado. Lo que sirve hoy, no sirve el mes siguiente.",
   },
   {
     icon: Package,
-    title: "Storage nightmare",
-    description: "Living in an apartment? Good luck finding space for a bassinet, bouncer, and swing you'll use briefly.",
+    title: "Pesadilla de almacenamiento",
+    description: "¿Vives en un apartamento? Buena suerte encontrando espacio para un moisés, hamaca y columpio que usarás brevemente.",
   },
   {
     icon: RefreshCcw,
-    title: "Resale frustration",
-    description: "Listing, negotiating, meeting strangers — just to recover 30% of what you paid.",
+    title: "Frustración al revender",
+    description: "Publicar, negociar, quedar con desconocidos — solo para recuperar el 30% de lo que pagaste.",
   },
 ];
 
@@ -29,10 +29,10 @@ const ProblemSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            Sound familiar?
+            ¿Te suena familiar?
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            First-time parents face the same exhausting cycle with baby equipment.
+            Los padres primerizos enfrentan el mismo ciclo agotador con el equipamiento del bebé.
           </p>
         </div>
 

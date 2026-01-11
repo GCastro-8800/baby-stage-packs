@@ -9,43 +9,43 @@ interface PricingSectionProps {
 const plans = [
   {
     id: "essential",
-    name: "Essential",
+    name: "Esencial",
     price: 89,
-    description: "The basics, done right",
+    description: "Lo básico, bien hecho",
     features: [
-      "Bassinet or crib",
-      "Baby monitor",
-      "Changing mat",
-      "Stage swap included",
-      "Free delivery & pickup",
+      "Moisés o cuna",
+      "Monitor de bebé",
+      "Cambiador",
+      "Cambio de etapa incluido",
+      "Entrega y recogida gratis",
     ],
     highlighted: false,
   },
   {
     id: "comfort",
-    name: "Comfort",
+    name: "Confort",
     price: 139,
-    description: "Most popular choice",
+    description: "La opción más popular",
     features: [
-      "Everything in Essential",
-      "Bouncer or swing",
-      "Play mat",
-      "White noise machine",
-      "Priority support",
+      "Todo lo de Esencial",
+      "Hamaca o columpio",
+      "Alfombra de juegos",
+      "Máquina de ruido blanco",
+      "Soporte prioritario",
     ],
     highlighted: true,
   },
   {
     id: "full-peace",
-    name: "Full Peace of Mind",
+    name: "Tranquilidad Total",
     price: 199,
-    description: "Complete confidence",
+    description: "Confianza completa",
     features: [
-      "Everything in Comfort",
-      "Premium stroller",
-      "Car seat (0-13kg)",
-      "Carrier wrap",
-      "24/7 support line",
+      "Todo lo de Confort",
+      "Cochecito premium",
+      "Silla de coche (0-13kg)",
+      "Portabebés",
+      "Línea de soporte 24/7",
     ],
     highlighted: false,
   },
@@ -57,10 +57,10 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
       <div className="container max-w-5xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            Choose your pack
+            Elige tu pack
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            All plans include the 0–3 months stage. Swap to the next stage when ready.
+            Todos los planes incluyen la etapa 0–3 meses. Renueva a la siguiente etapa cuando estés listo.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
             >
               {plan.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                  Most chosen
+                  Más elegido
                 </div>
               )}
 
@@ -93,7 +93,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
                 <span className="text-4xl font-serif font-bold text-foreground">
                   €{plan.price}
                 </span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-muted-foreground">/mes</span>
               </div>
 
               <ul className="space-y-3 mb-8">
@@ -112,14 +112,14 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
                 }`}
                 variant={plan.highlighted ? "default" : "outline"}
               >
-                Select {plan.name}
+                Seleccionar {plan.name}
               </Button>
             </div>
           ))}
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-8">
-          No commitment. Cancel anytime. Equipment returned at end of subscription.
+          Sin compromiso. Cancela cuando quieras. Equipamiento devuelto al final de la suscripción.
         </p>
       </div>
     </section>

@@ -12,17 +12,17 @@ const Hero = ({ onSeePricing }: HeroProps) => {
         {/* Trust badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
           <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          Premium baby equipment subscription
+          Suscripción premium de equipamiento para bebés
         </div>
 
         {/* Direct headline */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-foreground mb-6 text-balance leading-tight">
-          The first months with a baby are chaotic enough.
+          Los primeros meses con un bebé ya son suficientemente caóticos.
         </h1>
 
         {/* Problem-aware subheadline */}
         <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto text-balance">
-          We take care of the equipment — clean, safe, and swapped as your baby grows. No buying. No storing. No reselling.
+          Nosotros nos encargamos del equipamiento — limpio, seguro y renovado según crece tu bebé. Sin comprar. Sin almacenar. Sin revender.
         </p>
 
         {/* Primary CTA */}
@@ -31,13 +31,13 @@ const Hero = ({ onSeePricing }: HeroProps) => {
           onClick={onSeePricing}
           className="cta-tension text-lg px-8 py-6 h-auto"
         >
-          See plans & pricing
+          Ver planes y precios
           <ArrowDown className="ml-2 h-5 w-5" />
         </Button>
 
         {/* Micro-validation */}
         <p className="mt-6 text-sm text-muted-foreground">
-          Starting from €89/month • 0–3 months stage
+          Desde €89/mes • Etapa 0–3 meses
         </p>
       </div>
     </section>
