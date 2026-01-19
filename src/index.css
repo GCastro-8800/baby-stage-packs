@@ -20,9 +20,9 @@
     --primary: 205 100% 83%;
     --primary-foreground: 205 40% 20%;
 
-    /* Mint green - #C8F0DA */
-    --secondary: 147 57% 86%;
-    --secondary-foreground: 147 40% 25%;
+    /* Light blue - softer than primary */
+    --secondary: 205 60% 94%;
+    --secondary-foreground: 205 40% 25%;
 
     --muted: 205 30% 94%;
     --muted-foreground: 205 20% 45%;
@@ -42,7 +42,8 @@
 
     /* Custom tokens */
     --hero-gradient: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(205 60% 97%) 100%);
-    --pricing-highlight: 147 57% 92%;
+    --pricing-highlight: 205 60% 96%;
+    --trust-badge: 205 100% 83%;
     --trust-badge: 205 100% 83%;
   }
 
@@ -55,8 +56,8 @@
     --popover-foreground: 205 30% 95%;
     --primary: 205 100% 75%;
     --primary-foreground: 205 40% 10%;
-    --secondary: 147 45% 35%;
-    --secondary-foreground: 147 30% 95%;
+    --secondary: 205 45% 25%;
+    --secondary-foreground: 205 30% 95%;
     --muted: 205 20% 18%;
     --muted-foreground: 205 15% 60%;
     --accent: 0 80% 65%;
