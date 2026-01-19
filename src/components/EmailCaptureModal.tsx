@@ -14,6 +14,7 @@ interface EmailCaptureModalProps {
 
 const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalProps) => {
   const [email, setEmail] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -34,7 +35,7 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
     
     const { error } = await supabase
       .from('leads')
-      .insert({ email, plan: selectedPlan });
+      .insert({ email, plan: selectedPlan, postal_code: postalCode || null });
 
     setIsLoading(false);
 
@@ -57,7 +58,7 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
     }
 
     setIsSubmitted(true);
-    track("lead_captured", { plan: selectedPlan });
+    track("lead_captured", { plan: selectedPlan, has_postal_code: !!postalCode });
   };
 
   if (!isOpen) return null;
@@ -102,6 +103,15 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-12 text-base"
+              />
+              <Input
+                type="text"
+                placeholder="Código postal (opcional)"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ""))}
+                maxLength={5}
+                inputMode="numeric"
                 className="h-12 text-base"
               />
               <Button
