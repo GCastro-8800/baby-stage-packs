@@ -3,23 +3,23 @@ import { Brain, Clock, Package, RefreshCcw } from "lucide-react";
 const problems = [
   {
     icon: Brain,
-    title: "Demasiadas decisiones",
-    description: "Cunas, hamacas, monitores... Es fácil perderse entre tantas opciones cuando cada semana cuenta.",
+    title: "Sobrecarga de decisiones",
+    description: "Horas investigando qué cuna, monitor o columpio comprar — para usarlo solo 8 semanas.",
   },
   {
     icon: Clock,
-    title: "Todo cambia muy rápido",
-    description: "Lo que hoy le queda perfecto, en unas semanas puede quedarse pequeño. El ritmo de un bebé no espera.",
+    title: "Ciclos de vida cortos",
+    description: "Los bebés superan el equipamiento más rápido de lo esperado. Lo que sirve hoy, no sirve el mes siguiente.",
   },
   {
     icon: Package,
-    title: "¿Y dónde lo guardo?",
-    description: "Moisés, hamaca, parque... El espacio en casa es limitado, y muchas cosas se usan solo unas semanas.",
+    title: "Pesadilla de almacenamiento",
+    description: "¿Vives en un apartamento? Buena suerte encontrando espacio para un moisés, hamaca y columpio que usarás brevemente.",
   },
   {
     icon: RefreshCcw,
-    title: "El tema de revender",
-    description: "Fotos, mensajes, quedadas... Vender lo que ya no usas lleva tiempo y energía que no siempre sobra.",
+    title: "Frustración al revender",
+    description: "Publicar, negociar, quedar con desconocidos — solo para recuperar el 30% de lo que pagaste.",
   },
 ];
 
@@ -29,10 +29,10 @@ const ProblemSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            Quizás te hayas preguntado...
+            ¿Te suena familiar?
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Son dudas que muchos padres comparten durante los primeros meses.
+            Los padres primerizos enfrentan el mismo ciclo agotador con el equipamiento del bebé.
           </p>
         </div>
 

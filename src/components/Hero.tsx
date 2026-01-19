@@ -22,17 +22,17 @@ const Hero = ({ onSeePricing }: HeroProps) => {
         {/* Trust badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/30 text-foreground text-sm font-medium mb-8">
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          Equipamiento para el primer año de tu bebé
+          Suscripción premium de equipamiento para bebés
         </div>
 
-        {/* Empathetic headline */}
+        {/* Direct headline */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-foreground mb-6 text-balance leading-tight">
-          El primer año con tu bebé debería ser para disfrutarlo.
+          Los primeros meses con un bebé ya son suficientemente caóticos.
         </h1>
 
-        {/* Reassuring subheadline */}
+        {/* Problem-aware subheadline */}
         <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto text-balance">
-          Nosotros nos ocupamos de que tengas el equipamiento adecuado en cada etapa. Limpio, revisado y listo. Tú solo disfruta.
+          Nosotros nos encargamos del equipamiento — limpio, seguro y renovado según crece tu bebé. Sin comprar. Sin almacenar. Sin revender.
         </p>
 
         {/* Primary CTA */}
@@ -41,13 +41,13 @@ const Hero = ({ onSeePricing }: HeroProps) => {
           onClick={onSeePricing}
           className="cta-tension text-lg px-8 py-6 h-auto"
         >
-          Descubre cómo funciona
+          Ver planes y precios
           <ArrowDown className="ml-2 h-5 w-5" />
         </Button>
 
         {/* Micro-validation */}
         <p className="mt-6 text-sm text-muted-foreground">
-          Desde €89/mes · Empezamos en la etapa 0–3 meses
+          Desde €89/mes • Etapa 0–3 meses
         </p>
       </div>
     </section>

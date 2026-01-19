@@ -11,13 +11,13 @@ const plans = [
     id: "essential",
     name: "Esencial",
     price: 89,
-    description: "Un buen punto de partida",
+    description: "Lo básico, bien hecho",
     features: [
-      "Descanso cubierto (moisés o cuna)",
-      "Tranquilidad cuando duerme",
-      "Zona de cambio lista",
-      "Renovación incluida en cada etapa",
-      "Entrega y recogida sin coste",
+      "Moisés o cuna",
+      "Monitor de bebé",
+      "Cambiador",
+      "Cambio de etapa incluido",
+      "Entrega y recogida gratis",
     ],
     highlighted: false,
   },
@@ -25,13 +25,13 @@ const plans = [
     id: "comfort",
     name: "Confort",
     price: 139,
-    description: "Equilibrio y comodidad",
+    description: "La opción más popular",
     features: [
       "Todo lo de Esencial",
-      "Momentos de calma para el bebé",
-      "Espacio seguro para explorar",
-      "Ayuda para el sueño",
-      "Atención más ágil cuando lo necesites",
+      "Hamaca o columpio",
+      "Alfombra de juegos",
+      "Máquina de ruido blanco",
+      "Soporte prioritario",
     ],
     highlighted: true,
   },
@@ -39,13 +39,13 @@ const plans = [
     id: "full-peace",
     name: "Tranquilidad Total",
     price: 199,
-    description: "Máxima tranquilidad",
+    description: "Confianza completa",
     features: [
       "Todo lo de Confort",
-      "Movilidad resuelta",
-      "Viajes en coche cubiertos",
-      "Libertad de manos",
-      "Estamos disponibles cuando nos necesites",
+      "Cochecito premium",
+      "Silla de coche (0-13kg)",
+      "Portabebés",
+      "Línea de soporte 24/7",
     ],
     highlighted: false,
   },
@@ -57,10 +57,10 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
       <div className="container max-w-5xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            Encuentra tu nivel de tranquilidad
+            Elige tu pack
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Todos los planes cubren la etapa 0–3 meses. Cuando tu bebé crezca, renovamos contigo.
+            Todos los planes incluyen la etapa 0–3 meses. Renueva a la siguiente etapa cuando estés listo.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
             >
               {plan.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                  Recomendado
+                  Más elegido
                 </div>
               )}
 
@@ -119,7 +119,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Sin permanencia. Puedes cancelar en cualquier momento.
+          Sin compromiso. Cancela cuando quieras. Equipamiento devuelto al final de la suscripción.
         </p>
       </div>
     </section>
