@@ -1,12 +1,19 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import ProblemSection from "@/components/ProblemSection";
 import SolutionSection from "@/components/SolutionSection";
 import PricingSection from "@/components/PricingSection";
 import EmailCaptureModal from "@/components/EmailCaptureModal";
 import Footer from "@/components/Footer";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Index = () => {
+  const { track } = useAnalytics();
+
+  // Track page view on mount
+  useEffect(() => {
+    track("page_view", { page: "landing" });
+  }, [track]);
   const pricingRef = useRef<HTMLElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
