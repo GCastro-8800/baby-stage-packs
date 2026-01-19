@@ -55,10 +55,10 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 <Mail className="h-7 w-7 text-primary" />
               </div>
               <h3 className="text-2xl font-serif font-semibold text-foreground mb-2">
-                Has seleccionado {selectedPlan}
+                Gracias por tu interés en {selectedPlan}
               </h3>
               <p className="text-muted-foreground">
-                Actualmente estamos abriendo este servicio en zonas limitadas. Si es algo que considerarías usar, déjanos tu email y te avisaremos cuando haya plazas disponibles.
+                Estamos preparando el lanzamiento en zonas seleccionadas. Si quieres que te avisemos cuando abramos en tu zona, déjanos tu email.
               </p>
             </div>
 
@@ -77,12 +77,12 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 className="w-full h-12 cta-tension"
                 disabled={isLoading}
               >
-                {isLoading ? "Enviando..." : "Avísame cuando esté disponible"}
+                {isLoading ? "Enviando..." : "Quiero que me aviséis"}
               </Button>
             </form>
 
             <p className="text-xs text-muted-foreground text-center mt-4">
-              Sin spam. Solo un email cuando lancemos en tu zona.
+              Solo te escribiremos cuando haya novedades para ti.
             </p>
           </>
         ) : (
@@ -92,10 +92,10 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
               <CheckCircle className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-serif font-semibold text-foreground mb-2">
-              ¡Estás en la lista!
+              Te hemos apuntado
             </h3>
             <p className="text-muted-foreground mb-6">
-              Te contactaremos en cuanto bebloo esté disponible en tu zona.
+              Te escribiremos cuando bebloo esté disponible cerca de ti.
             </p>
             <Button variant="outline" onClick={onClose}>
               Cerrar
