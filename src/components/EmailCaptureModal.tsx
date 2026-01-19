@@ -2,6 +2,8 @@ import { useState } from "react";
 import { X, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -13,19 +15,40 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
     setIsLoading(true);
-    // Simulate API call - replace with actual backend
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setIsLoading(false);
-    setIsSubmitted(true);
+    
+    const { error } = await supabase
+      .from('leads')
+      .insert({ email, plan: selectedPlan });
 
-    // Track conversion event (for analytics integration)
-    console.log("Conversion:", { plan: selectedPlan, email });
+    setIsLoading(false);
+
+    if (error) {
+      if (error.code === '23505') {
+        // Email duplicado
+        toast({
+          title: "Ya te habías registrado",
+          description: "Este email ya está en nuestra lista. Te avisaremos pronto.",
+        });
+        setIsSubmitted(true);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Algo salió mal",
+          description: "No pudimos guardar tu email. Inténtalo de nuevo.",
+        });
+      }
+      return;
+    }
+
+    setIsSubmitted(true);
+    console.log("Lead capturado:", { plan: selectedPlan, email });
   };
 
   if (!isOpen) return null;
