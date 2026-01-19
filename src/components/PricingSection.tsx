@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface PricingSectionProps {
   onSelectPlan: (plan: string) => void;
@@ -52,6 +53,13 @@ const plans = [
 ];
 
 const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
+  const { track } = useAnalytics();
+
+  const handleSelectPlan = (planName: string) => {
+    track("pricing_click", { plan: planName });
+    onSelectPlan(planName);
+  };
+
   return (
     <section ref={pricingRef} className="py-20 px-6 bg-card scroll-mt-8">
       <div className="container max-w-5xl">
@@ -106,7 +114,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
               </ul>
 
               <Button
-                onClick={() => onSelectPlan(plan.name)}
+                onClick={() => handleSelectPlan(plan.name)}
                 className={`w-full ${
                   plan.highlighted ? "cta-tension" : ""
                 }`}

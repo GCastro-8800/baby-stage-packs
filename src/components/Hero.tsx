@@ -1,12 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import logo from "@/assets/logo-bebloo.png";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface HeroProps {
   onSeePricing: () => void;
 }
 
 const Hero = ({ onSeePricing }: HeroProps) => {
+  const { track } = useAnalytics();
+
+  const handleCtaClick = () => {
+    track("cta_click", { source: "hero", action: "see_pricing" });
+    onSeePricing();
+  };
   return (
     <section className="hero-section min-h-[85vh] flex flex-col items-center justify-center px-6 py-20">
       <div className="container max-w-3xl text-center">
@@ -38,7 +45,7 @@ const Hero = ({ onSeePricing }: HeroProps) => {
         {/* Primary CTA */}
         <Button
           size="lg"
-          onClick={onSeePricing}
+          onClick={handleCtaClick}
           className="cta-tension text-lg px-8 py-6 h-auto"
         >
           Ver planes y precios

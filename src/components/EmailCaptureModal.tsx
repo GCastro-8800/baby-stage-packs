@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -16,6 +17,14 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { track } = useAnalytics();
+
+  // Track modal open
+  useEffect(() => {
+    if (isOpen) {
+      track("modal_open", { plan: selectedPlan });
+    }
+  }, [isOpen, selectedPlan, track]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +57,7 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
     }
 
     setIsSubmitted(true);
-    console.log("Lead capturado:", { plan: selectedPlan, email });
+    track("lead_captured", { plan: selectedPlan });
   };
 
   if (!isOpen) return null;
