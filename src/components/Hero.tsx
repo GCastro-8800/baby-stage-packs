@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
+import logo from "@/assets/logo-bebloo.png";
 
 interface HeroProps {
   onSeePricing: () => void;
@@ -9,9 +10,18 @@ const Hero = ({ onSeePricing }: HeroProps) => {
   return (
     <section className="hero-section min-h-[85vh] flex flex-col items-center justify-center px-6 py-20">
       <div className="container max-w-3xl text-center">
+        {/* Logo */}
+        <div className="mb-8">
+          <img 
+            src={logo} 
+            alt="bebloo" 
+            className="h-24 md:h-32 mx-auto"
+          />
+        </div>
+
         {/* Trust badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/30 text-foreground text-sm font-medium mb-8">
+          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
           Suscripción premium de equipamiento para bebés
         </div>
 
