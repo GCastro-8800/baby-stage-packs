@@ -3,23 +3,23 @@ import { Brain, Clock, Package, RefreshCcw } from "lucide-react";
 const problems = [
   {
     icon: Brain,
-    title: "Sobrecarga de decisiones",
-    description: "Horas investigando qué cuna, monitor o columpio comprar — para usarlo solo 8 semanas.",
+    title: "Demasiadas decisiones",
+    description: "Cunas, hamacas, monitores... Es fácil perderse entre tantas opciones cuando cada semana cuenta.",
   },
   {
     icon: Clock,
-    title: "Ciclos de vida cortos",
-    description: "Los bebés superan el equipamiento más rápido de lo esperado. Lo que sirve hoy, no sirve el mes siguiente.",
+    title: "Todo cambia muy rápido",
+    description: "Lo que hoy le queda perfecto, en unas semanas puede quedarse pequeño. El ritmo de un bebé no espera.",
   },
   {
     icon: Package,
-    title: "Pesadilla de almacenamiento",
-    description: "¿Vives en un apartamento? Buena suerte encontrando espacio para un moisés, hamaca y columpio que usarás brevemente.",
+    title: "¿Y dónde lo guardo?",
+    description: "Moisés, hamaca, parque... El espacio en casa es limitado, y muchas cosas se usan solo unas semanas.",
   },
   {
     icon: RefreshCcw,
-    title: "Frustración al revender",
-    description: "Publicar, negociar, quedar con desconocidos — solo para recuperar el 30% de lo que pagaste.",
+    title: "El tema de revender",
+    description: "Fotos, mensajes, quedadas... Vender lo que ya no usas lleva tiempo y energía que no siempre sobra.",
   },
 ];
 
@@ -29,10 +29,10 @@ const ProblemSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            ¿Te suena familiar?
+            Quizás te hayas preguntado...
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Los padres primerizos enfrentan el mismo ciclo agotador con el equipamiento del bebé.
+            Son dudas que muchos padres comparten durante los primeros meses.
           </p>
         </div>
 

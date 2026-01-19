@@ -2,16 +2,16 @@ import { Check } from "lucide-react";
 
 const solutions = [
   {
-    title: "Packs por etapas",
-    description: "Equipamiento seleccionado para cada etapa de desarrollo, empezando por 0–3 meses.",
+    title: "Equipamiento por etapas",
+    description: "Recibes lo que tu bebé necesita en cada momento. Empezamos con la etapa 0–3 meses.",
   },
   {
-    title: "Entrega y recogida incluidas",
-    description: "Lo llevamos todo a tu puerta y lo recogemos cuando tu bebé esté listo para la siguiente etapa.",
+    title: "Te lo llevamos y recogemos",
+    description: "Cuando llegue el momento de cambiar de etapa, nos encargamos de todo. Tú no mueves un dedo.",
   },
   {
-    title: "Limpieza e inspección profesional",
-    description: "Cada artículo se limpia con estándares hospitalarios, se revisa la seguridad y está listo para usar.",
+    title: "Limpio, revisado, listo",
+    description: "Cada artículo pasa por un proceso de limpieza profunda y revisión de seguridad antes de llegar a tu casa.",
   },
 ];
 
@@ -21,10 +21,10 @@ const SolutionSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
-            Cómo funciona bebloo
+            Así funciona bebloo
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Suscríbete. Recibe. Renueva. Así de simple.
+            Sin complicaciones. Sin sorpresas.
           </p>
         </div>
 
