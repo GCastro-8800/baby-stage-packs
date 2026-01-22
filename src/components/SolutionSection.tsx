@@ -17,31 +17,31 @@ const solutions = [
 
 const SolutionSection = () => {
   return (
-    <section className="py-20 px-6">
+    <section className="py-12 px-4 md:py-20 md:px-6">
       <div className="container max-w-4xl">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
+        <div className="text-center mb-8 md:mb-14">
+          <h2 className="text-2xl md:text-4xl font-serif text-foreground mb-3 md:mb-4">
             Cómo funciona bebloo
           </h2>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
             Suscríbete. Recibe. Renueva. Así de simple.
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {solutions.map((solution, index) => (
             <div
               key={index}
-              className="flex gap-4 p-6 rounded-lg bg-secondary/50 border border-border"
+              className="flex gap-3 md:gap-4 p-4 md:p-6 rounded-lg bg-secondary/50 border border-border"
             >
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <Check className="h-5 w-5 text-primary-foreground" />
+              <div className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full bg-primary flex items-center justify-center">
+                <Check className="h-4 w-4 md:h-5 md:w-5 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-1">
+                <h3 className="text-base md:text-lg font-semibold text-foreground mb-1">
                   {solution.title}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm md:text-base text-muted-foreground">
                   {solution.description}
                 </p>
               </div>

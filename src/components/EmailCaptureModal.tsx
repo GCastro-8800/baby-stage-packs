@@ -72,10 +72,10 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-background rounded-xl shadow-2xl border border-border p-8 animate-fade-up">
+      <div className="relative w-full max-w-md bg-background rounded-xl shadow-2xl border border-border p-6 md:p-8 mx-4 md:mx-0 animate-fade-up">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute top-3 right-3 md:top-4 md:right-4 p-2 text-muted-foreground hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
         >
           <X className="h-5 w-5" />
         </button>
@@ -83,14 +83,14 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
         {!isSubmitted ? (
           <>
             {/* Honest message */}
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Mail className="h-7 w-7 text-primary" />
+            <div className="text-center mb-5 md:mb-6">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Mail className="h-6 w-6 md:h-7 md:w-7 text-primary" />
               </div>
-              <h3 className="text-2xl font-serif font-semibold text-foreground mb-2">
+              <h3 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-2">
                 Has seleccionado {selectedPlan}
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-sm md:text-base text-muted-foreground">
                 Actualmente estamos abriendo este servicio en zonas limitadas. Si es algo que considerarías usar, déjanos tu email y te avisaremos cuando haya plazas disponibles.
               </p>
             </div>
