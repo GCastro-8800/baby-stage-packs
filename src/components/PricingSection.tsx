@@ -60,25 +60,32 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
     onSelectPlan(planName);
   };
 
+  // Reorder plans for mobile: highlighted first
+  const orderedPlans = [...plans].sort((a, b) => {
+    if (a.highlighted) return -1;
+    if (b.highlighted) return 1;
+    return 0;
+  });
+
   return (
-    <section ref={pricingRef} className="py-20 px-6 bg-card scroll-mt-8">
+    <section ref={pricingRef} className="py-12 px-4 md:py-20 md:px-6 bg-card scroll-mt-8">
       <div className="container max-w-5xl">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4">
+        <div className="text-center mb-8 md:mb-14">
+          <h2 className="text-2xl md:text-4xl font-serif text-foreground mb-3 md:mb-4">
             Elige tu pack
           </h2>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
             Todos los planes incluyen la etapa 0–3 meses. Renueva a la siguiente etapa cuando estés listo.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {plans.map((plan) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {orderedPlans.map((plan) => (
             <div
               key={plan.id}
-              className={`relative p-6 rounded-xl border-2 transition-all ${
+              className={`relative p-5 md:p-6 rounded-xl border-2 transition-all ${
                 plan.highlighted
-                  ? "pricing-highlight scale-[1.02]"
+                  ? "pricing-highlight md:scale-[1.02]"
                   : "bg-background border-border hover:border-primary/30"
               }`}
             >
@@ -97,14 +104,14 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
                 </p>
               </div>
 
-              <div className="mb-6">
-                <span className="text-4xl font-serif font-bold text-foreground">
+              <div className="mb-4 md:mb-6">
+                <span className="text-3xl md:text-4xl font-serif font-bold text-foreground">
                   €{plan.price}
                 </span>
                 <span className="text-muted-foreground">/mes</span>
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-2 md:space-y-3 mb-6 md:mb-8">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
                     <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -115,7 +122,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
 
               <Button
                 onClick={() => handleSelectPlan(plan.name)}
-                className={`w-full ${
+                className={`w-full h-12 ${
                   plan.highlighted ? "cta-tension" : ""
                 }`}
                 variant={plan.highlighted ? "default" : "outline"}
@@ -126,7 +133,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
           ))}
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-8">
+        <p className="text-center text-xs md:text-sm text-muted-foreground mt-6 md:mt-8">
           Sin compromiso. Cancela cuando quieras. Equipamiento devuelto al final de la suscripción.
         </p>
       </div>
