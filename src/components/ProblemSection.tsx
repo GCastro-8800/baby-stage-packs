@@ -29,10 +29,10 @@ const ProblemSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-8 md:mb-14">
           <h2 className="text-2xl md:text-4xl font-serif text-foreground mb-3 md:mb-4">
-            ¿Te suena familiar?
+            Ser padre primerizo ya es bastante
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-            Los padres primerizos enfrentan el mismo ciclo agotador con el equipamiento del bebé.
+            ¿Por qué añadir más decisiones, más compras y más cosas que guardar?
           </p>
         </div>
 

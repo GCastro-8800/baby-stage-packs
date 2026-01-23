@@ -12,7 +12,7 @@ const plans = [
     id: "essential",
     name: "Esencial",
     price: 89,
-    description: "Lo básico, bien hecho",
+    description: "Para empezar con calma",
     features: [
       "Moisés o cuna",
       "Monitor de bebé",
@@ -26,7 +26,7 @@ const plans = [
     id: "comfort",
     name: "Confort",
     price: 139,
-    description: "La opción más popular",
+    description: "El equilibrio perfecto",
     features: [
       "Todo lo de Esencial",
       "Hamaca o columpio",
@@ -40,7 +40,7 @@ const plans = [
     id: "full-peace",
     name: "Tranquilidad Total",
     price: 199,
-    description: "Confianza completa",
+    description: "Todo resuelto, desde el primer día",
     features: [
       "Todo lo de Confort",
       "Cochecito premium",
@@ -72,7 +72,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
       <div className="container max-w-5xl">
         <div className="text-center mb-8 md:mb-14">
           <h2 className="text-2xl md:text-4xl font-serif text-foreground mb-3 md:mb-4">
-            Elige tu pack
+            Elige lo que necesitas
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
             Todos los planes incluyen la etapa 0–3 meses. Renueva a la siguiente etapa cuando estés listo.
@@ -134,7 +134,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
         </div>
 
         <p className="text-center text-xs md:text-sm text-muted-foreground mt-6 md:mt-8">
-          Sin compromiso. Cancela cuando quieras. Equipamiento devuelto al final de la suscripción.
+          Sin permanencia. Si no te convence, cancelas y recogemos todo.
         </p>
       </div>
     </section>
