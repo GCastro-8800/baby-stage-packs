@@ -21,10 +21,10 @@ const SolutionSection = () => {
       <div className="container max-w-4xl">
         <div className="text-center mb-8 md:mb-14">
           <h2 className="text-2xl md:text-4xl font-serif text-foreground mb-3 md:mb-4">
-            Cómo funciona bebloo
+            Así de fácil
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-            Suscríbete. Recibe. Renueva. Así de simple.
+            Tú eliges el pack. Nosotros hacemos el resto.
           </p>
         </div>
 

@@ -29,17 +29,17 @@ const Hero = ({ onSeePricing }: HeroProps) => {
         {/* Trust badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary/30 text-foreground text-xs md:text-sm font-medium mb-6 md:mb-8">
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          Suscripción premium de equipamiento para bebés
+          Menos cajas, más calma
         </div>
 
         {/* Direct headline */}
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif text-foreground mb-4 md:mb-6 text-balance leading-tight">
-          Los primeros meses con un bebé ya son suficientemente caóticos.
+          Disfruta de tu bebé. Del equipamiento nos encargamos nosotros.
         </h1>
 
         {/* Problem-aware subheadline */}
         <p className="text-lg md:text-2xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto text-balance">
-          Nosotros nos encargamos del equipamiento — limpio, seguro y renovado según crece tu bebé. Sin comprar. Sin almacenar. Sin revender.
+          Cunas, hamacas y más — siempre limpios, siempre seguros, renovados cuando tu bebé crece. Tú solo cuidas de lo importante.
         </p>
 
         {/* Primary CTA */}
@@ -48,13 +48,13 @@ const Hero = ({ onSeePricing }: HeroProps) => {
           onClick={handleCtaClick}
           className="cta-tension text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto w-full sm:w-auto"
         >
-          Ver planes y precios
+          Descubre los packs
           <ArrowDown className="ml-2 h-5 w-5" />
         </Button>
 
         {/* Micro-validation */}
         <p className="mt-6 text-sm text-muted-foreground">
-          Desde €89/mes • Etapa 0–3 meses
+          Desde €89/mes • Sin permanencia • Envío incluido
         </p>
       </div>
     </section>

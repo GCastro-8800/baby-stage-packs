@@ -37,9 +37,8 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
       .from('leads')
       .insert({ email, plan: selectedPlan, postal_code: postalCode || null });
 
-    setIsLoading(false);
-
     if (error) {
+      setIsLoading(false);
       if (error.code === '23505') {
         // Email duplicado
         toast({
@@ -57,6 +56,16 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
       return;
     }
 
+    // Send confirmation email (don't block on failure)
+    try {
+      await supabase.functions.invoke('send-confirmation-email', {
+        body: { email, plan: selectedPlan, postalCode: postalCode || undefined }
+      });
+    } catch (emailError) {
+      console.error("Error sending confirmation email:", emailError);
+    }
+
+    setIsLoading(false);
     setIsSubmitted(true);
     track("lead_captured", { plan: selectedPlan, has_postal_code: !!postalCode });
   };
@@ -88,10 +97,10 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 <Mail className="h-6 w-6 md:h-7 md:w-7 text-primary" />
               </div>
               <h3 className="text-xl md:text-2xl font-serif font-semibold text-foreground mb-2">
-                Has seleccionado {selectedPlan}
+                ¡Buena elección! Has elegido {selectedPlan}
               </h3>
               <p className="text-sm md:text-base text-muted-foreground">
-                Actualmente estamos abriendo este servicio en zonas limitadas. Si es algo que considerarías usar, déjanos tu email y te avisaremos cuando haya plazas disponibles.
+                Estamos llegando poco a poco a nuevas zonas. Déjanos tu email y te avisaremos cuando podamos atenderte — sin spam, lo prometemos.
               </p>
             </div>
 
@@ -119,12 +128,12 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
                 className="w-full h-12 cta-tension"
                 disabled={isLoading}
               >
-                {isLoading ? "Enviando..." : "Avísame cuando esté disponible"}
+                {isLoading ? "Enviando..." : "Quiero que me aviséis"}
               </Button>
             </form>
 
             <p className="text-xs text-muted-foreground text-center mt-4">
-              Sin spam. Solo un email cuando lancemos en tu zona.
+              Sin spam, lo prometemos. Solo un email cuando lleguemos a tu zona.
             </p>
           </>
         ) : (
@@ -134,10 +143,10 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
               <CheckCircle className="h-8 w-8 text-primary" />
             </div>
             <h3 className="text-2xl font-serif font-semibold text-foreground mb-2">
-              ¡Estás en la lista!
+              ¡Perfecto! Ya estás dentro
             </h3>
             <p className="text-muted-foreground mb-6">
-              Te contactaremos en cuanto bebloo esté disponible en tu zona.
+              Te escribiremos cuando lleguemos a tu zona. Mientras, respira hondo — lo tienes todo bajo control.
             </p>
             <Button variant="outline" onClick={onClose}>
               Cerrar
