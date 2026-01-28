@@ -1,12 +1,43 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "resend";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// Valid plan names - must match exactly
+const VALID_PLANS = ["Esencial", "Confort", "Tranquilidad Total"] as const;
+type ValidPlan = typeof VALID_PLANS[number];
+
+// Input validation
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 255;
+}
+
+function isValidPlan(plan: string): plan is ValidPlan {
+  return VALID_PLANS.includes(plan as ValidPlan);
+}
+
+function isValidPostalCode(postalCode: string | undefined): boolean {
+  if (!postalCode) return true; // Optional field
+  return /^\d{5}$/.test(postalCode);
+}
+
+// HTML escape to prevent injection
+function escapeHtml(str: string): string {
+  return str.replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[m] || m));
+}
 
 interface EmailRequest {
   email: string;
@@ -21,9 +52,75 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, plan, postalCode }: EmailRequest = await req.json();
+    // Parse request body
+    const body: EmailRequest = await req.json();
+    const { email, plan, postalCode } = body;
+
+    // Input validation
+    if (!email || !isValidEmail(email)) {
+      console.error("Invalid email:", email);
+      return new Response(
+        JSON.stringify({ error: "Invalid email address" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!plan || !isValidPlan(plan)) {
+      console.error("Invalid plan:", plan);
+      return new Response(
+        JSON.stringify({ error: "Invalid plan selection" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!isValidPostalCode(postalCode)) {
+      console.error("Invalid postal code:", postalCode);
+      return new Response(
+        JSON.stringify({ error: "Invalid postal code format" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Verify the lead exists in the database (was just inserted)
+    // This prevents abuse by ensuring only legitimate registrations trigger emails
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: lead, error: leadError } = await supabase
+      .from('leads')
+      .select('created_at')
+      .eq('email', email)
+      .eq('plan', plan)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (leadError || !lead) {
+      console.error("Lead not found for email:", email, "error:", leadError);
+      return new Response(
+        JSON.stringify({ error: "Lead not found" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Check if the lead was created within the last 5 minutes
+    const leadCreatedAt = new Date(lead.created_at);
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     
+    if (leadCreatedAt < fiveMinutesAgo) {
+      console.error("Lead too old, rejecting email request for:", email);
+      return new Response(
+        JSON.stringify({ error: "Invalid request - lead too old" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     console.log(`Sending confirmation email to ${email} for plan ${plan}`);
+
+    // Use escaped values in HTML template for defense-in-depth
+    const safePlan = escapeHtml(plan);
+    const safePostalCode = postalCode ? escapeHtml(postalCode) : null;
 
     const { data, error } = await resend.emails.send({
       from: "bebloo <onboarding@resend.dev>",
@@ -37,12 +134,12 @@ const handler = async (req: Request): Promise<Response> => {
           
           <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
             Gracias por tu interés en <strong>bebloo</strong>. Has elegido el pack 
-            <strong>${plan}</strong> — excelente elección.
+            <strong>${safePlan}</strong> — excelente elección.
           </p>
           
           <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
             Estamos abriendo el servicio poco a poco en nuevas zonas. 
-            ${postalCode ? `Hemos anotado tu código postal (${postalCode}) para avisarte en cuanto lleguemos.` : 'Te escribiremos en cuanto estemos disponibles en tu área.'}
+            ${safePostalCode ? `Hemos anotado tu código postal (${safePostalCode}) para avisarte en cuanto lleguemos.` : 'Te escribiremos en cuanto estemos disponibles en tu área.'}
           </p>
           
           <div style="background: #f8f7f5; border-radius: 8px; padding: 20px; margin: 30px 0;">
