@@ -53,6 +53,9 @@ export default {
         },
         trust: "hsl(var(--trust-badge))",
         highlight: "hsl(var(--pricing-highlight))",
+        warm: "hsl(var(--section-warm))",
+        mint: "hsl(var(--section-mint))",
+        step: "hsl(var(--step-bg))",
       },
       borderRadius: {
         lg: "var(--radius)",
