@@ -44,7 +44,11 @@
     --hero-gradient: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(205 60% 97%) 100%);
     --pricing-highlight: 205 60% 96%;
     --trust-badge: 205 100% 83%;
-    --trust-badge: 205 100% 83%;
+    
+    /* Section backgrounds */
+    --section-warm: 30 50% 97%;
+    --section-mint: 160 30% 94%;
+    --step-bg: 205 80% 92%;
   }
 
   .dark {

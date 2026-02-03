@@ -1,8 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import Hero from "@/components/Hero";
-import ProblemSection from "@/components/ProblemSection";
-import SolutionSection from "@/components/SolutionSection";
+import HowItWorksSection from "@/components/HowItWorksSection";
+import MissionSection from "@/components/MissionSection";
+import ComparisonSection from "@/components/ComparisonSection";
 import PricingSection from "@/components/PricingSection";
+import FAQSection from "@/components/FAQSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import EmailCaptureModal from "@/components/EmailCaptureModal";
 import Footer from "@/components/Footer";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -14,6 +17,7 @@ const Index = () => {
   useEffect(() => {
     track("page_view", { page: "landing" });
   }, [track]);
+  
   const pricingRef = useRef<HTMLElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
@@ -25,16 +29,18 @@ const Index = () => {
   const handleSelectPlan = (plan: string) => {
     setSelectedPlan(plan);
     setIsModalOpen(true);
-    // Track pricing click (for analytics)
     console.log("Pricing click:", plan);
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Hero onSeePricing={scrollToPricing} />
-      <ProblemSection />
-      <SolutionSection />
+      <HowItWorksSection />
+      <MissionSection />
+      <ComparisonSection />
       <PricingSection onSelectPlan={handleSelectPlan} pricingRef={pricingRef} />
+      <FAQSection />
+      <TestimonialsSection />
       <Footer />
 
       <EmailCaptureModal

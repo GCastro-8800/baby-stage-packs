@@ -68,10 +68,13 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   });
 
   return (
-    <section ref={pricingRef} className="py-12 px-4 md:py-20 md:px-6 bg-card scroll-mt-8">
+    <section ref={pricingRef} className="py-16 px-4 md:py-24 md:px-6 bg-warm scroll-mt-8">
       <div className="container max-w-5xl">
-        <div className="text-center mb-8 md:mb-14">
-          <h2 className="text-2xl md:text-4xl font-serif text-foreground mb-3 md:mb-4">
+        <div className="text-center mb-10 md:mb-16">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-accent/20 text-accent text-xs font-semibold tracking-wide uppercase mb-4">
+            Planes y precios
+          </span>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4">
             Elige lo que necesitas
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
@@ -79,14 +82,14 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {orderedPlans.map((plan) => (
             <div
               key={plan.id}
-              className={`relative p-5 md:p-6 rounded-xl border-2 transition-all ${
+              className={`relative p-6 md:p-8 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
                 plan.highlighted
-                  ? "pricing-highlight md:scale-[1.02]"
-                  : "bg-background border-border hover:border-primary/30"
+                  ? "bg-background border-primary md:scale-[1.03]"
+                  : "bg-background border-border hover:border-primary/40"
               }`}
             >
               {plan.highlighted && (
