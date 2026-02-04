@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
-import { useNavigate } from "react-router-dom";
 
 interface Profile {
   id: string;
@@ -107,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
+    // Dynamic import to avoid initialization issues
+    const { lovable } = await import("@/integrations/lovable");
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
