@@ -48,11 +48,11 @@ const MissionSection = () => {
 
           {/* Right column - Image */}
           <div className="order-1 lg:order-2">
-            <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-secondary shadow-lg">
+            <div className="aspect-[3/4] rounded-3xl overflow-hidden bg-secondary shadow-lg">
               <img
                 src={missionImage}
-                alt="Familia feliz paseando con su bebé"
-                className="w-full h-full object-cover"
+                alt="Madre con su bebé en portabebé"
+                className="w-full h-full object-contain"
               />
             </div>
           </div>
