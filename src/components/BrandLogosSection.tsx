@@ -1,8 +1,13 @@
+import logoBugaboo from "@/assets/logo-bugaboo.png";
+import logoStokke from "@/assets/logo-stokke.png";
+import logoCybex from "@/assets/logo-cybex.png";
+import logoBabyzen from "@/assets/logo-babyzen.png";
+
 const brands = [
-  { name: "Bugaboo", origin: "Holanda" },
-  { name: "Stokke", origin: "Noruega" },
-  { name: "Cybex", origin: "Alemania" },
-  { name: "Babyzen", origin: "Francia" },
+  { name: "Bugaboo", logo: logoBugaboo },
+  { name: "Stokke", logo: logoStokke },
+  { name: "Cybex", logo: logoCybex },
+  { name: "Babyzen", logo: logoBabyzen },
 ];
 
 const BrandLogosSection = () => {
@@ -27,17 +32,13 @@ const BrandLogosSection = () => {
             {allBrands.map((brand, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 flex items-center gap-8 md:gap-12 px-4 md:px-6"
+                className="flex-shrink-0 flex items-center gap-8 md:gap-12 px-6 md:px-10"
               >
-                <div className="flex flex-col items-center min-w-[120px] md:min-w-[140px]">
-                  <span className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">
-                    {brand.name}
-                  </span>
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {brand.origin}
-                  </span>
-                </div>
-                <span className="text-2xl text-muted-foreground/40">·</span>
+                <img 
+                  src={brand.logo} 
+                  alt={brand.name} 
+                  className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                />
               </div>
             ))}
           </div>
