@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Check, Star } from "lucide-react";
 import logo from "@/assets/logo-bebloo.png";
+import heroImage from "@/assets/hero-family-stroller.jpg";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface HeroProps {
@@ -90,11 +91,11 @@ const Hero = ({ onSeePricing }: HeroProps) => {
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
             <div className="relative w-full max-w-md lg:max-w-lg">
               <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-secondary shadow-xl">
-                <img
-                  src="https://images.unsplash.com/photo-1519689680058-324335c77eba?w=600&h=750&fit=crop"
-                  alt="Familia feliz con su bebé"
-                  className="w-full h-full object-cover"
-                />
+              <img
+                src={heroImage}
+                alt="Familia paseando con cochecito de bebé"
+                className="w-full h-full object-cover"
+              />
               </div>
               {/* Floating badge */}
               <div className="absolute -bottom-4 -left-4 md:-bottom-6 md:-left-6 bg-background rounded-2xl shadow-lg p-4 border border-border">

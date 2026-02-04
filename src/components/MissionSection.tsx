@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import missionImage from "@/assets/mission-family.jpg";
 
 const MissionSection = () => {
   return (
@@ -49,8 +50,8 @@ const MissionSection = () => {
           <div className="order-1 lg:order-2">
             <div className="aspect-[4/3] rounded-3xl overflow-hidden bg-secondary shadow-lg">
               <img
-                src="https://images.unsplash.com/photo-1544126592-807ade215a0b?w=600&h=450&fit=crop"
-                alt="Equipamiento de bebé limpio y ordenado"
+                src={missionImage}
+                alt="Familia feliz paseando con su bebé"
                 className="w-full h-full object-cover"
               />
             </div>
