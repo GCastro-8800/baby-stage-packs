@@ -69,7 +69,7 @@ const Header = () => {
             <img
               src={logo}
               alt="bebloo"
-              className="h-8 md:h-10"
+              className="h-10 md:h-12"
             />
           </a>
 
@@ -108,7 +108,7 @@ const Header = () => {
               <SheetContent side="right" className="w-full max-w-sm">
                 <SheetHeader>
                   <SheetTitle className="text-left">
-                    <img src={logo} alt="bebloo" className="h-8" />
+                    <img src={logo} alt="bebloo" className="h-10" />
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-6 mt-8">
