@@ -1,283 +1,193 @@
 
-## Sistema de Autenticación para bebloo
 
-Implementaremos un sistema de autenticación completo con email/contraseña y Google OAuth, incluyendo perfiles de usuario para almacenar datos relevantes del usuario.
+## QR Code + Enlace al Formulario de Validación
+
+Después de analizar la estructura actual de la landing page, te propongo las mejores opciones de ubicación considerando el flujo de usuario y la experiencia en cada dispositivo.
 
 ---
 
-## Estructura de la implementación
+## Análisis del contexto
+
+**Objetivo**: Dirigir usuarios a un formulario de Google Forms para recopilar y validar información.
+
+**Diferencia por dispositivo**:
+- **Desktop**: QR code tiene sentido porque el usuario puede escanearlo con su móvil
+- **Móvil**: Enlace directo al formulario (el QR no tiene sentido en móvil)
+
+---
+
+## Opciones de ubicación (ordenadas por recomendación)
+
+### Opcion 1: Después de la sección de Precios (RECOMENDADA)
 
 ```text
-┌────────────────────────────────────────────────────────────────────────┐
-│                         SISTEMA DE AUTENTICACIÓN                       │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   Páginas                                                              │
-│   ├── /auth ─────────────── Login y Registro (unificada)              │
-│   └── /app ──────────────── Área protegida (usuario logueado)         │
-│                                                                        │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   Componentes                                                          │
-│   ├── AuthContext ────────── Estado global de autenticación           │
-│   ├── ProtectedRoute ─────── Protección de rutas                      │
-│   └── AuthPage ───────────── Formularios de login/signup              │
-│                                                                        │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│   Base de datos                                                        │
-│   ├── profiles ───────────── Datos adicionales del usuario            │
-│   └── user_roles ─────────── Roles (user, admin)                      │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    PRICING SECTION                      │
+│           "Elige lo que necesitas"                      │
+│     [Esencial]    [Confort]    [Tranquilidad]          │
+└─────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────┐
+│              NUEVA SECCIÓN: EARLY ACCESS                │
+│                                                         │
+│  Desktop:                    │  Móvil:                  │
+│  ┌─────────┐                 │  ┌─────────────────┐     │
+│  │ QR Code │  + Texto        │  │ Botón: "Ayúdanos│     │
+│  │         │  explicativo    │  │ a mejorar"      │     │
+│  └─────────┘                 │  └─────────────────┘     │
+│                                                         │
+│  "¿Nos ayudas a mejorar?                               │
+│   Responde unas preguntas rápidas"                     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Por qué funciona**:
+- El usuario ya vio los precios y está interesado
+- Es un momento de alta intención
+- Ofrece participación activa antes de las FAQ
+
+---
+
+### Opcion 2: Integrado en el FAQ
+
+Añadir al final de las preguntas frecuentes una pregunta especial:
+
+```text
+"¿Quieres ayudarnos a diseñar el servicio perfecto?"
+→ Abre/muestra el QR o enlace al formulario
+```
+
+**Ventaja**: Se integra naturalmente sin añadir una sección nueva.
+
+---
+
+### Opcion 3: En el Footer
+
+Añadir una columna extra con el QR y un mensaje tipo "Cuéntanos qué necesitas".
+
+**Ventaja**: Siempre visible al final.
+**Desventaja**: Menos prominente, menor conversión.
+
+---
+
+## Mi recomendación: Opcion 1
+
+Crear una nueva sección ligera entre Pricing y FAQ con:
+
+**Diseño propuesto**:
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                     bg-background (limpio)                   │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│              "¿Nos ayudas a mejorar?"                        │
+│                                                              │
+│   Estamos diseñando bebloo contigo. Cuéntanos qué           │
+│   necesitas en 2 minutos y te recompensaremos.              │
+│                                                              │
+│   ┌────────────────┬────────────────────────────────────┐   │
+│   │                │                                     │   │
+│   │   [QR CODE]    │  • Solo 5 preguntas                │   │
+│   │    150x150     │  • 2 minutos máximo                │   │
+│   │                │  • Tu opinión nos importa          │   │
+│   │   (desktop)    │                                     │   │
+│   └────────────────┴────────────────────────────────────┘   │
+│                                                              │
+│   Escanea el código o [Responder ahora →] (botón móvil)     │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Base de datos
+## Implementación técnica
 
-### Tabla: `profiles`
-Almacena datos adicionales del usuario.
+### Archivos a crear/modificar
 
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| id | uuid (PK) | Referencia a auth.users |
-| full_name | text | Nombre completo |
-| baby_due_date | date | Fecha estimada de nacimiento del bebé |
-| baby_birth_date | date | Fecha de nacimiento (si ya nació) |
-| avatar_url | text | URL del avatar (opcional) |
-| created_at | timestamptz | Fecha de creación |
-| updated_at | timestamptz | Fecha de actualización |
+| Archivo | Acción |
+|---------|--------|
+| `src/components/SurveySection.tsx` | Crear nueva sección |
+| `src/pages/Index.tsx` | Añadir componente entre Pricing y FAQ |
 
-### Tabla: `user_roles`
-Almacena los roles de usuario de forma segura (separada de profiles).
+### Componente SurveySection
 
-| Columna | Tipo | Descripción |
-|---------|------|-------------|
-| id | uuid (PK) | ID único |
-| user_id | uuid | Referencia a auth.users |
-| role | app_role | Enum: user, admin |
+```tsx
+// Comportamiento responsive:
+// - Desktop: Muestra QR code + texto + botón alternativo
+// - Móvil: Oculta QR, muestra solo botón directo
 
-### Enum: `app_role`
-- `user` - Usuario estándar (padres)
-- `admin` - Administrador interno
+// QR Code:
+// - Generado dinámicamente usando una librería como 'qrcode.react'
+// - O imagen estática del QR pre-generado
+```
 
-### Función de seguridad: `has_role`
-Función `SECURITY DEFINER` para verificar roles sin recursión en RLS.
+### Dependencias
 
----
+**Opción A (recomendada)**: Generar QR dinámicamente
+- Instalar: `qrcode.react` (~3KB gzipped)
+- Ventaja: Si cambias el enlace, el QR se actualiza solo
 
-## Archivos a crear
-
-### 1. Hook de autenticación
-`src/hooks/useAuth.tsx`
-- Contexto global con estado de sesión y usuario
-- Funciones: signIn, signUp, signOut, signInWithGoogle
-- Listener de cambios de autenticación
-- Redirección automática para usuarios logueados
-
-### 2. Componente de ruta protegida
-`src/components/auth/ProtectedRoute.tsx`
-- Verifica si el usuario está autenticado
-- Redirige a /auth si no lo está
-- Muestra loading mientras verifica
-
-### 3. Página de autenticación
-`src/pages/Auth.tsx`
-- Formularios de Login y Signup en pestañas
-- Validación con zod
-- Botón de Google OAuth
-- Diseño coherente con la estética de bebloo
-- Mensajes de error amigables
-
-### 4. Página del área de usuario
-`src/pages/App.tsx`
-- Dashboard básico para usuarios autenticados
-- Muestra información del perfil
-- Botón de cerrar sesión
+**Opción B**: QR estático
+- Generar imagen del QR externamente
+- Subirla como asset a `src/assets/`
+- Desventaja: Si cambias el enlace, tienes que regenerar la imagen
 
 ---
 
 ## Flujo de usuario
 
 ```text
-Usuario no autenticado                    Usuario autenticado
-         │                                        │
-         ▼                                        ▼
-    ┌─────────┐                            ┌─────────────┐
-    │ Landing │────── Clic "Acceder" ─────▶│  /auth      │
-    │   /     │                            │  (Login)    │
-    └─────────┘                            └──────┬──────┘
-                                                  │
-                        ┌─────────────────────────┼─────────────────────────┐
-                        │                         │                         │
-                        ▼                         ▼                         ▼
-                   Email/Pass              Google OAuth              Crear cuenta
-                        │                         │                         │
-                        └─────────────────────────┴─────────────────────────┘
-                                                  │
-                                                  ▼
-                                           ┌───────────┐
-                                           │   /app    │
-                                           │ Dashboard │
-                                           └───────────┘
+Usuario en Desktop                    Usuario en Móvil
+       │                                     │
+       ▼                                     ▼
+   Ve pricing                            Ve pricing
+       │                                     │
+       ▼                                     ▼
+ ┌─────────────┐                     ┌─────────────────┐
+ │ Ve QR Code  │                     │ Ve botón        │
+ │ + mensaje   │                     │ "Responder"     │
+ └──────┬──────┘                     └────────┬────────┘
+        │                                     │
+        ▼                                     ▼
+   Escanea con                          Tap en botón
+   su móvil                                  │
+        │                                     │
+        └──────────────┬──────────────────────┘
+                       ▼
+              Google Forms abre
+              en nueva pestaña
 ```
 
 ---
 
-## Seguridad
+## Detalles de diseño
 
-### Políticas RLS para `profiles`
-- **SELECT**: Solo el usuario puede ver su propio perfil
-- **INSERT**: Solo el usuario autenticado puede crear su perfil
-- **UPDATE**: Solo el usuario puede actualizar su perfil
-- **DELETE**: Bloqueado (los perfiles no se eliminan directamente)
+- **Fondo**: `bg-background` (blanco) para contrastar con el mint de Comparison
+- **Estilo**: Minimalista, coherente con la estética bebloo
+- **Sin urgencia**: Tono amable, no presión
+- **Recompensa**: Mencionar que su feedback les beneficiará
 
-### Políticas RLS para `user_roles`
-- **SELECT**: Solo lectura a través de función `has_role`
-- **INSERT/UPDATE/DELETE**: Bloqueado para usuarios normales
+### Copy sugerido
 
-### Trigger automático
-- Al crear un usuario en `auth.users`, se crea automáticamente su perfil en `profiles`
-- Se asigna rol `user` por defecto
+**Título**: "¿Nos ayudas a mejorar?"
 
----
+**Subtítulo**: "Estamos diseñando bebloo contigo. Cuéntanos qué necesitas en 2 minutos."
 
-## Cambios en archivos existentes
+**Bullet points**:
+- Solo 5 preguntas rápidas
+- Tu opinión da forma al servicio
+- Sin spam, lo prometemos
 
-| Archivo | Cambio |
-|---------|--------|
-| `src/App.tsx` | Añadir rutas `/auth` y `/app`, envolver con AuthProvider |
-| `src/components/Header.tsx` | Añadir botón "Acceder" que lleva a /auth |
+**CTA móvil**: "Responder ahora"
 
 ---
 
-## Diseño visual
+## Resumen de cambios
 
-La página de autenticación seguirá la estética de bebloo:
-- Colores suaves (azul claro #A7D9FF)
-- Tipografía: Fraunces para títulos, DM Sans para texto
-- Sin urgencia, mensaje acogedor
-- Diseño limpio con mucho espacio en blanco
-
----
-
-## Detalles técnicos
-
-### Migración SQL
-```sql
--- Enum para roles
-CREATE TYPE public.app_role AS ENUM ('user', 'admin');
-
--- Tabla de perfiles
-CREATE TABLE public.profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name TEXT,
-  baby_due_date DATE,
-  baby_birth_date DATE,
-  avatar_url TEXT,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Tabla de roles (separada para seguridad)
-CREATE TABLE public.user_roles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  role app_role NOT NULL DEFAULT 'user',
-  UNIQUE (user_id, role)
-);
-
--- Función SECURITY DEFINER para verificar roles
-CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = _user_id AND role = _role
-  )
-$$;
-
--- Trigger para crear perfil automáticamente
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-BEGIN
-  INSERT INTO public.profiles (id)
-  VALUES (NEW.id);
-  
-  INSERT INTO public.user_roles (user_id, role)
-  VALUES (NEW.id, 'user');
-  
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER on_auth_user_created
-AFTER INSERT ON auth.users
-FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- RLS para profiles
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own profile"
-ON public.profiles FOR SELECT
-TO authenticated
-USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile"
-ON public.profiles FOR UPDATE
-TO authenticated
-USING (auth.uid() = id);
-
--- RLS para user_roles
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own roles"
-ON public.user_roles FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
-```
-
-### Estructura de componentes
-
-```tsx
-// useAuth.tsx - Patrón de contexto
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // 1. Setup listener PRIMERO
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // 2. Verificar sesión existente DESPUÉS
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // ... funciones signIn, signUp, signOut, signInWithGoogle
-}
-```
+1. Instalar dependencia `qrcode.react` para generar QR dinámicamente
+2. Crear `SurveySection.tsx` con diseño responsive
+3. Añadir sección en `Index.tsx` después de `PricingSection`
+4. El QR apuntará a: `https://forms.gle/hmHKqXDSDLL1Djza8`
 
