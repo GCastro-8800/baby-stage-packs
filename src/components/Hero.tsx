@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Check, Star } from "lucide-react";
-import heroImage from "@/assets/hero-family-stroller.jpg";
+import heroImage from "@/assets/mother-stroller.png";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface HeroProps {
