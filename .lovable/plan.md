@@ -1,8 +1,9 @@
 
-# Sección de Logos de Marcas Partner
+
+# Banda Horizontal Animada de Logos (Marquee)
 
 ## Resumen
-Crear una nueva sección elegante con logos de marcas premium de equipamiento infantil (Bugaboo, Stokke, Cybex, Babyzen) que aparecerá entre el Hero y "Cómo Funciona". Esta sección genera confianza social al mostrar que bebloo trabaja con las mejores marcas del mercado.
+Transformar la sección de logos de marcas en un ticker/marquee horizontal que se mueve continuamente de izquierda a derecha, creando un efecto elegante e hipnótico que refuerza la presencia de las marcas premium.
 
 ---
 
@@ -10,37 +11,48 @@ Crear una nueva sección elegante con logos de marcas premium de equipamiento in
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
 │               Trabajamos con las mejores marcas                 │
-│                                                                 │
-│     ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐          │
-│     │BUGABOO │   │ STOKKE │   │ CYBEX  │   │BABYZEN │          │
-│     └────────┘   └────────┘   └────────┘   └────────┘          │
-│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ ←←← BUGABOO · STOKKE · CYBEX · BABYZEN · BUGABOO · STOKKE ←←← │
+│     Holanda   Noruega  Alemania Francia   Holanda   Noruega     │
 └─────────────────────────────────────────────────────────────────┘
+       ↑ Se mueve continuamente hacia la izquierda (loop infinito)
 ```
 
 ### Características
-- Fondo sutil para separación visual del Hero
-- Logos en escala de grises/opacity para elegancia (no compiten con la marca bebloo)
-- Responsive: 4 columnas en desktop, 2x2 en móvil
-- Animación hover sutil en cada logo
+- Movimiento continuo y suave hacia la izquierda
+- Loop infinito (se duplican los logos para crear continuidad)
+- Pausa al hacer hover (para que el usuario pueda leer)
+- Fade en los bordes para un efecto más elegante
+- Velocidad moderada (20-25 segundos por ciclo)
 
 ---
 
 ## Cambios a Realizar
 
-### 1. Crear `BrandLogosSection.tsx`
-Nuevo componente con:
-- Texto introductorio sutil: "Trabajamos con las mejores marcas" o "Marcas de confianza"
-- Grid de 4 logos con nombres de las marcas (usaremos texto estilizado ya que no tenemos los logos reales)
-- Fondo `bg-secondary/30` para sutil separación
-- Logos con opacity 60% que aumenta a 100% en hover
-- Padding compacto para no ocupar mucho espacio vertical
+### 1. Actualizar `tailwind.config.ts`
+Añadir keyframe y animación para el marquee:
+```typescript
+keyframes: {
+  // ... existentes
+  "marquee": {
+    from: { transform: "translateX(0)" },
+    to: { transform: "translateX(-50%)" },
+  },
+},
+animation: {
+  // ... existentes
+  "marquee": "marquee 25s linear infinite",
+},
+```
 
-### 2. Actualizar `Index.tsx`
-- Importar `BrandLogosSection`
-- Colocarlo entre `<Hero />` y `<HowItWorksSection />`
+### 2. Actualizar `BrandLogosSection.tsx`
+- Cambiar de grid a contenedor flex con overflow hidden
+- Duplicar el array de marcas para crear el loop infinito
+- Aplicar la animación marquee al contenedor interno
+- Añadir separadores visuales entre marcas (punto medio ·)
+- Añadir gradientes en los bordes para efecto fade
+- Pausar animación en hover
 
 ---
 
@@ -48,31 +60,45 @@ Nuevo componente con:
 
 ### Estructura del componente
 ```tsx
-// Array de marcas
-const brands = [
-  { name: "Bugaboo", tagline: "Holanda" },
-  { name: "Stokke", tagline: "Noruega" },
-  { name: "Cybex", tagline: "Alemania" },
-  { name: "Babyzen", tagline: "Francia" },
-];
+// Duplicamos las marcas para el loop infinito
+const allBrands = [...brands, ...brands];
+
+<div className="overflow-hidden relative">
+  {/* Gradientes fade en los bordes */}
+  <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-secondary/30 to-transparent z-10" />
+  <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-secondary/30 to-transparent z-10" />
+  
+  {/* Banda animada */}
+  <div className="flex animate-marquee hover:pause gap-12">
+    {allBrands.map((brand, index) => (
+      <div key={index} className="flex-shrink-0 flex items-center gap-12">
+        <div className="flex flex-col items-center">
+          <span>{brand.name}</span>
+          <span>{brand.origin}</span>
+        </div>
+        <span className="text-muted-foreground">·</span>
+      </div>
+    ))}
+  </div>
+</div>
 ```
 
 ### Estilos clave
-- Container: `py-8 md:py-12 bg-secondary/30`
-- Grid: `grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8`
-- Cada logo: card minimalista con nombre en tipografía elegante
-- Hover: `opacity-60 hover:opacity-100 transition-opacity`
+- Container: `overflow-hidden relative`
+- Banda: `flex animate-marquee whitespace-nowrap`
+- Pause en hover: `hover:[animation-play-state:paused]`
+- Fade edges: Gradientes absolutos con z-index
 
-### Tipografía
-- Título de sección: `text-sm uppercase tracking-wide text-muted-foreground`
-- Nombres de marca: `text-xl font-semibold` en serif (Fraunces) para elegancia
-- Subtítulo (país de origen): `text-xs text-muted-foreground`
+### Velocidad
+- 25 segundos para un ciclo completo
+- `linear` para movimiento constante sin aceleración
 
 ---
 
-## Por qué este diseño
+## Por que este diseño
 
-1. **Credibilidad instantánea**: Los padres conocen estas marcas premium
-2. **No compite con bebloo**: Logos sutiles en escala de grises
-3. **Mínimo espacio vertical**: Section compacta que no interrumpe el flujo
-4. **Elegancia europea**: Mencionar el país de origen refuerza la calidad
+1. **Dinamismo visual**: El movimiento atrae la atención sin ser intrusivo
+2. **Sensacion premium**: Patron comun en webs de marcas de lujo
+3. **No requiere interaccion**: Funciona automaticamente
+4. **Pausa inteligente**: El hover permite leer con calma
+
