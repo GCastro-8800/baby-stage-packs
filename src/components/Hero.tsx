@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Check, Star } from "lucide-react";
-import logo from "@/assets/logo-bebloo.png";
 import heroImage from "@/assets/hero-family-stroller.jpg";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
@@ -23,20 +22,11 @@ const Hero = ({ onSeePricing }: HeroProps) => {
   };
 
   return (
-    <section className="hero-section min-h-[90vh] flex items-center px-4 py-12 md:px-6 md:py-20">
+    <section className="hero-section min-h-[90vh] flex items-center px-4 pt-24 pb-12 md:px-6 md:pt-28 md:pb-20">
       <div className="container max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left column - Content */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
-            {/* Logo */}
-            <div className="mb-6">
-              <img 
-                src={logo} 
-                alt="bebloo" 
-                className="h-12 md:h-16 mx-auto lg:mx-0"
-              />
-            </div>
-
             {/* Trust badge with stars */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/30 text-foreground text-xs md:text-sm font-medium mb-6">
               <div className="flex gap-0.5">

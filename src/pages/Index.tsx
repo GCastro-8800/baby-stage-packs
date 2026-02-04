@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import MissionSection from "@/components/MissionSection";
@@ -34,6 +35,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <Hero onSeePricing={scrollToPricing} />
       <HowItWorksSection />
       <MissionSection />
