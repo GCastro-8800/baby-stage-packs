@@ -1,9 +1,10 @@
-import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ExternalLink, MessageCircleHeart } from "lucide-react";
 
 const FORM_URL = "https://forms.gle/hmHKqXDSDLL1Djza8";
+// QR Code generated via API - more reliable than qrcode.react
+const QR_CODE_URL = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(FORM_URL)}`;
 
 const SurveySection = () => {
   const isMobile = useIsMobile();
@@ -40,11 +41,12 @@ const SurveySection = () => {
               {!isMobile && (
                 <div className="flex-shrink-0">
                   <div className="bg-white p-4 rounded-xl shadow-sm">
-                    <QRCodeSVG
-                      value={FORM_URL}
-                      size={150}
-                      level="M"
-                      includeMargin={false}
+                    <img 
+                      src={QR_CODE_URL} 
+                      alt="QR Code para acceder al formulario"
+                      width={150}
+                      height={150}
+                      className="block"
                     />
                   </div>
                   <p className="text-sm text-muted-foreground mt-3">
