@@ -68,7 +68,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   });
 
   return (
-    <section ref={pricingRef} className="py-16 px-4 md:py-24 md:px-6 bg-warm scroll-mt-8">
+    <section id="precios" ref={pricingRef} className="py-16 px-4 md:py-24 md:px-6 bg-warm scroll-mt-20">
       <div className="container max-w-5xl">
         <div className="text-center mb-10 md:mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-accent/20 text-accent text-xs font-semibold tracking-wide uppercase mb-4">
