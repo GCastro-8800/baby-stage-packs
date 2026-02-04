@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import BrandLogosSection from "@/components/BrandLogosSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import MissionSection from "@/components/MissionSection";
 import ComparisonSection from "@/components/ComparisonSection";
@@ -38,6 +39,7 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       <Hero onSeePricing={scrollToPricing} />
+      <BrandLogosSection />
       <HowItWorksSection />
       <MissionSection />
       <ComparisonSection />
