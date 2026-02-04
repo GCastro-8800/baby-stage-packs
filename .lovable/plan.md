@@ -1,64 +1,78 @@
 
-
-# CTA Flotante Móvil para bebloo
+# Sección de Logos de Marcas Partner
 
 ## Resumen
-Crear un botón CTA fijo en la parte inferior de la pantalla que solo se muestre en dispositivos móviles. El botón llevará a la sección de precios y se ocultará cuando el usuario ya esté en esa sección para evitar redundancia.
+Crear una nueva sección elegante con logos de marcas premium de equipamiento infantil (Bugaboo, Stokke, Cybex, Babyzen) que aparecerá entre el Hero y "Cómo Funciona". Esta sección genera confianza social al mostrar que bebloo trabaja con las mejores marcas del mercado.
 
 ---
 
 ## Diseño Visual
 
-### Móvil (< 768px)
 ```text
-┌─────────────────────────────────────┐
-│                                     │
-│         [Contenido normal]          │
-│                                     │
-└─────────────────────────────────────┘
-┌─────────────────────────────────────┐
-│     [ 🏷️ Ver planes desde €89 ]    │  ← Botón fijo
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│               Trabajamos con las mejores marcas                 │
+│                                                                 │
+│     ┌────────┐   ┌────────┐   ┌────────┐   ┌────────┐          │
+│     │BUGABOO │   │ STOKKE │   │ CYBEX  │   │BABYZEN │          │
+│     └────────┘   └────────┘   └────────┘   └────────┘          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Desktop (>= 768px)
-El botón no se muestra - ya existe el CTA en el header.
+### Características
+- Fondo sutil para separación visual del Hero
+- Logos en escala de grises/opacity para elegancia (no compiten con la marca bebloo)
+- Responsive: 4 columnas en desktop, 2x2 en móvil
+- Animación hover sutil en cada logo
 
 ---
 
 ## Cambios a Realizar
 
-### 1. Crear `FloatingCTA.tsx`
+### 1. Crear `BrandLogosSection.tsx`
 Nuevo componente con:
-- **Posición fija** en la parte inferior (`fixed bottom-0`)
-- **Solo visible en móvil** usando el hook `useIsMobile`
-- **Estilo CTA coral** usando la clase `cta-tension` existente
-- **Padding inferior** para el contenedor principal (evitar que tape contenido)
-- **Sombra hacia arriba** para separación visual del contenido
-- **Auto-ocultamiento** cuando el usuario hace scroll hasta la sección de precios (opcional, para evitar redundancia)
+- Texto introductorio sutil: "Trabajamos con las mejores marcas" o "Marcas de confianza"
+- Grid de 4 logos con nombres de las marcas (usaremos texto estilizado ya que no tenemos los logos reales)
+- Fondo `bg-secondary/30` para sutil separación
+- Logos con opacity 60% que aumenta a 100% en hover
+- Padding compacto para no ocupar mucho espacio vertical
 
 ### 2. Actualizar `Index.tsx`
-- Importar y renderizar `<FloatingCTA />` 
-- Añadir padding-bottom al contenedor para compensar la altura del botón flotante en móvil
-
-### 3. Ajustar `Footer.tsx`
-- Añadir padding-bottom extra en móvil para que el footer no quede tapado por el CTA flotante
+- Importar `BrandLogosSection`
+- Colocarlo entre `<Hero />` y `<HowItWorksSection />`
 
 ---
 
 ## Detalles Tecnicos
 
-### Componente FloatingCTA
-- Usa `useIsMobile()` para mostrar solo en pantallas < 768px
-- Usa `useAnalytics()` para trackear clicks
-- Scroll suave usando `scrollIntoView({ behavior: "smooth" })`
-- Clases: `fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-sm border-t border-border md:hidden`
+### Estructura del componente
+```tsx
+// Array de marcas
+const brands = [
+  { name: "Bugaboo", tagline: "Holanda" },
+  { name: "Stokke", tagline: "Noruega" },
+  { name: "Cybex", tagline: "Alemania" },
+  { name: "Babyzen", tagline: "Francia" },
+];
+```
 
-### Lógica de visibilidad inteligente
-- El CTA se oculta automáticamente cuando el usuario hace scroll hasta la sección de precios (usando Intersection Observer)
-- Esto evita mostrar dos CTAs redundantes (el del botón flotante y los de los planes)
+### Estilos clave
+- Container: `py-8 md:py-12 bg-secondary/30`
+- Grid: `grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8`
+- Cada logo: card minimalista con nombre en tipografía elegante
+- Hover: `opacity-60 hover:opacity-100 transition-opacity`
 
-### Texto del botón
-- "Ver planes desde €89/mes" - incluye precio para generar urgencia
-- Icono de flecha hacia abajo (`ArrowDown`)
+### Tipografía
+- Título de sección: `text-sm uppercase tracking-wide text-muted-foreground`
+- Nombres de marca: `text-xl font-semibold` en serif (Fraunces) para elegancia
+- Subtítulo (país de origen): `text-xs text-muted-foreground`
 
+---
+
+## Por qué este diseño
+
+1. **Credibilidad instantánea**: Los padres conocen estas marcas premium
+2. **No compite con bebloo**: Logos sutiles en escala de grises
+3. **Mínimo espacio vertical**: Section compacta que no interrumpe el flujo
+4. **Elegancia europea**: Mencionar el país de origen refuerza la calidad
