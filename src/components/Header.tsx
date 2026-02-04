@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { Menu, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Menu, ArrowRight, LogIn, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -23,6 +25,8 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,6 +49,15 @@ const Header = () => {
   const handleCtaClick = () => {
     scrollToSection("#precios");
     track("cta_click", { source: "header", action: "empezar" });
+  };
+
+  const handleAuthClick = () => {
+    if (user) {
+      navigate("/app");
+    } else {
+      navigate("/auth");
+    }
+    track("cta_click", { source: "header", action: user ? "mi_cuenta" : "acceder" });
   };
 
   return (
@@ -90,10 +103,31 @@ const Header = () => {
 
           {/* Desktop CTA */}
           {!isMobile && (
-            <Button onClick={handleCtaClick} size="sm" className="gap-2">
-              Empezar
-              <ArrowRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAuthClick}
+                className="gap-2"
+                disabled={loading}
+              >
+                {user ? (
+                  <>
+                    <User className="h-4 w-4" />
+                    Mi cuenta
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="h-4 w-4" />
+                    Acceder
+                  </>
+                )}
+              </Button>
+              <Button onClick={handleCtaClick} size="sm" className="gap-2">
+                Empezar
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           )}
 
           {/* Mobile Menu */}
@@ -122,8 +156,30 @@ const Header = () => {
                     </button>
                   ))}
                   <Button
+                    onClick={() => {
+                      handleAuthClick();
+                      setIsOpen(false);
+                    }}
+                    variant="outline"
+                    className="w-full gap-2"
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {user ? (
+                      <>
+                        <User className="h-4 w-4" />
+                        Mi cuenta
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="h-4 w-4" />
+                        Acceder
+                      </>
+                    )}
+                  </Button>
+                  <Button
                     onClick={handleCtaClick}
-                    className="w-full mt-4 gap-2"
+                    className="w-full gap-2"
                     size="lg"
                   >
                     Empezar
