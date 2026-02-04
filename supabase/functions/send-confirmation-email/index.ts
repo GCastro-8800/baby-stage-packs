@@ -9,6 +9,43 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Rate limiting: max 5 requests per IP per 10 minutes
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_REQUESTS_PER_WINDOW = 5;
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
+
+function isRateLimited(clientIp: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(clientIp);
+  
+  if (!entry || (now - entry.windowStart) > RATE_LIMIT_WINDOW_MS) {
+    // New window or expired window
+    rateLimitMap.set(clientIp, { count: 1, windowStart: now });
+    return false;
+  }
+  
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    return true;
+  }
+  
+  entry.count++;
+  return false;
+}
+
+// Clean up old entries periodically (every 100 requests)
+let requestCount = 0;
+function cleanupRateLimitMap() {
+  requestCount++;
+  if (requestCount % 100 === 0) {
+    const now = Date.now();
+    for (const [ip, entry] of rateLimitMap.entries()) {
+      if ((now - entry.windowStart) > RATE_LIMIT_WINDOW_MS) {
+        rateLimitMap.delete(ip);
+      }
+    }
+  }
+}
+
 // Valid plan names - must match exactly
 const VALID_PLANS = ["Esencial", "Confort", "Tranquilidad Total"] as const;
 type ValidPlan = typeof VALID_PLANS[number];
@@ -49,6 +86,30 @@ const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Get client IP for rate limiting
+  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                   req.headers.get("cf-connecting-ip") || 
+                   "unknown";
+  
+  // Clean up old rate limit entries periodically
+  cleanupRateLimitMap();
+  
+  // Check rate limit
+  if (isRateLimited(clientIp)) {
+    console.warn(`Rate limit exceeded for IP: ${clientIp}`);
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please try again later." }),
+      { 
+        status: 429, 
+        headers: { 
+          "Content-Type": "application/json", 
+          "Retry-After": "600",
+          ...corsHeaders 
+        } 
+      }
+    );
   }
 
   try {
