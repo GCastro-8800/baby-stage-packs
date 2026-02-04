@@ -24,7 +24,7 @@ const Hero = ({ onSeePricing }: HeroProps) => {
   return (
     <section className="hero-section min-h-[90vh] flex items-center px-4 pt-24 pb-12 md:px-6 md:pt-28 md:pb-20">
       <div className="container max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left column - Content */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
             {/* Trust badge with stars */}
@@ -79,7 +79,7 @@ const Hero = ({ onSeePricing }: HeroProps) => {
 
           {/* Right column - Image */}
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-md lg:max-w-lg">
+            <div className="relative w-full max-w-md lg:max-w-xl">
               <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-secondary shadow-xl">
               <img
                 src={heroImage}
