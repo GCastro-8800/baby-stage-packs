@@ -7,6 +7,7 @@ import MissionSection from "@/components/MissionSection";
 import ComparisonSection from "@/components/ComparisonSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
+import SurveySection from "@/components/SurveySection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import EmailCaptureModal from "@/components/EmailCaptureModal";
 import Footer from "@/components/Footer";
@@ -44,6 +45,7 @@ const Index = () => {
       <MissionSection />
       <ComparisonSection />
       <PricingSection onSelectPlan={handleSelectPlan} pricingRef={pricingRef} />
+      <SurveySection />
       <FAQSection />
       <TestimonialsSection />
       <Footer />
