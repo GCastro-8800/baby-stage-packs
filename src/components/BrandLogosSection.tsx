@@ -11,8 +11,6 @@ const brands = [
 ];
 
 const BrandLogosSection = () => {
-  // Duplicamos las marcas para crear el loop infinito
-  const allBrands = [...brands, ...brands];
 
   return (
     <section className="py-8 md:py-12 bg-secondary/30">
@@ -27,12 +25,24 @@ const BrandLogosSection = () => {
           <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-secondary/30 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-secondary/30 to-transparent z-10 pointer-events-none" />
           
-          {/* Banda animada */}
+          {/* Banda animada - dos copias para loop seamless */}
           <div className="flex animate-marquee hover:[animation-play-state:paused]">
-            {allBrands.map((brand, index) => (
+            {brands.map((brand, index) => (
               <div
-                key={index}
-                className="flex-shrink-0 flex items-center gap-8 md:gap-12 px-6 md:px-10"
+                key={`first-${index}`}
+                className="flex-shrink-0 flex items-center px-8 md:px-12"
+              >
+                <img 
+                  src={brand.logo} 
+                  alt={brand.name} 
+                  className="h-8 md:h-10 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                />
+              </div>
+            ))}
+            {brands.map((brand, index) => (
+              <div
+                key={`second-${index}`}
+                className="flex-shrink-0 flex items-center px-8 md:px-12"
               >
                 <img 
                   src={brand.logo} 
