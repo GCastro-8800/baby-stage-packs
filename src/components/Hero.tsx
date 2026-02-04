@@ -22,9 +22,9 @@ const Hero = ({ onSeePricing }: HeroProps) => {
   };
 
   return (
-    <section className="hero-section min-h-[90vh] flex items-center px-4 pt-24 pb-12 md:px-6 md:pt-28 md:pb-20">
+    <section className="hero-section min-h-[auto] lg:min-h-[85vh] flex items-center px-4 pt-20 pb-8 md:px-6 md:pt-24 md:pb-12 lg:pt-28 lg:pb-16">
       <div className="container max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
           {/* Left column - Content */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
             {/* Trust badge with stars */}
