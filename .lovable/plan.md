@@ -1,86 +1,64 @@
 
-# Header de Navegación Fija para bebloo
+
+# CTA Flotante Móvil para bebloo
 
 ## Resumen
-Crear un componente de navegación sticky que permanezca visible al hacer scroll, con logo, enlaces a secciones y un CTA prominente. En móvil, se transformará en un menú hamburguesa desplegable.
+Crear un botón CTA fijo en la parte inferior de la pantalla que solo se muestre en dispositivos móviles. El botón llevará a la sección de precios y se ocultará cuando el usuario ya esté en esa sección para evitar redundancia.
 
 ---
 
 ## Diseño Visual
 
-### Desktop
+### Móvil (< 768px)
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│ [Logo]     Cómo funciona   Precios   FAQ          [Empezar →]  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│                                     │
+│         [Contenido normal]          │
+│                                     │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│     [ 🏷️ Ver planes desde €89 ]    │  ← Botón fijo
+└─────────────────────────────────────┘
 ```
 
-### Móvil
-```text
-┌─────────────────────────────────────┐
-│ [Logo]                        [≡]  │
-└─────────────────────────────────────┘
-         ↓ Al pulsar ≡ ↓
-┌─────────────────────────────────────┐
-│  × Cerrar                          │
-│                                     │
-│  Cómo funciona                     │
-│  Precios                           │
-│  FAQ                               │
-│                                     │
-│  [────── Empezar ──────]           │
-└─────────────────────────────────────┘
-```
+### Desktop (>= 768px)
+El botón no se muestra - ya existe el CTA en el header.
 
 ---
 
 ## Cambios a Realizar
 
-### 1. Crear `Header.tsx`
+### 1. Crear `FloatingCTA.tsx`
 Nuevo componente con:
-- **Posición fija** (`fixed top-0`) con fondo blur
-- **Logo bebloo** (ya existe en `src/assets/logo-bebloo.png`)
-- **Links de navegación** que hacen scroll suave a:
-  - "Cómo funciona" → sección HowItWorks
-  - "Precios" → sección Pricing  
-  - "FAQ" → sección FAQ
-- **Botón CTA "Empezar"** que lleva a Pricing
-- **Menú hamburguesa en móvil** usando `Sheet` de shadcn/ui
-- **Efecto de fondo** que aparece tras hacer scroll
+- **Posición fija** en la parte inferior (`fixed bottom-0`)
+- **Solo visible en móvil** usando el hook `useIsMobile`
+- **Estilo CTA coral** usando la clase `cta-tension` existente
+- **Padding inferior** para el contenedor principal (evitar que tape contenido)
+- **Sombra hacia arriba** para separación visual del contenido
+- **Auto-ocultamiento** cuando el usuario hace scroll hasta la sección de precios (opcional, para evitar redundancia)
 
-### 2. Añadir IDs a las secciones
-Para que la navegación por anclas funcione:
-- `HowItWorksSection.tsx` → `id="como-funciona"`
-- `PricingSection.tsx` → `id="precios"` 
-- `FAQSection.tsx` → `id="faq"`
+### 2. Actualizar `Index.tsx`
+- Importar y renderizar `<FloatingCTA />` 
+- Añadir padding-bottom al contenedor para compensar la altura del botón flotante en móvil
 
-### 3. Actualizar `Index.tsx`
-- Importar y renderizar `<Header />` antes del Hero
-- Añadir `padding-top` al contenedor para compensar el header fijo
-
-### 4. Ajustar `Hero.tsx`
-- Quitar el logo del Hero (ahora está en el header)
-- Ajustar spacing superior
+### 3. Ajustar `Footer.tsx`
+- Añadir padding-bottom extra en móvil para que el footer no quede tapado por el CTA flotante
 
 ---
 
-## Detalles Técnicos
+## Detalles Tecnicos
 
-### Componentes utilizados
-- `Sheet` + `SheetContent` de shadcn/ui para menú móvil
-- `Button` existente para CTAs
-- `useIsMobile` hook para responsive
-- Lucide icons: `Menu`, `X`
+### Componente FloatingCTA
+- Usa `useIsMobile()` para mostrar solo en pantallas < 768px
+- Usa `useAnalytics()` para trackear clicks
+- Scroll suave usando `scrollIntoView({ behavior: "smooth" })`
+- Clases: `fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/95 backdrop-blur-sm border-t border-border md:hidden`
 
-### Comportamiento del header
-- Fondo transparente al inicio
-- Fondo con blur (`bg-background/80 backdrop-blur`) al hacer scroll
-- Transición suave entre estados
-- `z-50` para estar por encima de todo el contenido
+### Lógica de visibilidad inteligente
+- El CTA se oculta automáticamente cuando el usuario hace scroll hasta la sección de precios (usando Intersection Observer)
+- Esto evita mostrar dos CTAs redundantes (el del botón flotante y los de los planes)
 
-### Scroll suave
-- Usando `scrollIntoView({ behavior: "smooth" })`
-- `scroll-mt-20` en secciones para compensar altura del header fijo
+### Texto del botón
+- "Ver planes desde €89/mes" - incluye precio para generar urgencia
+- Icono de flecha hacia abajo (`ArrowDown`)
 
-### Analytics
-- Track de clicks en navegación usando el hook `useAnalytics` existente
