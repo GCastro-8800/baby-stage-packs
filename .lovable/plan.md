@@ -1,251 +1,283 @@
 
 
-## Onboarding Sensible para Todo Tipo de Padres
+## Personalizar el Dashboard con Datos del Onboarding
 
-Implementaremos un flujo de onboarding cálido que funcione tanto para padres primerizos como experimentados, embarazadas como padres con bebés ya nacidos.
+Transformaremos el dashboard generico en una experiencia completamente personalizada que muestre la etapa del bebe, cuenta regresiva/edad, y contenido contextual basado en los datos recopilados durante el onboarding.
 
 ---
 
-## Flujo Visual del Onboarding
+## Vista General del Dashboard Personalizado
 
 ```text
-Paso 1: Situacion
-+-------------------------------------------------------------+
-|                                                             |
-|   [Logo bebloo]                                             |
-|                                                             |
-|   "Hola, [nombre]. Cuentanos un poco sobre ti."             |
-|                                                             |
-|   +------------------------+  +------------------------+    |
-|   |                        |  |                        |    |
-|   |   Estoy esperando      |  |   Ya nacio mi bebe     |    |
-|   |   un bebe              |  |                        |    |
-|   |                        |  |                        |    |
-|   +------------------------+  +------------------------+    |
-|                                                             |
-|   [ o  o  o  o ] <- indicador de progreso                   |
-+-------------------------------------------------------------+
-                            |
-                            v
-Paso 2: Fecha (adapta segun seleccion anterior)
-+-------------------------------------------------------------+
-|                                                             |
-|   "Cuando esperas que llegue?" / "Cuando nacio tu bebe?"    |
-|   (Una fecha aproximada esta bien)                          |
-|                                                             |
-|   +--------------------------------------------------+      |
-|   |  [Selector de fecha con calendario]              |      |
-|   +--------------------------------------------------+      |
-|                                                             |
-|   [Anterior]                               [Continuar]      |
-+-------------------------------------------------------------+
-                            |
-                            v
-Paso 3: Experiencia previa (opcional)
-+-------------------------------------------------------------+
-|                                                             |
-|   "Es tu primer bebe?"                                      |
-|   (Esto nos ayuda a personalizar tu experiencia)            |
-|                                                             |
-|   +------------------------+  +------------------------+    |
-|   |                        |  |                        |    |
-|   |   Si, es mi primero    |  |   No, ya tengo         |    |
-|   |                        |  |   experiencia          |    |
-|   |                        |  |                        |    |
-|   +------------------------+  +------------------------+    |
-|                                                             |
-|   [Anterior]                               [Continuar]      |
-+-------------------------------------------------------------+
-                            |
-                            v
-Paso 4: Cierre emocional
-+-------------------------------------------------------------+
-|                                                             |
-|                         [icono]                             |
-|                                                             |
-|   "Todo listo!"                                             |
-|                                                             |
-|   Nos encargamos de lo complicado.                          |
-|   Tu encargate de disfrutarlo.                              |
-|                                                             |
-|                     [Empezar]                               |
-|                                                             |
-+-------------------------------------------------------------+
++-----------------------------------------------------------------------+
+|  [Logo bebloo]                               [Settings] [Cerrar sesion]|
++-----------------------------------------------------------------------+
+|                                                                       |
+|  [Avatar]  Hola, Maria                                                |
+|            Todo esta bajo control. Aqui tienes tu resumen.            |
+|                                                                       |
++-----------------------------------------------------------------------+
+|                                                                       |
+|  +---------------------------+  +---------------------------+         |
+|  |  [Baby icon]              |  |                           |         |
+|  |                           |  |  ETAPA ACTUAL             |         |
+|  |  Tu bebe tiene            |  |  0-3 meses                |         |
+|  |  2 meses y 14 dias        |  |                           |         |
+|  |                           |  |  Pack recomendado:        |         |
+|  |  Nacido el 15 nov 2025    |  |  "Primeros dias"          |         |
+|  |                           |  |                           |         |
+|  +---------------------------+  +---------------------------+         |
+|                                                                       |
+|  +---------------------------+                                        |
+|  |  [Heart icon]             |                                        |
+|  |                           |  O para embarazadas:                   |
+|  |  "Es normal sentirse      |  +---------------------------+         |
+|  |  abrumada en esta etapa.  |  |  Faltan 47 dias           |         |
+|  |  Respira. Lo estas        |  |  para conocer a tu bebe   |         |
+|  |  haciendo genial."        |  |                           |         |
+|  |                           |  |  Fecha estimada:          |         |
+|  +---------------------------+  |  15 marzo 2026            |         |
+|                                 +---------------------------+         |
++-----------------------------------------------------------------------+
 ```
 
 ---
 
-## Cambios en la Base de Datos
+## Logica de Calculo de Etapa
 
-Se anadiran 3 columnas nuevas a la tabla `profiles`:
+### Hook personalizado: `useBabyStage`
 
-| Columna | Tipo | Default | Proposito |
-|---------|------|---------|-----------|
-| `onboarding_completed` | boolean | false | Saber si completo el onboarding |
-| `is_first_child` | boolean | null | Personalizar tono y contenido |
-| `parent_situation` | text | null | "expecting" o "born" |
+Creamos un hook que calcula automaticamente:
 
-**Migracion SQL:**
-```sql
-ALTER TABLE profiles
-ADD COLUMN onboarding_completed boolean DEFAULT false,
-ADD COLUMN is_first_child boolean,
-ADD COLUMN parent_situation text;
-```
+| Dato | Calculo |
+|------|---------|
+| `ageInDays` | Diferencia entre hoy y `baby_birth_date` |
+| `ageText` | "2 meses y 14 dias" o similar |
+| `daysUntilBirth` | Para embarazadas: dias hasta `baby_due_date` |
+| `stage` | Etapa actual basada en edad |
+| `stageName` | Nombre legible: "0-3 meses", "3-6 meses", etc. |
 
-Las politicas RLS existentes ya permiten que los usuarios actualicen su propio perfil.
+### Etapas definidas:
+
+| Etapa | Rango | Nombre en UI |
+|-------|-------|--------------|
+| `prenatal` | Antes del nacimiento | "Preparandote" |
+| `0-3m` | 0-90 dias | "Primeros dias" |
+| `3-6m` | 91-180 dias | "Descubriendo" |
+| `6-9m` | 181-270 dias | "Explorando" |
+| `9-12m` | 271-365 dias | "Creciendo" |
+| `12m+` | >365 dias | "Pequeno grande" |
 
 ---
 
-## Arquitectura de Archivos
+## Nuevos Componentes del Dashboard
 
-### Nuevos archivos a crear:
+### Estructura de archivos:
 
 | Archivo | Descripcion |
 |---------|-------------|
-| `src/pages/Onboarding.tsx` | Pagina principal del onboarding |
-| `src/components/onboarding/OnboardingFlow.tsx` | Wizard con estado y navegacion |
-| `src/components/onboarding/StepIndicator.tsx` | Puntos de progreso |
-| `src/components/onboarding/steps/SituationStep.tsx` | Paso 1: esperando o ya nacio |
-| `src/components/onboarding/steps/DateStep.tsx` | Paso 2: selector de fecha |
-| `src/components/onboarding/steps/ExperienceStep.tsx` | Paso 3: primer bebe o no |
-| `src/components/onboarding/steps/CompletionStep.tsx` | Paso 4: cierre emocional |
-
-### Archivos a modificar:
-
-| Archivo | Cambio |
-|---------|--------|
-| `src/App.tsx` | Anadir ruta `/onboarding` |
-| `src/components/auth/ProtectedRoute.tsx` | Redirigir a onboarding si no completado |
-| `src/hooks/useAuth.tsx` | Actualizar tipo Profile con nuevos campos |
+| `src/hooks/useBabyStage.ts` | Hook para calcular etapa y edad |
+| `src/components/dashboard/BabyAgeCard.tsx` | Tarjeta con edad/cuenta regresiva |
+| `src/components/dashboard/StageCard.tsx` | Tarjeta con etapa actual y pack recomendado |
+| `src/components/dashboard/EmotionalTip.tsx` | Mensaje emocional contextual |
+| `src/components/dashboard/WelcomeHeader.tsx` | Header personalizado con saludo |
 
 ---
 
-## Logica de Redireccion
+## Componente: BabyAgeCard
+
+Muestra contenido diferente segun `parent_situation`:
+
+**Para padres con bebe nacido (`born`):**
+```text
++---------------------------+
+|  [Baby icon]              |
+|                           |
+|  Tu bebe tiene            |
+|  2 meses y 14 dias        |
+|                           |
+|  Nacido el 15 nov 2025    |
++---------------------------+
+```
+
+**Para embarazadas (`expecting`):**
+```text
++---------------------------+
+|  [Calendar icon]          |
+|                           |
+|  Faltan 47 dias           |
+|  para conocer a tu bebe   |
+|                           |
+|  Fecha estimada:          |
+|  15 marzo 2026            |
++---------------------------+
+```
+
+---
+
+## Componente: StageCard
+
+Muestra la etapa actual y el pack recomendado:
 
 ```text
-Usuario hace login
-       |
-       v
-ProtectedRoute verifica session
-       |
-       +-- No hay session --> Redirigir a /auth
-       |
-       +-- Hay session --> Verificar profile.onboarding_completed
-                |
-                +-- false o null --> Redirigir a /onboarding
-                |
-                +-- true --> Mostrar /app (dashboard)
++---------------------------+
+|  ETAPA ACTUAL             |
+|  =====================    |
+|                           |
+|  0-3 meses                |
+|  "Primeros dias"          |
+|                           |
+|  [Barra de progreso]      |
+|  Dia 75 de 90             |
+|                           |
+|  [Ver pack recomendado]   |
++---------------------------+
 ```
-
-**Importante**: La pagina `/onboarding` tambien sera una ruta protegida, pero no verificara el estado de onboarding (para evitar loops).
 
 ---
 
-## Detalles de Implementacion
+## Componente: EmotionalTip
 
-### Estado del Wizard
+Mensajes contextuales basados en:
+- Etapa del bebe
+- Si es primer hijo o no
+- Situacion (embarazo o ya nacido)
+
+**Ejemplos por etapa:**
+
+| Etapa | Mensaje para primerizos | Mensaje para experimentados |
+|-------|-------------------------|----------------------------|
+| prenatal | "Es normal tener mil preguntas. Estamos aqui para ayudarte." | "Ya conoces el camino, pero cada bebe es unico." |
+| 0-3m | "Los primeros dias son intensos. Descansa cuando puedas." | "Ya sabes que esta etapa pasa rapido. Disfrutala." |
+| 3-6m | "Tu bebe empieza a descubrir el mundo. Y tu a conocerlo." | "Cada hijo es diferente. Disfruta las sorpresas." |
+
+---
+
+## Implementacion del Hook `useBabyStage`
 
 ```typescript
-interface OnboardingData {
+interface BabyStageResult {
+  // Estado
   situation: "expecting" | "born" | null;
-  date: Date | null;
   isFirstChild: boolean | null;
+  
+  // Para bebes nacidos
+  ageInDays: number | null;
+  ageInMonths: number | null;
+  ageText: string | null;
+  birthDate: Date | null;
+  
+  // Para embarazadas
+  daysUntilBirth: number | null;
+  dueDate: Date | null;
+  
+  // Etapa
+  stage: "prenatal" | "0-3m" | "3-6m" | "6-9m" | "9-12m" | "12m+" | null;
+  stageName: string | null;
+  stageProgress: number; // 0-100
+  daysInStage: number;
+  totalDaysInStage: number;
 }
-
-// Estado manejado con useState en OnboardingFlow
-const [step, setStep] = useState(1);
-const [data, setData] = useState<OnboardingData>({
-  situation: null,
-  date: null,
-  isFirstChild: null,
-});
 ```
 
-### Guardado de Datos
+---
 
-Al completar el paso 4, se hace un UPDATE a la tabla `profiles`:
+## Cambios en AppDashboard.tsx
 
-```typescript
-await supabase
-  .from("profiles")
-  .update({
-    parent_situation: data.situation,
-    baby_due_date: data.situation === "expecting" ? data.date : null,
-    baby_birth_date: data.situation === "born" ? data.date : null,
-    is_first_child: data.isFirstChild,
-    onboarding_completed: true,
-  })
-  .eq("id", user.id);
-```
+El dashboard actual tiene 3 tarjetas estaticas:
+1. Tu perfil (nombre, email)
+2. Tu bebe (fecha basica)
+3. Tu suscripcion (placeholder)
 
-### Selector de Fecha
+### Nuevo layout:
 
-Usaremos el componente Calendar existente con Popover, siguiendo el patron de shadcn datepicker:
-- Para "esperando": permitir fechas futuras (hasta +10 meses)
-- Para "ya nacio": permitir fechas pasadas (hasta -3 anos)
-
-### Animaciones
-
-Transiciones suaves entre pasos usando CSS transitions con opacity y transform.
+1. **WelcomeHeader** - Saludo personalizado con avatar
+2. **BabyAgeCard** - Edad del bebe o cuenta regresiva
+3. **StageCard** - Etapa actual con progreso visual
+4. **EmotionalTip** - Mensaje contextual
+5. **SubscriptionCard** - (placeholder para futuro)
+6. **HelpCard** - Mantener seccion de ayuda
 
 ---
 
 ## Diseno Visual
 
-### Principios (alineados con la marca bebloo):
-- Fondo limpio (`bg-background`)
-- Tarjetas de seleccion grandes y amigables
-- Sin urgencia, sin presion
-- Todo respira visualmente
-- Tono calido y empatico
+### Principios (alineados con bebloo):
+- Colores suaves del sistema existente (primary, secondary)
+- Tarjetas con bordes redondeados y sombras sutiles
+- Iconos de Lucide React (Baby, Calendar, Heart, Sparkles)
+- Tipografia: Fraunces para titulos, DM Sans para texto
+- Espacio visual generoso - todo respira
 
-### Componentes UI usados:
-- `Card` para las opciones de seleccion
-- `Button` para navegacion
-- `Calendar` + `Popover` para fechas
-- Iconos de Lucide para acentos visuales
-
-### Responsive:
-- Desktop: contenido centrado con max-width
-- Mobile: full width, tarjetas apiladas verticalmente
+### Barra de progreso de etapa:
+- Usa el componente `Progress` existente
+- Color primary para indicador
+- Muestra dias transcurridos / total de la etapa
 
 ---
 
-## Copy en Espanol (tono bebloo)
+## Resumen de Implementacion
 
-**Paso 1 - Situacion:**
-- Titulo: "Cuentanos un poco sobre ti"
-- Opcion A: "Estoy esperando un bebe"
-- Opcion B: "Ya nacio mi bebe"
+| Paso | Descripcion |
+|------|-------------|
+| 1 | Crear hook `useBabyStage` con toda la logica de calculo |
+| 2 | Crear componente `BabyAgeCard` |
+| 3 | Crear componente `StageCard` |
+| 4 | Crear componente `EmotionalTip` |
+| 5 | Crear componente `WelcomeHeader` |
+| 6 | Refactorizar `AppDashboard.tsx` para usar nuevos componentes |
 
-**Paso 2a - Fecha esperada:**
-- Titulo: "Cuando esperas que llegue?"
-- Subtitulo: "Una fecha aproximada esta bien"
-
-**Paso 2b - Fecha nacimiento:**
-- Titulo: "Cuando nacio tu bebe?"
-- Subtitulo: "Asi sabremos en que etapa esta"
-
-**Paso 3 - Experiencia:**
-- Titulo: "Es tu primer bebe?"
-- Subtitulo: "Esto nos ayuda a personalizar tu experiencia"
-- Opcion A: "Si, es mi primero"
-- Opcion B: "No, ya tengo experiencia"
-
-**Paso 4 - Cierre:**
-- Titulo: "Todo listo!"
-- Subtitulo: "Nos encargamos de lo complicado. Tu encargate de disfrutarlo."
-- Boton: "Empezar"
+No se requieren cambios en la base de datos - toda la personalizacion usa los campos existentes del perfil.
 
 ---
 
-## Resumen de Cambios
+## Seccion Tecnica
 
-1. **Migracion de BD**: Anadir 3 columnas a `profiles`
-2. **Actualizar tipos**: Modificar interface Profile en useAuth
-3. **Crear componentes**: OnboardingFlow + StepIndicator + 4 pasos
-4. **Crear pagina**: `/onboarding`
-5. **Modificar ProtectedRoute**: Verificar onboarding y redirigir
-6. **Actualizar App.tsx**: Anadir ruta nueva
+### Calculo de edad del bebe:
+
+```typescript
+// Usando date-fns
+import { differenceInDays, differenceInMonths, format } from "date-fns";
+import { es } from "date-fns/locale";
+
+const birthDate = new Date(profile.baby_birth_date);
+const today = new Date();
+
+const ageInDays = differenceInDays(today, birthDate);
+const ageInMonths = differenceInMonths(today, birthDate);
+const remainingDays = ageInDays - (ageInMonths * 30);
+
+const ageText = ageInMonths > 0 
+  ? `${ageInMonths} ${ageInMonths === 1 ? 'mes' : 'meses'} y ${remainingDays} dias`
+  : `${ageInDays} dias`;
+```
+
+### Determinacion de etapa:
+
+```typescript
+const getStage = (ageInDays: number) => {
+  if (ageInDays < 0) return "prenatal";
+  if (ageInDays <= 90) return "0-3m";
+  if (ageInDays <= 180) return "3-6m";
+  if (ageInDays <= 270) return "6-9m";
+  if (ageInDays <= 365) return "9-12m";
+  return "12m+";
+};
+```
+
+### Progreso dentro de la etapa:
+
+```typescript
+const stageRanges = {
+  "0-3m": { start: 0, end: 90 },
+  "3-6m": { start: 91, end: 180 },
+  "6-9m": { start: 181, end: 270 },
+  "9-12m": { start: 271, end: 365 },
+};
+
+const { start, end } = stageRanges[stage];
+const daysInStage = ageInDays - start;
+const totalDays = end - start;
+const progress = Math.min(100, (daysInStage / totalDays) * 100);
+```
 
