@@ -10,6 +10,9 @@ interface Profile {
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
+  onboarding_completed: boolean | null;
+  is_first_child: boolean | null;
+  parent_situation: string | null;
 }
 
 interface AuthContextType {
