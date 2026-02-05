@@ -1,39 +1,23 @@
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, Calendar, Baby, Settings } from "lucide-react";
+import { LogOut, Settings, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useBabyStage } from "@/hooks/useBabyStage";
+import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
+import { BabyAgeCard } from "@/components/dashboard/BabyAgeCard";
+import { StageCard } from "@/components/dashboard/StageCard";
+import { EmotionalTip } from "@/components/dashboard/EmotionalTip";
 import logo from "@/assets/logo-bebloo.png";
 
 export default function AppDashboard() {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
+  const babyStage = useBabyStage(profile);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
-  };
-
-  const getInitials = (name: string | null | undefined, email: string | undefined) => {
-    if (name) {
-      return name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    return email?.charAt(0).toUpperCase() || "U";
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
   };
 
   return (
@@ -62,106 +46,62 @@ export default function AppDashboard() {
       <main className="container max-w-6xl px-4 md:px-6 py-8 md:py-12">
         <div className="space-y-8">
           {/* Welcome section */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary text-lg">
-                {getInitials(profile?.full_name, user?.email)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-display font-medium text-foreground">
-                Hola, {profile?.full_name?.split(" ")[0] || "bienvenido/a"}
-              </h1>
-              <p className="text-muted-foreground">
-                Todo está bajo control. Aquí tienes tu resumen.
-              </p>
-            </div>
-          </div>
+          <WelcomeHeader
+            fullName={profile?.full_name}
+            email={user?.email}
+            avatarUrl={profile?.avatar_url}
+          />
 
           {/* Cards grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Profile card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <User className="h-5 w-5 text-primary" />
-                  Tu perfil
-                </CardTitle>
-                <CardDescription>
-                  Información de tu cuenta
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">Nombre</p>
-                  <p className="font-medium">{profile?.full_name || "Sin especificar"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{user?.email}</p>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Baby age card - shows countdown or age */}
+            <BabyAgeCard
+              situation={babyStage.situation}
+              ageText={babyStage.ageText}
+              birthDateFormatted={babyStage.birthDateFormatted}
+              daysUntilBirth={babyStage.daysUntilBirth}
+              dueDateFormatted={babyStage.dueDateFormatted}
+            />
 
-            {/* Baby info card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Baby className="h-5 w-5 text-primary" />
-                  Tu bebé
-                </CardTitle>
-                <CardDescription>
-                  Información de la etapa
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {profile?.baby_birth_date ? (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fecha de nacimiento</p>
-                    <p className="font-medium">{formatDate(profile.baby_birth_date)}</p>
-                  </div>
-                ) : profile?.baby_due_date ? (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fecha estimada</p>
-                    <p className="font-medium">{formatDate(profile.baby_due_date)}</p>
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm">
-                    Aún no has configurado la información de tu bebé.
-                  </p>
-                )}
-                <Button variant="outline" size="sm" className="w-full mt-2">
-                  Actualizar información
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Subscription card */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  Tu suscripción
-                </CardTitle>
-                <CardDescription>
-                  Estado de tu plan
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center py-6">
-                  <div className="text-center">
-                    <p className="text-muted-foreground text-sm mb-3">
-                      Aún no tienes una suscripción activa
-                    </p>
-                    <Button size="sm" onClick={() => navigate("/#precios")}>
-                      Ver planes
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Stage card - shows current stage and progress */}
+            <StageCard
+              stage={babyStage.stage}
+              stageName={babyStage.stageName}
+              stageProgress={babyStage.stageProgress}
+              daysInStage={babyStage.daysInStage}
+              totalDaysInStage={babyStage.totalDaysInStage}
+              situation={babyStage.situation}
+            />
           </div>
+
+          {/* Emotional tip */}
+          <EmotionalTip
+            stage={babyStage.stage}
+            isFirstChild={babyStage.isFirstChild}
+          />
+
+          {/* Subscription card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Calendar className="h-5 w-5 text-primary" />
+                Tu suscripción
+              </CardTitle>
+              <CardDescription>Estado de tu plan</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center py-6">
+                <div className="text-center">
+                  <p className="text-muted-foreground text-sm mb-3">
+                    Aún no tienes una suscripción activa
+                  </p>
+                  <Button size="sm" onClick={() => navigate("/#precios")}>
+                    Ver planes
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Help section */}
           <Card className="bg-primary/5 border-primary/20">
