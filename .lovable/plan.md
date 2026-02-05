@@ -1,193 +1,251 @@
 
 
-## QR Code + Enlace al Formulario de Validación
+## Onboarding Sensible para Todo Tipo de Padres
 
-Después de analizar la estructura actual de la landing page, te propongo las mejores opciones de ubicación considerando el flujo de usuario y la experiencia en cada dispositivo.
-
----
-
-## Análisis del contexto
-
-**Objetivo**: Dirigir usuarios a un formulario de Google Forms para recopilar y validar información.
-
-**Diferencia por dispositivo**:
-- **Desktop**: QR code tiene sentido porque el usuario puede escanearlo con su móvil
-- **Móvil**: Enlace directo al formulario (el QR no tiene sentido en móvil)
+Implementaremos un flujo de onboarding cálido que funcione tanto para padres primerizos como experimentados, embarazadas como padres con bebés ya nacidos.
 
 ---
 
-## Opciones de ubicación (ordenadas por recomendación)
-
-### Opcion 1: Después de la sección de Precios (RECOMENDADA)
+## Flujo Visual del Onboarding
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│                    PRICING SECTION                      │
-│           "Elige lo que necesitas"                      │
-│     [Esencial]    [Confort]    [Tranquilidad]          │
-└─────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────┐
-│              NUEVA SECCIÓN: EARLY ACCESS                │
-│                                                         │
-│  Desktop:                    │  Móvil:                  │
-│  ┌─────────┐                 │  ┌─────────────────┐     │
-│  │ QR Code │  + Texto        │  │ Botón: "Ayúdanos│     │
-│  │         │  explicativo    │  │ a mejorar"      │     │
-│  └─────────┘                 │  └─────────────────┘     │
-│                                                         │
-│  "¿Nos ayudas a mejorar?                               │
-│   Responde unas preguntas rápidas"                     │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Por qué funciona**:
-- El usuario ya vio los precios y está interesado
-- Es un momento de alta intención
-- Ofrece participación activa antes de las FAQ
-
----
-
-### Opcion 2: Integrado en el FAQ
-
-Añadir al final de las preguntas frecuentes una pregunta especial:
-
-```text
-"¿Quieres ayudarnos a diseñar el servicio perfecto?"
-→ Abre/muestra el QR o enlace al formulario
-```
-
-**Ventaja**: Se integra naturalmente sin añadir una sección nueva.
-
----
-
-### Opcion 3: En el Footer
-
-Añadir una columna extra con el QR y un mensaje tipo "Cuéntanos qué necesitas".
-
-**Ventaja**: Siempre visible al final.
-**Desventaja**: Menos prominente, menor conversión.
-
----
-
-## Mi recomendación: Opcion 1
-
-Crear una nueva sección ligera entre Pricing y FAQ con:
-
-**Diseño propuesto**:
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│                     bg-background (limpio)                   │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│              "¿Nos ayudas a mejorar?"                        │
-│                                                              │
-│   Estamos diseñando bebloo contigo. Cuéntanos qué           │
-│   necesitas en 2 minutos y te recompensaremos.              │
-│                                                              │
-│   ┌────────────────┬────────────────────────────────────┐   │
-│   │                │                                     │   │
-│   │   [QR CODE]    │  • Solo 5 preguntas                │   │
-│   │    150x150     │  • 2 minutos máximo                │   │
-│   │                │  • Tu opinión nos importa          │   │
-│   │   (desktop)    │                                     │   │
-│   └────────────────┴────────────────────────────────────┘   │
-│                                                              │
-│   Escanea el código o [Responder ahora →] (botón móvil)     │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
+Paso 1: Situacion
++-------------------------------------------------------------+
+|                                                             |
+|   [Logo bebloo]                                             |
+|                                                             |
+|   "Hola, [nombre]. Cuentanos un poco sobre ti."             |
+|                                                             |
+|   +------------------------+  +------------------------+    |
+|   |                        |  |                        |    |
+|   |   Estoy esperando      |  |   Ya nacio mi bebe     |    |
+|   |   un bebe              |  |                        |    |
+|   |                        |  |                        |    |
+|   +------------------------+  +------------------------+    |
+|                                                             |
+|   [ o  o  o  o ] <- indicador de progreso                   |
++-------------------------------------------------------------+
+                            |
+                            v
+Paso 2: Fecha (adapta segun seleccion anterior)
++-------------------------------------------------------------+
+|                                                             |
+|   "Cuando esperas que llegue?" / "Cuando nacio tu bebe?"    |
+|   (Una fecha aproximada esta bien)                          |
+|                                                             |
+|   +--------------------------------------------------+      |
+|   |  [Selector de fecha con calendario]              |      |
+|   +--------------------------------------------------+      |
+|                                                             |
+|   [Anterior]                               [Continuar]      |
++-------------------------------------------------------------+
+                            |
+                            v
+Paso 3: Experiencia previa (opcional)
++-------------------------------------------------------------+
+|                                                             |
+|   "Es tu primer bebe?"                                      |
+|   (Esto nos ayuda a personalizar tu experiencia)            |
+|                                                             |
+|   +------------------------+  +------------------------+    |
+|   |                        |  |                        |    |
+|   |   Si, es mi primero    |  |   No, ya tengo         |    |
+|   |                        |  |   experiencia          |    |
+|   |                        |  |                        |    |
+|   +------------------------+  +------------------------+    |
+|                                                             |
+|   [Anterior]                               [Continuar]      |
++-------------------------------------------------------------+
+                            |
+                            v
+Paso 4: Cierre emocional
++-------------------------------------------------------------+
+|                                                             |
+|                         [icono]                             |
+|                                                             |
+|   "Todo listo!"                                             |
+|                                                             |
+|   Nos encargamos de lo complicado.                          |
+|   Tu encargate de disfrutarlo.                              |
+|                                                             |
+|                     [Empezar]                               |
+|                                                             |
++-------------------------------------------------------------+
 ```
 
 ---
 
-## Implementación técnica
+## Cambios en la Base de Datos
 
-### Archivos a crear/modificar
+Se anadiran 3 columnas nuevas a la tabla `profiles`:
 
-| Archivo | Acción |
+| Columna | Tipo | Default | Proposito |
+|---------|------|---------|-----------|
+| `onboarding_completed` | boolean | false | Saber si completo el onboarding |
+| `is_first_child` | boolean | null | Personalizar tono y contenido |
+| `parent_situation` | text | null | "expecting" o "born" |
+
+**Migracion SQL:**
+```sql
+ALTER TABLE profiles
+ADD COLUMN onboarding_completed boolean DEFAULT false,
+ADD COLUMN is_first_child boolean,
+ADD COLUMN parent_situation text;
+```
+
+Las politicas RLS existentes ya permiten que los usuarios actualicen su propio perfil.
+
+---
+
+## Arquitectura de Archivos
+
+### Nuevos archivos a crear:
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `src/pages/Onboarding.tsx` | Pagina principal del onboarding |
+| `src/components/onboarding/OnboardingFlow.tsx` | Wizard con estado y navegacion |
+| `src/components/onboarding/StepIndicator.tsx` | Puntos de progreso |
+| `src/components/onboarding/steps/SituationStep.tsx` | Paso 1: esperando o ya nacio |
+| `src/components/onboarding/steps/DateStep.tsx` | Paso 2: selector de fecha |
+| `src/components/onboarding/steps/ExperienceStep.tsx` | Paso 3: primer bebe o no |
+| `src/components/onboarding/steps/CompletionStep.tsx` | Paso 4: cierre emocional |
+
+### Archivos a modificar:
+
+| Archivo | Cambio |
 |---------|--------|
-| `src/components/SurveySection.tsx` | Crear nueva sección |
-| `src/pages/Index.tsx` | Añadir componente entre Pricing y FAQ |
-
-### Componente SurveySection
-
-```tsx
-// Comportamiento responsive:
-// - Desktop: Muestra QR code + texto + botón alternativo
-// - Móvil: Oculta QR, muestra solo botón directo
-
-// QR Code:
-// - Generado dinámicamente usando una librería como 'qrcode.react'
-// - O imagen estática del QR pre-generado
-```
-
-### Dependencias
-
-**Opción A (recomendada)**: Generar QR dinámicamente
-- Instalar: `qrcode.react` (~3KB gzipped)
-- Ventaja: Si cambias el enlace, el QR se actualiza solo
-
-**Opción B**: QR estático
-- Generar imagen del QR externamente
-- Subirla como asset a `src/assets/`
-- Desventaja: Si cambias el enlace, tienes que regenerar la imagen
+| `src/App.tsx` | Anadir ruta `/onboarding` |
+| `src/components/auth/ProtectedRoute.tsx` | Redirigir a onboarding si no completado |
+| `src/hooks/useAuth.tsx` | Actualizar tipo Profile con nuevos campos |
 
 ---
 
-## Flujo de usuario
+## Logica de Redireccion
 
 ```text
-Usuario en Desktop                    Usuario en Móvil
-       │                                     │
-       ▼                                     ▼
-   Ve pricing                            Ve pricing
-       │                                     │
-       ▼                                     ▼
- ┌─────────────┐                     ┌─────────────────┐
- │ Ve QR Code  │                     │ Ve botón        │
- │ + mensaje   │                     │ "Responder"     │
- └──────┬──────┘                     └────────┬────────┘
-        │                                     │
-        ▼                                     ▼
-   Escanea con                          Tap en botón
-   su móvil                                  │
-        │                                     │
-        └──────────────┬──────────────────────┘
-                       ▼
-              Google Forms abre
-              en nueva pestaña
+Usuario hace login
+       |
+       v
+ProtectedRoute verifica session
+       |
+       +-- No hay session --> Redirigir a /auth
+       |
+       +-- Hay session --> Verificar profile.onboarding_completed
+                |
+                +-- false o null --> Redirigir a /onboarding
+                |
+                +-- true --> Mostrar /app (dashboard)
 ```
 
----
-
-## Detalles de diseño
-
-- **Fondo**: `bg-background` (blanco) para contrastar con el mint de Comparison
-- **Estilo**: Minimalista, coherente con la estética bebloo
-- **Sin urgencia**: Tono amable, no presión
-- **Recompensa**: Mencionar que su feedback les beneficiará
-
-### Copy sugerido
-
-**Título**: "¿Nos ayudas a mejorar?"
-
-**Subtítulo**: "Estamos diseñando bebloo contigo. Cuéntanos qué necesitas en 2 minutos."
-
-**Bullet points**:
-- Solo 5 preguntas rápidas
-- Tu opinión da forma al servicio
-- Sin spam, lo prometemos
-
-**CTA móvil**: "Responder ahora"
+**Importante**: La pagina `/onboarding` tambien sera una ruta protegida, pero no verificara el estado de onboarding (para evitar loops).
 
 ---
 
-## Resumen de cambios
+## Detalles de Implementacion
 
-1. Instalar dependencia `qrcode.react` para generar QR dinámicamente
-2. Crear `SurveySection.tsx` con diseño responsive
-3. Añadir sección en `Index.tsx` después de `PricingSection`
-4. El QR apuntará a: `https://forms.gle/hmHKqXDSDLL1Djza8`
+### Estado del Wizard
+
+```typescript
+interface OnboardingData {
+  situation: "expecting" | "born" | null;
+  date: Date | null;
+  isFirstChild: boolean | null;
+}
+
+// Estado manejado con useState en OnboardingFlow
+const [step, setStep] = useState(1);
+const [data, setData] = useState<OnboardingData>({
+  situation: null,
+  date: null,
+  isFirstChild: null,
+});
+```
+
+### Guardado de Datos
+
+Al completar el paso 4, se hace un UPDATE a la tabla `profiles`:
+
+```typescript
+await supabase
+  .from("profiles")
+  .update({
+    parent_situation: data.situation,
+    baby_due_date: data.situation === "expecting" ? data.date : null,
+    baby_birth_date: data.situation === "born" ? data.date : null,
+    is_first_child: data.isFirstChild,
+    onboarding_completed: true,
+  })
+  .eq("id", user.id);
+```
+
+### Selector de Fecha
+
+Usaremos el componente Calendar existente con Popover, siguiendo el patron de shadcn datepicker:
+- Para "esperando": permitir fechas futuras (hasta +10 meses)
+- Para "ya nacio": permitir fechas pasadas (hasta -3 anos)
+
+### Animaciones
+
+Transiciones suaves entre pasos usando CSS transitions con opacity y transform.
+
+---
+
+## Diseno Visual
+
+### Principios (alineados con la marca bebloo):
+- Fondo limpio (`bg-background`)
+- Tarjetas de seleccion grandes y amigables
+- Sin urgencia, sin presion
+- Todo respira visualmente
+- Tono calido y empatico
+
+### Componentes UI usados:
+- `Card` para las opciones de seleccion
+- `Button` para navegacion
+- `Calendar` + `Popover` para fechas
+- Iconos de Lucide para acentos visuales
+
+### Responsive:
+- Desktop: contenido centrado con max-width
+- Mobile: full width, tarjetas apiladas verticalmente
+
+---
+
+## Copy en Espanol (tono bebloo)
+
+**Paso 1 - Situacion:**
+- Titulo: "Cuentanos un poco sobre ti"
+- Opcion A: "Estoy esperando un bebe"
+- Opcion B: "Ya nacio mi bebe"
+
+**Paso 2a - Fecha esperada:**
+- Titulo: "Cuando esperas que llegue?"
+- Subtitulo: "Una fecha aproximada esta bien"
+
+**Paso 2b - Fecha nacimiento:**
+- Titulo: "Cuando nacio tu bebe?"
+- Subtitulo: "Asi sabremos en que etapa esta"
+
+**Paso 3 - Experiencia:**
+- Titulo: "Es tu primer bebe?"
+- Subtitulo: "Esto nos ayuda a personalizar tu experiencia"
+- Opcion A: "Si, es mi primero"
+- Opcion B: "No, ya tengo experiencia"
+
+**Paso 4 - Cierre:**
+- Titulo: "Todo listo!"
+- Subtitulo: "Nos encargamos de lo complicado. Tu encargate de disfrutarlo."
+- Boton: "Empezar"
+
+---
+
+## Resumen de Cambios
+
+1. **Migracion de BD**: Anadir 3 columnas a `profiles`
+2. **Actualizar tipos**: Modificar interface Profile en useAuth
+3. **Crear componentes**: OnboardingFlow + StepIndicator + 4 pasos
+4. **Crear pagina**: `/onboarding`
+5. **Modificar ProtectedRoute**: Verificar onboarding y redirigir
+6. **Actualizar App.tsx**: Anadir ruta nueva
 
