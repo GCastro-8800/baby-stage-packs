@@ -1,4 +1,5 @@
 import { Instagram, Mail, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo-bebloo.png";
 
 const Footer = () => {
@@ -78,8 +79,8 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-background/50">
             <p>© 2026 bebloo. Todos los derechos reservados.</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-background/70 transition-colors">Términos y condiciones</a>
-              <a href="#" className="hover:text-background/70 transition-colors">Política de privacidad</a>
+              <Link to="/condiciones" className="hover:text-background/70 transition-colors">Términos y condiciones</Link>
+              <Link to="/privacidad" className="hover:text-background/70 transition-colors">Política de privacidad</Link>
             </div>
           </div>
         </div>

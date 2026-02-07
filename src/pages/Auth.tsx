@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -359,7 +359,10 @@ export default function Auth() {
 
           {/* Footer note */}
           <p className="text-center text-xs text-muted-foreground">
-            Al continuar, aceptas nuestros términos de servicio y política de privacidad.
+            Al continuar, aceptas nuestros{" "}
+            <Link to="/condiciones" className="underline hover:text-foreground transition-colors">términos de servicio</Link>
+            {" "}y{" "}
+            <Link to="/privacidad" className="underline hover:text-foreground transition-colors">política de privacidad</Link>.
           </p>
         </div>
       </main>
