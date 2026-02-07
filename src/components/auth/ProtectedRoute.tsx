@@ -11,7 +11,8 @@ export function ProtectedRoute({ children, skipOnboardingCheck = false }: Protec
   const { user, profile, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  // Show loading while auth is initializing OR while profile is still loading for an authenticated user
+  if (loading || (user && !profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -27,7 +28,7 @@ export function ProtectedRoute({ children, skipOnboardingCheck = false }: Protec
   }
 
   // Redirect to onboarding if not completed (unless we're skipping the check)
-  if (!skipOnboardingCheck && profile && !profile.onboarding_completed) {
+  if (!skipOnboardingCheck && !profile?.onboarding_completed) {
     return <Navigate to="/onboarding" replace />;
   }
 
