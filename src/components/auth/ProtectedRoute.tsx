@@ -8,11 +8,11 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, skipOnboardingCheck = false }: ProtectedRouteProps) {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, profileLoaded } = useAuth();
   const location = useLocation();
 
-  // Show loading while auth is initializing OR while profile is still loading for an authenticated user
-  if (loading || (user && !profile)) {
+  // Show loading while auth is initializing or profile is still being fetched
+  if (loading || (user && !profileLoaded)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">

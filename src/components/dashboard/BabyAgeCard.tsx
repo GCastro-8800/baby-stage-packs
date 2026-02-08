@@ -1,8 +1,9 @@
 import { Baby, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Situation } from "@/types/baby";
 
 interface BabyAgeCardProps {
-  situation: "expecting" | "born" | null;
+  situation: Situation | null;
   // For born babies
   ageText: string | null;
   birthDateFormatted: string | null;

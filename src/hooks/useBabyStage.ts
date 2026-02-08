@@ -1,9 +1,7 @@
 import { useMemo } from "react";
 import { differenceInDays, differenceInMonths, format } from "date-fns";
 import { es } from "date-fns/locale";
-
-type Stage = "prenatal" | "0-3m" | "3-6m" | "6-9m" | "9-12m" | "12m+";
-type Situation = "expecting" | "born";
+import type { Stage, Situation } from "@/types/baby";
 
 interface Profile {
   parent_situation: string | null;

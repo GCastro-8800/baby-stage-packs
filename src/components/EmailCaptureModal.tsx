@@ -20,9 +20,12 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
   const { toast } = useToast();
   const { track } = useAnalytics();
 
-  // Track modal open
+  // Reset state and track when modal opens
   useEffect(() => {
     if (isOpen) {
+      setEmail("");
+      setPostalCode("");
+      setIsSubmitted(false);
       track("modal_open", { plan: selectedPlan });
     }
   }, [isOpen, selectedPlan, track]);
