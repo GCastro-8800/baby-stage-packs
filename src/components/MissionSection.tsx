@@ -52,7 +52,7 @@ const MissionSection = () => {
               <img
                 src={missionImage}
                 alt="Madre con su bebé en portabebé"
-                className="w-full h-full object-contain lg:object-cover lg:object-top"
+                className="w-full h-full object-cover object-top"
               />
             </div>
           </div>
