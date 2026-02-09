@@ -158,6 +158,83 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
     onSelectPlan(planName);
   };
 
+  const renderCardContent = (plan: Plan) => (
+    <>
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+      </div>
+      <div className="mb-1">
+        <span className="text-3xl md:text-4xl font-serif font-bold text-foreground">€{plan.price}</span>
+        <span className="text-muted-foreground">/mes</span>
+      </div>
+      <p className="text-xs text-muted-foreground mb-5">{plan.duration}</p>
+      <div className="mb-4">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Equipamiento</h4>
+        <ul className="space-y-2">
+          {plan.equipment.map((item, i) => (
+            <FeatureRow key={i} item={item} icon="check" />
+          ))}
+        </ul>
+      </div>
+      <div className="mb-4">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Servicios</h4>
+        <ul className="space-y-2">
+          {plan.services.map((item, i) => (
+            <FeatureRow key={i} item={item} icon="check" />
+          ))}
+        </ul>
+      </div>
+      {plan.excludes && (
+        <div className="mb-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-destructive/70 mb-2">No incluye</h4>
+          <ul className="space-y-2">
+            {plan.excludes.map((item, i) => (
+              <FeatureRow key={i} item={item} icon="x" />
+            ))}
+          </ul>
+        </div>
+      )}
+      {plan.bonus && (
+        <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/20">
+          <p className="text-sm font-medium text-foreground flex items-center flex-wrap">
+            🎁 Bono: {plan.bonus.text}
+            {plan.bonus.tooltip && <InfoTooltip text={plan.bonus.tooltip} />}
+          </p>
+        </div>
+      )}
+      <div className="flex items-start gap-2 mb-6 mt-auto pt-4">
+        <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-muted-foreground">{plan.guarantee}</p>
+      </div>
+      <Button
+        onClick={() => handleSelectPlan(plan.name)}
+        className={`w-full h-12 ${plan.highlighted ? "cta-tension" : ""}`}
+        variant={plan.highlighted ? "default" : "outline"}
+      >
+        Seleccionar {plan.name.replace("BEBLOO ", "")}
+      </Button>
+    </>
+  );
+
+  const renderCard = (plan: Plan, extraClass?: string) => (
+    <div
+      key={plan.id}
+      className={`relative flex flex-col p-6 md:p-8 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
+        plan.highlighted
+          ? "bg-background border-primary md:scale-[1.03]"
+          : "bg-background border-border hover:border-primary/40"
+      } ${extraClass || ""}`}
+    >
+      {plan.highlighted && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+          Más elegido
+        </div>
+      )}
+      {renderCardContent(plan)}
+    </div>
+  );
+
   return (
     <TooltipProvider delayDuration={200}>
       <section id="precios" ref={pricingRef} className="py-16 px-4 md:py-24 md:px-6 bg-warm scroll-mt-20">
@@ -176,112 +253,11 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
 
           {/* Mobile: Comfort first */}
           <div className="grid grid-cols-1 md:hidden gap-6">
-            {mobilePlans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`relative flex flex-col p-6 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
-                  plan.highlighted
-                    ? "bg-background border-primary"
-                    : "bg-background border-border hover:border-primary/40"
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                    Más elegido
-                  </div>
-                )}
-                {renderCardContent(plan)}
-              </div>
-            ))}
+            {mobilePlans.map((plan) => renderCard(plan))}
           </div>
           {/* Desktop: Start | Comfort | Total Peace */}
           <div className="hidden md:grid md:grid-cols-3 gap-8">
-            {desktopPlans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`relative flex flex-col p-6 md:p-8 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
-                  plan.highlighted
-                    ? "bg-background border-primary md:scale-[1.03]"
-                    : "bg-background border-border hover:border-primary/40"
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
-                    Más elegido
-                  </div>
-                )}
-
-                {/* Header */}
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
-                </div>
-
-                {/* Price */}
-                <div className="mb-1">
-                  <span className="text-3xl md:text-4xl font-serif font-bold text-foreground">€{plan.price}</span>
-                  <span className="text-muted-foreground">/mes</span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-5">{plan.duration}</p>
-
-                {/* Equipment */}
-                <div className="mb-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Equipamiento</h4>
-                  <ul className="space-y-2">
-                    {plan.equipment.map((item, i) => (
-                      <FeatureRow key={i} item={item} icon="check" />
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Services */}
-                <div className="mb-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Servicios</h4>
-                  <ul className="space-y-2">
-                    {plan.services.map((item, i) => (
-                      <FeatureRow key={i} item={item} icon="check" />
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Excludes */}
-                {plan.excludes && (
-                  <div className="mb-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-destructive/70 mb-2">No incluye</h4>
-                    <ul className="space-y-2">
-                      {plan.excludes.map((item, i) => (
-                        <FeatureRow key={i} item={item} icon="x" />
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Bonus */}
-                {plan.bonus && (
-                  <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/20">
-                    <p className="text-sm font-medium text-foreground flex items-center flex-wrap">
-                      🎁 Bono: {plan.bonus.text}
-                      {plan.bonus.tooltip && <InfoTooltip text={plan.bonus.tooltip} />}
-                    </p>
-                  </div>
-                )}
-
-                {/* Guarantee */}
-                <div className="flex items-start gap-2 mb-6 mt-auto pt-4">
-                  <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-muted-foreground">{plan.guarantee}</p>
-                </div>
-
-                {/* CTA */}
-                <Button
-                  onClick={() => handleSelectPlan(plan.name)}
-                  className={`w-full h-12 ${plan.highlighted ? "cta-tension" : ""}`}
-                  variant={plan.highlighted ? "default" : "outline"}
-                >
-                  Seleccionar {plan.name.replace("BEBLOO ", "")}
-                </Button>
-              </div>
-            ))}
+            {desktopPlans.map((plan) => renderCard(plan))}
           </div>
 
           <p className="text-center text-xs md:text-sm text-muted-foreground mt-6 md:mt-8">
