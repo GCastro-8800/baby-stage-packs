@@ -1,5 +1,6 @@
 import { Check, X, Info, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import {
   Tooltip,
@@ -152,10 +153,11 @@ const FeatureRow = ({ item, icon }: { item: FeatureItem; icon: "check" | "x" }) 
 
 const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
-  const handleSelectPlan = (planName: string) => {
-    track("pricing_click", { plan: planName });
-    onSelectPlan(planName);
+  const handleSelectPlan = (plan: Plan) => {
+    track("pricing_click", { plan: plan.name });
+    navigate(`/plan/${plan.id}`);
   };
 
   const renderCardContent = (plan: Plan) => (
@@ -208,7 +210,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
         <p className="text-xs text-muted-foreground">{plan.guarantee}</p>
       </div>
       <Button
-        onClick={() => handleSelectPlan(plan.name)}
+        onClick={() => handleSelectPlan(plan)}
         className={`w-full h-12 ${plan.highlighted ? "cta-tension" : ""}`}
         variant={plan.highlighted ? "default" : "outline"}
       >

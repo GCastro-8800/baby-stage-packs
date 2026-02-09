@@ -11,6 +11,7 @@ import Onboarding from "./pages/Onboarding";
 import AppDashboard from "./pages/AppDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import PlanDetail from "./pages/PlanDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/plan/:planId" element={<PlanDetail />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/condiciones" element={<TermsOfService />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

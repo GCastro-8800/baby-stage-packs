@@ -44,7 +44,7 @@ const FloatingCTA = () => {
         onClick={handleClick}
         className="w-full cta-tension rounded-full py-6 text-base font-semibold"
       >
-        Ver planes desde €89/mes
+        Ver planes desde €59/mes
         <ArrowDown className="ml-2 h-5 w-5" />
       </Button>
     </div>
