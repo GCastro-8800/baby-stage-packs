@@ -117,7 +117,9 @@ const plans: Plan[] = [
   },
 ];
 
-const orderedPlans = [...plans].sort((a, b) => {
+// Desktop: Start, Comfort (center), Total Peace. Mobile: Comfort first.
+const desktopPlans = plans; // already in order: start, comfort, total-peace
+const mobilePlans = [...plans].sort((a, b) => {
   if (a.highlighted) return -1;
   if (b.highlighted) return 1;
   return 0;
