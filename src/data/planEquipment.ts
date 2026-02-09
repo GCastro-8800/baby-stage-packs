@@ -17,6 +17,8 @@ export interface PlanData {
   description: string;
   guarantee: string;
   equipment: EquipmentCategory[];
+  upgradePlanId?: string;
+  upgradePlanName?: string;
 }
 
 export const plansEquipment: PlanData[] = [
