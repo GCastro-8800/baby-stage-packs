@@ -52,6 +52,13 @@ const plans = [
   },
 ];
 
+// Pre-sorted: highlighted plan first for mobile layout
+const orderedPlans = [...plans].sort((a, b) => {
+  if (a.highlighted) return -1;
+  if (b.highlighted) return 1;
+  return 0;
+});
+
 const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   const { track } = useAnalytics();
 
@@ -59,13 +66,6 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
     track("pricing_click", { plan: planName });
     onSelectPlan(planName);
   };
-
-  // Reorder plans for mobile: highlighted first
-  const orderedPlans = [...plans].sort((a, b) => {
-    if (a.highlighted) return -1;
-    if (b.highlighted) return 1;
-    return 0;
-  });
 
   return (
     <section id="precios" ref={pricingRef} className="py-16 px-4 md:py-24 md:px-6 bg-warm scroll-mt-20">

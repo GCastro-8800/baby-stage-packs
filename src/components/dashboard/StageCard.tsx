@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import type { Situation } from "@/types/baby";
 
 interface StageCardProps {
   stage: string | null;
@@ -9,7 +10,7 @@ interface StageCardProps {
   stageProgress: number;
   daysInStage: number;
   totalDaysInStage: number;
-  situation: "expecting" | "born" | null;
+  situation: Situation | null;
 }
 
 export function StageCard({

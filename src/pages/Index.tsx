@@ -33,7 +33,6 @@ const Index = () => {
   const handleSelectPlan = (plan: string) => {
     setSelectedPlan(plan);
     setIsModalOpen(true);
-    console.log("Pricing click:", plan);
   };
 
   return (

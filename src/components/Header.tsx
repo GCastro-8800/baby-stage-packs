@@ -47,7 +47,11 @@ const Header = () => {
   };
 
   const handleCtaClick = () => {
-    scrollToSection("#precios");
+    const element = document.getElementById("precios");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setIsOpen(false);
     track("cta_click", { source: "header", action: "empezar" });
   };
 

@@ -1,7 +1,6 @@
 import { Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-type Stage = "prenatal" | "0-3m" | "3-6m" | "6-9m" | "9-12m" | "12m+";
+import type { Stage } from "@/types/baby";
 
 interface EmotionalTipProps {
   stage: Stage | null;
