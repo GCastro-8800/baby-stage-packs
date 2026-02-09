@@ -1,98 +1,81 @@
 
 
-## Rediseño del flujo de detalle del plan: selección guiada y contacto contextualizado
+## Simplificar y mejorar el flujo de detalle del plan
 
-### Resumen
+### Problema actual
 
-Transformar la página `/plan/:planId` de una vista estática con contacto genérico a un flujo secuencial donde el usuario primero explora el equipamiento de su plan, opcionalmente marca lo que le interesa, y luego accede a opciones de contacto contextualizadas (incluyendo la comprobación de disponibilidad por zona).
+El flujo tiene demasiados pasos y la experiencia visual no esta a la altura de un servicio premium. Problemas concretos:
 
-### Cambios principales
+1. El boton "Continuar" simplemente revela contenido debajo, sin sensacion de avance
+2. La seccion de contacto aparece pegada al equipamiento sin transicion clara
+3. El mensaje post-registro ("Te avisaremos") es generico y poco informativo
+4. El email se pide sin contexto suficiente dentro del formulario
+5. Demasiados elementos visuales compitiendo por atencion
 
-**1. Flujo secuencial en pasos**
+### Solucion propuesta
 
-La página pasará de mostrar todo a la vez a guiar al usuario en dos secciones claras:
+Convertir la pagina en un flujo de dos vistas claras dentro de la misma ruta, donde "Continuar" hace scroll-to-top y cambia la vista completa, dando sensacion de pagina nueva sin cambiar la URL.
+
+### Cambios concretos
+
+**1. Flujo de dos vistas en PlanDetail.tsx**
+
+Introducir un estado `step` (1 o 2) que controla que vista se muestra:
 
 ```text
-Paso 1: "Esto es lo que incluye tu plan [Comfort]"
-  - Grid de categorías con marcas/modelos
-  - Cada categoría tiene checkboxes opcionales para marcar interés
-  - Nota al pie: "¿Necesitas más? Descubre [plan superior]"
-  - Botón "Continuar" (también se puede saltar)
-
-Paso 2: "¿Cómo quieres continuar?"
-  - WhatsApp (con preselección incluida en el mensaje)
-  - Calendly (reservar llamada)
-  - "Comprueba si Bebloo está disponible en tu zona" (email + código postal)
+Step 1: Cabecera del plan + Equipamiento + Boton "Continuar"
+Step 2: Cabecera resumida + Opciones de contacto (pantalla completa)
 ```
 
-**2. Preselección orientativa de equipamiento**
+Cuando el usuario pulsa "Continuar", se cambia a step 2 y se hace `window.scrollTo(0, 0)` para dar sensacion de pagina nueva. Un boton "Volver al equipamiento" permite regresar al step 1.
 
-- Cada categoría mostrará checkboxes junto a las opciones de marca/modelo
-- La selección es opcional — el usuario puede saltarla e ir directo al contacto
-- Cuando contacte por WhatsApp, el mensaje prellenado incluirá las opciones marcadas
-- Tracking: se registrará qué categorías/modelos generan más interés
+**2. Mejora visual del EquipmentSection**
 
-**3. Contextualizar la captura de email**
+- Reducir el grid a 2 columnas maximo en desktop (las tarjetas estaban demasiado comprimidas en 3 columnas)
+- Anadir un toque de color sutil cuando un checkbox esta marcado (borde de la tarjeta cambia)
+- Mejorar el espaciado interno de cada tarjeta
 
-La tarjeta de email cambiará de "Déjanos tu email / te avisamos cuando lleguemos a tu zona" a:
+**3. Rediseno del ContactSection como vista completa**
 
-- Título: "Comprueba si Bebloo está disponible en tu zona"
-- El código postal pasa a ser campo principal (no opcional)
-- El email se presenta como "Te avisamos cuando lleguemos a tu código postal"
-- Esto ancla el formulario en Madrid y da una razón real para compartir datos
+En lugar de tres tarjetas iguales en grid, reorganizar como:
 
-**4. Solo equipamiento del plan seleccionado**
+- Cabecera con resumen del plan elegido y selecciones (si las hay)
+- Dos opciones principales lado a lado: WhatsApp y Calendly
+- Seccion separada debajo: "Comprueba disponibilidad en tu zona"
+  - Mostrar "Ahora mismo operamos en Madrid capital y alrededores"
+  - Codigo postal como campo principal
+  - Email con copy claro: "Dejanos tu email para avisarte cuando lleguemos a tu zona"
+  - Tras enviar: mensaje mejorado con la ciudad detectada o al menos "Zona [codigo postal] registrada. Te avisaremos cuando Bebloo este disponible en tu area."
 
-- Se muestra únicamente lo que incluye el plan elegido, sin items bloqueados de otros planes
-- Al final del grid de equipamiento, un enlace sutil: "¿Necesitas más categorías? Descubre [plan superior]" que lleva a la página de ese plan
-- Esto evita frustración y mantiene la experiencia limpia
+**4. Mejora del estado post-envio**
 
-### Detalle técnico
+Cambiar el simple "Te avisaremos" por:
+
+```text
+"Zona [28XXX] registrada"
+"Te avisaremos cuando Bebloo este disponible en tu area de Madrid."
+"Mientras tanto, puedes hablar con nosotros por WhatsApp o reservar una llamada."
+```
+
+Y mostrar los botones de WhatsApp/Calendly tambien en el estado post-envio.
+
+### Detalle tecnico
 
 **Archivos modificados:**
 
-- `src/pages/PlanDetail.tsx` — Reestructurar en dos secciones (equipamiento con checkboxes + contacto contextualizado). Añadir estado local para la preselección. Incluir las selecciones en el mensaje de WhatsApp. Cambiar copy del formulario de email a "Comprueba disponibilidad". Añadir enlace al plan superior.
+- `src/pages/PlanDetail.tsx` — Cambiar de `showContact` boolean a `step` numerico (1/2). En step 2, renderizar solo ContactSection a pantalla completa con scroll-to-top. Anadir boton "Volver" en step 2. Pasar las selecciones como resumen al ContactSection.
 
-- `src/data/planEquipment.ts` — Añadir campo `upgradePlanId` a cada plan para saber qué plan superior sugerir (ej: Start apunta a Comfort, Comfort a Total Peace). Opcionalmente añadir un campo `selectable: boolean` a cada categoría para controlar cuáles permiten preselección.
+- `src/components/plan/EquipmentSection.tsx` — Cambiar grid a `sm:grid-cols-2` maximo. Anadir clase condicional al borde de la tarjeta cuando tiene algun item seleccionado. Mejorar espaciado.
+
+- `src/components/plan/ContactSection.tsx` — Redisenar completamente:
+  - Layout vertical en vez de grid 3 columnas
+  - Seccion superior: WhatsApp y Calendly como opciones principales (2 columnas)
+  - Seccion inferior separada: formulario de disponibilidad con contexto de Madrid
+  - Estado post-envio mejorado con codigo postal reflejado y opciones de contacto alternativas
+  - Anadir texto explicativo "Operamos en Madrid capital y alrededores"
 
 **Sin cambios en:**
-- Base de datos (la tabla `leads` ya tiene todo lo necesario)
-- `EmailCaptureModal.tsx` (no se usa en esta página)
-- Rutas ni navegación general
-
-### Flujo visual propuesto
-
-```text
-/plan/comfort
-  |
-  [Cabecera: nombre, precio, garantía]
-  |
-  [Sección 1: "Tu equipamiento en BEBLOO Comfort"]
-  |  - Carrito completo: [ ] Bugaboo Fox 5  [ ] Cybex Priam  [ ] Stokke Xplory
-  |  - Cuna: [ ] Stokke Sleepi  [ ] Babyzen Yoyo  [ ] Cybex Lemo Cot
-  |  - Trona: [ ] Stokke Tripp Trapp  [ ] Cybex Lemo 2
-  |  - ... (resto de categorías)
-  |  - "¿Necesitas más? Descubre Total Peace →"
-  |  - [Botón: "Continuar →"]
-  |
-  [Sección 2: "¿Cómo quieres continuar?"]
-  |  - [WhatsApp] con mensaje: "Hola, me interesa Comfort. Me interesan: Bugaboo Fox 5, Stokke Sleepi..."
-  |  - [Calendly] reservar llamada
-  |  - [Disponibilidad] "Comprueba si Bebloo llega a tu zona"
-  |     - Campo: Código postal
-  |     - Campo: Email
-  |     - Botón: "Comprobar disponibilidad"
-```
-
-### Copy clave
-
-- Sección equipamiento: "Estos son los modelos disponibles en tu plan {nombre}. Marca los que más te interesan para que podamos preparar tu asesoramiento."
-- Nota preselección: "La selección es orientativa. Tu asesor personal te ayudará a elegir."
-- Email/disponibilidad: "Comprueba si Bebloo está disponible en tu zona de Madrid"
-- Enlace upsell: "¿Necesitas hamaca, portabebé o más? Descubre {plan superior} →"
-
-### Nuevos eventos de analytics
-
-- `equipment_selection` — cuando el usuario marca/desmarca un producto (con categoría y modelo)
-- `plan_upgrade_click` — cuando hace clic en "Descubre [plan superior]"
-
+- Base de datos
+- Rutas
+- Datos de equipamiento
+- Analytics (los eventos existentes cubren todo)
