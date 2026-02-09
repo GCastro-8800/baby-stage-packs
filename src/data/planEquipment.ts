@@ -68,6 +68,8 @@ export const plansEquipment: PlanData[] = [
     duration: "Sin permanencia",
     description: "Todo el equipamiento esencial, entregado y cambiado por etapas según su crecimiento.",
     guarantee: "60 días. Si no te aporta tranquilidad o reduce tu estrés, cancelas y Bebloo recoge todo sin coste.",
+    upgradePlanId: "total-peace",
+    upgradePlanName: "BEBLOO Total Peace",
     equipment: [
       {
         category: "Carrito completo (capazo + silla)",
