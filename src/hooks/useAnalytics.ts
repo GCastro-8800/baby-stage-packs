@@ -6,7 +6,9 @@ type EventType =
   | "cta_click" 
   | "pricing_click" 
   | "modal_open" 
-  | "lead_captured";
+  | "lead_captured"
+  | "plan_detail_view"
+  | "contact_click";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;
