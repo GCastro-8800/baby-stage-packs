@@ -153,10 +153,11 @@ const FeatureRow = ({ item, icon }: { item: FeatureItem; icon: "check" | "x" }) 
 
 const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
-  const handleSelectPlan = (planName: string) => {
-    track("pricing_click", { plan: planName });
-    onSelectPlan(planName);
+  const handleSelectPlan = (plan: Plan) => {
+    track("pricing_click", { plan: plan.name });
+    navigate(`/plan/${plan.id}`);
   };
 
   const renderCardContent = (plan: Plan) => (
