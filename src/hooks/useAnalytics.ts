@@ -8,7 +8,9 @@ type EventType =
   | "modal_open" 
   | "lead_captured"
   | "plan_detail_view"
-  | "contact_click";
+  | "contact_click"
+  | "equipment_selection"
+  | "plan_upgrade_click";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;

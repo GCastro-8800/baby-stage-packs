@@ -17,6 +17,8 @@ export interface PlanData {
   description: string;
   guarantee: string;
   equipment: EquipmentCategory[];
+  upgradePlanId?: string;
+  upgradePlanName?: string;
 }
 
 export const plansEquipment: PlanData[] = [
@@ -27,6 +29,8 @@ export const plansEquipment: PlanData[] = [
     duration: "30 días",
     description: "Una opción básica para probar el servicio durante el inicio.",
     guarantee: "30 días. Puedes cancelar y Bebloo recoge el equipamiento.",
+    upgradePlanId: "comfort",
+    upgradePlanName: "BEBLOO Comfort",
     equipment: [
       {
         category: "Carrito básico",
@@ -64,6 +68,8 @@ export const plansEquipment: PlanData[] = [
     duration: "Sin permanencia",
     description: "Todo el equipamiento esencial, entregado y cambiado por etapas según su crecimiento.",
     guarantee: "60 días. Si no te aporta tranquilidad o reduce tu estrés, cancelas y Bebloo recoge todo sin coste.",
+    upgradePlanId: "total-peace",
+    upgradePlanName: "BEBLOO Total Peace",
     equipment: [
       {
         category: "Carrito completo (capazo + silla)",
