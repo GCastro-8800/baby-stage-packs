@@ -29,6 +29,8 @@ export const plansEquipment: PlanData[] = [
     duration: "30 días",
     description: "Una opción básica para probar el servicio durante el inicio.",
     guarantee: "30 días. Puedes cancelar y Bebloo recoge el equipamiento.",
+    upgradePlanId: "comfort",
+    upgradePlanName: "BEBLOO Comfort",
     equipment: [
       {
         category: "Carrito básico",
