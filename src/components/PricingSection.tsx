@@ -174,8 +174,29 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {orderedPlans.map((plan) => (
+          {/* Mobile: Comfort first */}
+          <div className="grid grid-cols-1 md:hidden gap-6">
+            {mobilePlans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`relative flex flex-col p-6 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
+                  plan.highlighted
+                    ? "bg-background border-primary"
+                    : "bg-background border-border hover:border-primary/40"
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+                    Más elegido
+                  </div>
+                )}
+                {renderCardContent(plan)}
+              </div>
+            ))}
+          </div>
+          {/* Desktop: Start | Comfort | Total Peace */}
+          <div className="hidden md:grid md:grid-cols-3 gap-8">
+            {desktopPlans.map((plan) => (
               <div
                 key={plan.id}
                 className={`relative flex flex-col p-6 md:p-8 rounded-2xl border-2 transition-all shadow-sm hover:shadow-md ${
