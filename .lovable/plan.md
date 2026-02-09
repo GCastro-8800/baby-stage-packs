@@ -1,61 +1,90 @@
 
 
-## Rediseño completo de la sección de Precios
+## Mejorar el flujo de seleccion de plan: contacto directo + detalle de equipamiento
 
 ### Resumen
-Reemplazar los 3 planes actuales (Esencial, Confort, Tranquilidad Total) por los nuevos planes (Start, Comfort, Total Peace) con contenido mucho mas detallado, y anadir tooltips informativos con icono (i) para conceptos que necesitan explicacion.
 
-### Nuevos planes
+Cuando un usuario selecciona un plan, en lugar de ir directamente al formulario de email, se le mostrara una nueva pagina dedicada al plan elegido. Esta pagina tendra:
 
-| | BEBLOO Start | BEBLOO Comfort | BEBLOO Total Peace |
-|---|---|---|---|
-| Precio | 59 EUR/mes | 129 EUR/mes | 149 EUR/mes |
-| Destacado | No | Si (mas elegido) | No |
-| Garantia | 30 dias | 60 dias | 90 dias |
-| Duracion | 30 dias | Sin permanencia | Sin permanencia |
+1. El detalle completo del plan con las marcas y modelos concretos del equipamiento
+2. Opciones claras de contacto: WhatsApp y Calendly para hablar con alguien antes de decidir
+3. El formulario de captura de email (el actual) como opcion alternativa
 
-### Estructura de cada tarjeta
+### Flujo propuesto
 
-Cada plan mostrara:
-1. Nombre y descripcion corta
-2. Precio
-3. Seccion "Equipamiento" con lista de items
-4. Seccion "Servicios" con lista de items
-5. Seccion "No incluye" (solo para Start, con icono X)
-6. Bono incluido (si aplica)
-7. Garantia con duracion
-8. Boton CTA
+```text
+Landing (seccion precios)
+  |
+  v
+Click "Seleccionar Comfort"
+  |
+  v
+Nueva pagina /plan/comfort
+  |
+  +-- Detalle del equipamiento (marcas/modelos con fotos)
+  +-- Boton WhatsApp ("Habla con nosotros")
+  +-- Boton Calendly ("Reserva una llamada")
+  +-- Formulario email ("Avisame cuando llegueis a mi zona")
+```
 
-### Tooltips informativos (icono i)
+### Que vera el usuario en la pagina de detalle del plan
 
-Los siguientes conceptos tendran un icono de informacion que al pasar el raton muestra una explicacion:
+**Cabecera**: Nombre del plan, precio, descripcion y garantia.
 
-| Concepto | Explicacion resumida |
-|---|---|
-| Kit SOS Primeras Noches | Pack extra para las primeras semanas: ruido blanco, aspirador nasal, hamaca portatil extra, mochila recien nacido, pack emergencia y guia digital. No sustituye la hamaca principal. |
-| Sistema Anti-Acumulacion | Bebloo retira lo que el bebe ya no usa. Solo tienes en casa lo que necesita hoy. |
-| Cambios por etapa | El equipamiento evoluciona con el bebe: se retira lo que ya no usa y se entrega lo siguiente, sin costes extra. |
-| Gestor personal | Una persona de Bebloo que conoce tu caso, gestiona entregas, retiradas y cambios. Tu unico punto de contacto. |
-| Limpieza profesional | Todo el equipamiento se limpia, desinfecta y revisa antes de llegar a tu casa. |
+**Seccion "Tu equipamiento"**: Una cuadricula con cada categoria de producto mostrando:
+- Nombre de la categoria (ej: "Carrito completo")
+- 2-3 opciones de marca/modelo (ej: Bugaboo Fox 5, Cybex Priam, Stokke Xplory)
+- Nota: "El equipo de Bebloo te ayudara a elegir la mejor opcion para ti"
 
-Se usara el componente Tooltip de Radix UI (ya instalado) con el icono `Info` de lucide-react.
+**Seccion "Siguientes pasos"**: Tres tarjetas de accion:
+1. WhatsApp: enlace directo a chat con mensaje prellenado ("Hola, me interesa el plan X...")
+2. Calendly: enlace embebido o boton que abre Calendly en nueva pestana
+3. Email: formulario simplificado para dejar email (reutilizando la logica actual de leads)
 
-### Cambios tecnicos
+### Detalle tecnico
 
-**Archivo: `src/components/PricingSection.tsx`** - Reescritura completa:
-- Nueva estructura de datos para los 3 planes con campos: equipamiento, servicios, exclusiones, bono, garantia
-- Tipo para features con tooltip opcional: `{ text: string; tooltip?: string }`
-- Componente `FeatureItem` que renderiza el check + texto + icono info con tooltip cuando aplique
-- Seccion "No incluye" con icono X para el plan Start
-- Garantia visible al final de cada tarjeta
-- Orden mobile: Comfort primero (mantener logica actual)
-- Envolver todo en `TooltipProvider`
+**Archivos nuevos:**
 
-**Archivo: `src/pages/Index.tsx`** - Sin cambios necesarios (la interfaz de props no cambia).
+- `src/pages/PlanDetail.tsx` - Pagina de detalle del plan con tres secciones: info del plan, equipamiento con marcas/modelos, y acciones de contacto (WhatsApp, Calendly, email)
+- `src/data/planEquipment.ts` - Datos estaticos con las marcas y modelos disponibles por categoria y plan. Estructura:
 
-### Diseno visual
-- Se mantiene el estilo actual de tarjetas con bordes redondeados
-- El plan Comfort sigue siendo el destacado con badge "Mas elegido"
-- Los tooltips usan el estilo nativo de shadcn/ui (fondo oscuro, texto claro)
-- El icono (i) sera pequeno y sutil, en color `muted-foreground`
-- Las secciones dentro de cada tarjeta se separan con subtitulos en negrita
+```text
+{
+  category: "Carrito completo",
+  options: [
+    { brand: "Bugaboo", model: "Fox 5", image: "/placeholder.svg" },
+    { brand: "Cybex", model: "Priam", image: "/placeholder.svg" },
+  ]
+}
+```
+
+**Archivos modificados:**
+
+- `src/App.tsx` - Anadir ruta `/plan/:planId` que renderiza PlanDetail
+- `src/components/PricingSection.tsx` - Cambiar el onClick de los botones para navegar a `/plan/comfort` (etc.) en vez de abrir el modal de email directamente
+- `src/components/FloatingCTA.tsx` - Actualizar el precio mostrado de 89 a 59 euros (precio actual del plan Start)
+
+**Sin cambios en:**
+- `src/components/EmailCaptureModal.tsx` - Se mantiene como componente reutilizable, se usara dentro de PlanDetail
+- Base de datos - La tabla `leads` ya soporta todo lo necesario
+
+### Sobre WhatsApp y Calendly
+
+Necesitare que me proporciones:
+- Tu enlace de Calendly (ej: `https://calendly.com/tu-usuario/consulta-bebloo`)
+- Tu numero de WhatsApp con codigo de pais (ej: `34612345678`)
+
+Los integrare como enlaces directos (no requieren SDK ni API keys):
+- WhatsApp: `https://wa.me/NUMERO?text=Hola,%20me%20interesa%20BEBLOO%20PLAN`
+- Calendly: enlace directo que abre en nueva pestana
+
+### Imagenes del equipamiento
+
+Inicialmente usare imagenes placeholder. Podras subir las fotos reales de cada marca/modelo mas adelante y se actualizaran facilmente en el archivo de datos.
+
+### Tracking/Analytics
+
+Se anadiran nuevos eventos al sistema de analiticas existente:
+- `plan_detail_view` - cuando alguien entra a la pagina de detalle
+- `contact_click` - con tipo "whatsapp" o "calendly"
+
