@@ -1,21 +1,18 @@
 
 
-## Corregir margenes de la segunda imagen (seccion Mision)
+## Cambiar el favicon a bebloo
 
-### Problema
-La imagen de la seccion "Nuestra mision" (madre con portabebes) tiene espacios grises y blancos alrededor porque:
-- En movil se usa `object-contain`, lo que deja huecos visibles dentro del contenedor
-- El fondo `bg-secondary` (gris claro) se ve en esos huecos
-- La relacion de aspecto del contenedor no se ajusta bien al contenido de la imagen
+### Cambios
 
-### Solucion
-Modificar `src/components/MissionSection.tsx`:
+1. **Copiar el logo de bebloo** al directorio `public/` como `favicon.png`
+   - Fuente: `src/assets/logo-bebloo.png` (ya existe en el proyecto)
 
-1. Cambiar `object-contain` a `object-cover` en todas las resoluciones para que la imagen llene completamente el contenedor sin dejar espacios
-2. Ajustar la relacion de aspecto a `aspect-[4/5]` tanto en movil como en desktop para un contenedor mas proporcionado
-3. Eliminar el fondo `bg-secondary` del contenedor de la imagen, ya que con `object-cover` no habra huecos visibles
+2. **Actualizar `index.html`** para referenciar el nuevo favicon:
+   - Reemplazar la referencia actual (`/favicon.ico`) por `/favicon.png`
 
-### Archivo a modificar
+### Archivos afectados
 | Archivo | Cambio |
 |---------|--------|
-| `src/components/MissionSection.tsx` | Linea 51: cambiar `aspect-[3/4] lg:aspect-[4/5]` a `aspect-[4/5]`; eliminar `bg-secondary`. Linea 55: cambiar `object-contain lg:object-cover lg:object-top` a `object-cover object-top` |
+| `public/favicon.png` | Nuevo archivo (copia de `src/assets/logo-bebloo.png`) |
+| `index.html` | Cambiar referencia de favicon a `/favicon.png` |
+
