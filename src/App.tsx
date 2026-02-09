@@ -42,6 +42,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/plan/:planId" element={<PlanDetail />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/condiciones" element={<TermsOfService />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

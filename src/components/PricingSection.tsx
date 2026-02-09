@@ -210,7 +210,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
         <p className="text-xs text-muted-foreground">{plan.guarantee}</p>
       </div>
       <Button
-        onClick={() => handleSelectPlan(plan.name)}
+        onClick={() => handleSelectPlan(plan)}
         className={`w-full h-12 ${plan.highlighted ? "cta-tension" : ""}`}
         variant={plan.highlighted ? "default" : "outline"}
       >
