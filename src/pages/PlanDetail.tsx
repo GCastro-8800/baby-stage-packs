@@ -13,7 +13,7 @@ const PlanDetail = () => {
   const { track } = useAnalytics();
 
   const [selections, setSelections] = useState<Record<string, boolean>>({});
-  const [showContact, setShowContact] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
 
   const plan = getPlanById(planId || "");
 
@@ -21,7 +21,7 @@ const PlanDetail = () => {
     if (plan) {
       track("plan_detail_view", { plan: plan.name });
       setSelections({});
-      setShowContact(false);
+      setStep(1);
     }
   }, [plan, track]);
 
@@ -38,7 +38,15 @@ const PlanDetail = () => {
     [track],
   );
 
-  const handleContinue = () => setShowContact(true);
+  const handleContinue = () => {
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  const handleBack = () => {
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
 
   if (!plan) {
     return (
@@ -62,42 +70,53 @@ const PlanDetail = () => {
       {/* Header */}
       <div className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-30">
         <div className="container max-w-5xl flex items-center gap-3 py-4 px-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/#precios")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={step === 2 ? handleBack : () => navigate("/#precios")}
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <span className="font-serif font-semibold text-foreground">{plan.name}</span>
+          <span className="font-serif font-semibold text-foreground">
+            {step === 2 ? "Contacto" : plan.name}
+          </span>
+          {step === 2 && (
+            <span className="ml-auto text-sm text-muted-foreground">
+              {plan.name} · €{plan.price}/mes
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="container max-w-5xl px-4 py-10 md:py-16 space-y-12">
-        {/* Plan header */}
-        <section className="text-center max-w-2xl mx-auto">
-          <h1 className="text-3xl md:text-5xl font-serif text-foreground mb-3">{plan.name}</h1>
-          <p className="text-muted-foreground text-base md:text-lg mb-4">{plan.description}</p>
-          <div className="flex items-baseline justify-center gap-1 mb-2">
-            <span className="text-4xl md:text-5xl font-serif font-bold text-foreground">€{plan.price}</span>
-            <span className="text-muted-foreground">/mes</span>
-          </div>
-          <p className="text-sm text-muted-foreground">{plan.duration}</p>
-          <div className="flex items-start justify-center gap-2 mt-4 text-sm text-muted-foreground max-w-md mx-auto">
-            <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-            <span>{plan.guarantee}</span>
-          </div>
-        </section>
+      {step === 1 ? (
+        <div className="container max-w-5xl px-4 py-10 md:py-16 space-y-12">
+          {/* Plan header */}
+          <section className="text-center max-w-2xl mx-auto">
+            <h1 className="text-3xl md:text-5xl font-serif text-foreground mb-3">{plan.name}</h1>
+            <p className="text-muted-foreground text-base md:text-lg mb-4">{plan.description}</p>
+            <div className="flex items-baseline justify-center gap-1 mb-2">
+              <span className="text-4xl md:text-5xl font-serif font-bold text-foreground">€{plan.price}</span>
+              <span className="text-muted-foreground">/mes</span>
+            </div>
+            <p className="text-sm text-muted-foreground">{plan.duration}</p>
+            <div className="flex items-start justify-center gap-2 mt-4 text-sm text-muted-foreground max-w-md mx-auto">
+              <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <span>{plan.guarantee}</span>
+            </div>
+          </section>
 
-        {/* Step 1: Equipment */}
-        <EquipmentSection
-          plan={plan}
-          selections={selections}
-          onToggle={handleToggle}
-          onContinue={handleContinue}
-        />
-
-        {/* Step 2: Contact (revealed after continue or always visible via scroll) */}
-        {showContact && (
+          <EquipmentSection
+            plan={plan}
+            selections={selections}
+            onToggle={handleToggle}
+            onContinue={handleContinue}
+          />
+        </div>
+      ) : (
+        <div className="container max-w-3xl px-4 py-10 md:py-16">
           <ContactSection plan={plan} selectedItems={selectedItems} />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
