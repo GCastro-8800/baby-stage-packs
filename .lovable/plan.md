@@ -1,81 +1,48 @@
 
 
-## Simplificar y mejorar el flujo de detalle del plan
+## Mejora de UX/UI en la seccion de equipamiento
 
-### Problema actual
+### Problema
 
-El flujo tiene demasiados pasos y la experiencia visual no esta a la altura de un servicio premium. Problemas concretos:
+Las tarjetas de equipamiento se ven planas y poco interactivas. Los checkboxes parecen radio buttons circulares (por su tamano pequeno y el estilo de borde), el espaciado es limitado, y las tarjetas no invitan a interactuar. La experiencia no transmite la calidad premium de Bebloo.
 
-1. El boton "Continuar" simplemente revela contenido debajo, sin sensacion de avance
-2. La seccion de contacto aparece pegada al equipamiento sin transicion clara
-3. El mensaje post-registro ("Te avisaremos") es generico y poco informativo
-4. El email se pide sin contexto suficiente dentro del formulario
-5. Demasiados elementos visuales compitiendo por atencion
+### Cambios propuestos
 
-### Solucion propuesta
+**1. Tarjetas de equipamiento mas atractivas**
 
-Convertir la pagina en un flujo de dos vistas claras dentro de la misma ruta, donde "Continuar" hace scroll-to-top y cambia la vista completa, dando sensacion de pagina nueva sin cambiar la URL.
+- Fondo mas diferenciado: usar `bg-card` con un borde mas suave por defecto y un efecto hover sutil
+- Aumentar el padding interno de cada tarjeta (de `p-6` a `p-6 sm:p-8`)
+- Separar visualmente el titulo de categoria del listado con un separador sutil o mas margen
+- Anadir un icono o indicador visual por categoria (opcional, con iconos de Lucide como `Baby`, `Bed`, `ShoppingBag`)
 
-### Cambios concretos
+**2. Checkboxes mas visibles y diferenciados**
 
-**1. Flujo de dos vistas en PlanDetail.tsx**
+- Aumentar el tamano del checkbox de `h-4 w-4` a `h-5 w-5` para que sea claramente un checkbox y no un radio button
+- Aumentar el tamano del icono Check interno de forma proporcional
+- Mejorar el contraste del borde cuando no esta seleccionado (usar `border-muted-foreground/40` en vez de `border-primary`)
+- Cuando esta seleccionado: fondo mas visible con el check mas grande
 
-Introducir un estado `step` (1 o 2) que controla que vista se muestra:
+**3. Labels mas legibles**
 
-```text
-Step 1: Cabecera del plan + Equipamiento + Boton "Continuar"
-Step 2: Cabecera resumida + Opciones de contacto (pantalla completa)
-```
+- Aumentar el tamano del texto de `text-sm` a `text-base` para los nombres de marca/modelo
+- Anadir mas espacio entre items (de `space-y-3` a `space-y-3.5`)
+- Hacer que toda la fila sea clickable con un hover sutil (fondo `hover:bg-muted/50` en el `li`)
 
-Cuando el usuario pulsa "Continuar", se cambia a step 2 y se hace `window.scrollTo(0, 0)` para dar sensacion de pagina nueva. Un boton "Volver al equipamiento" permite regresar al step 1.
+**4. Feedback visual de seleccion mejorado**
 
-**2. Mejora visual del EquipmentSection**
+- Cuando un item esta seleccionado, anadir un fondo muy suave a la fila (`bg-primary/5 rounded-lg px-2 py-1`)
+- La tarjeta con items seleccionados ya tiene borde `border-primary/50`, mantener eso
 
-- Reducir el grid a 2 columnas maximo en desktop (las tarjetas estaban demasiado comprimidas en 3 columnas)
-- Anadir un toque de color sutil cuando un checkbox esta marcado (borde de la tarjeta cambia)
-- Mejorar el espaciado interno de cada tarjeta
+**5. Espaciado general**
 
-**3. Rediseno del ContactSection como vista completa**
-
-En lugar de tres tarjetas iguales en grid, reorganizar como:
-
-- Cabecera con resumen del plan elegido y selecciones (si las hay)
-- Dos opciones principales lado a lado: WhatsApp y Calendly
-- Seccion separada debajo: "Comprueba disponibilidad en tu zona"
-  - Mostrar "Ahora mismo operamos en Madrid capital y alrededores"
-  - Codigo postal como campo principal
-  - Email con copy claro: "Dejanos tu email para avisarte cuando lleguemos a tu zona"
-  - Tras enviar: mensaje mejorado con la ciudad detectada o al menos "Zona [codigo postal] registrada. Te avisaremos cuando Bebloo este disponible en tu area."
-
-**4. Mejora del estado post-envio**
-
-Cambiar el simple "Te avisaremos" por:
-
-```text
-"Zona [28XXX] registrada"
-"Te avisaremos cuando Bebloo este disponible en tu area de Madrid."
-"Mientras tanto, puedes hablar con nosotros por WhatsApp o reservar una llamada."
-```
-
-Y mostrar los botones de WhatsApp/Calendly tambien en el estado post-envio.
+- Aumentar el gap del grid de `gap-5` a `gap-6`
+- Mejorar la jerarquia del titulo de seccion
 
 ### Detalle tecnico
 
-**Archivos modificados:**
+**Archivos a modificar:**
 
-- `src/pages/PlanDetail.tsx` — Cambiar de `showContact` boolean a `step` numerico (1/2). En step 2, renderizar solo ContactSection a pantalla completa con scroll-to-top. Anadir boton "Volver" en step 2. Pasar las selecciones como resumen al ContactSection.
+- `src/components/ui/checkbox.tsx` — Aumentar tamano base a `h-5 w-5`, cambiar borde sin seleccionar a `border-muted-foreground/40`, aumentar icono Check a `h-3.5 w-3.5`
 
-- `src/components/plan/EquipmentSection.tsx` — Cambiar grid a `sm:grid-cols-2` maximo. Anadir clase condicional al borde de la tarjeta cuando tiene algun item seleccionado. Mejorar espaciado.
+- `src/components/plan/EquipmentSection.tsx` — Mejorar el layout de cada tarjeta (padding, hover), aumentar tamano de texto en labels, anadir fondo de seleccion a items individuales, hacer filas clickables con padding y hover, aumentar gap del grid
 
-- `src/components/plan/ContactSection.tsx` — Redisenar completamente:
-  - Layout vertical en vez de grid 3 columnas
-  - Seccion superior: WhatsApp y Calendly como opciones principales (2 columnas)
-  - Seccion inferior separada: formulario de disponibilidad con contexto de Madrid
-  - Estado post-envio mejorado con codigo postal reflejado y opciones de contacto alternativas
-  - Anadir texto explicativo "Operamos en Madrid capital y alrededores"
-
-**Sin cambios en:**
-- Base de datos
-- Rutas
-- Datos de equipamiento
-- Analytics (los eventos existentes cubren todo)
