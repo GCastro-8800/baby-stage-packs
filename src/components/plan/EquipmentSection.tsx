@@ -31,30 +31,38 @@ const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentS
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {plan.equipment.map((cat) => {
           const catSelected = hasAnySelected(cat.category);
           return (
             <div
               key={cat.category}
-              className={`rounded-xl border-2 bg-card p-6 transition-colors ${
+              className={`rounded-xl border-2 bg-card p-6 sm:p-8 transition-all ${
                 catSelected
                   ? "border-primary/50 shadow-sm"
-                  : "border-border"
+                  : "border-border hover:border-border/80"
               }`}
             >
-              <h4 className="font-semibold text-foreground mb-4 text-base">{cat.category}</h4>
-              <ul className="space-y-3">
+              <h4 className="font-semibold text-foreground mb-5 text-base">{cat.category}</h4>
+              <ul className="space-y-1">
                 {cat.options.map((opt) => {
                   const key = `${cat.category}::${opt.brand} ${opt.model}`;
+                  const isSelected = !!selections[key];
                   return (
-                    <li key={key} className="flex items-center gap-3">
+                    <li
+                      key={key}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 cursor-pointer transition-colors hover:bg-muted/50 ${
+                        isSelected ? "bg-primary/5" : ""
+                      }`}
+                      onClick={() => onToggle(key)}
+                    >
                       <Checkbox
                         id={key}
-                        checked={!!selections[key]}
+                        checked={isSelected}
                         onCheckedChange={() => onToggle(key)}
+                        onClick={(e) => e.stopPropagation()}
                       />
-                      <label htmlFor={key} className="text-sm cursor-pointer select-none leading-tight">
+                      <label htmlFor={key} className="text-base cursor-pointer select-none leading-tight">
                         <span className="font-medium text-foreground">{opt.brand}</span>{" "}
                         <span className="text-muted-foreground">{opt.model}</span>
                       </label>
