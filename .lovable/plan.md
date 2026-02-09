@@ -1,90 +1,98 @@
 
 
-## Mejorar el flujo de seleccion de plan: contacto directo + detalle de equipamiento
+## Rediseño del flujo de detalle del plan: selección guiada y contacto contextualizado
 
 ### Resumen
 
-Cuando un usuario selecciona un plan, en lugar de ir directamente al formulario de email, se le mostrara una nueva pagina dedicada al plan elegido. Esta pagina tendra:
+Transformar la página `/plan/:planId` de una vista estática con contacto genérico a un flujo secuencial donde el usuario primero explora el equipamiento de su plan, opcionalmente marca lo que le interesa, y luego accede a opciones de contacto contextualizadas (incluyendo la comprobación de disponibilidad por zona).
 
-1. El detalle completo del plan con las marcas y modelos concretos del equipamiento
-2. Opciones claras de contacto: WhatsApp y Calendly para hablar con alguien antes de decidir
-3. El formulario de captura de email (el actual) como opcion alternativa
+### Cambios principales
 
-### Flujo propuesto
+**1. Flujo secuencial en pasos**
 
-```text
-Landing (seccion precios)
-  |
-  v
-Click "Seleccionar Comfort"
-  |
-  v
-Nueva pagina /plan/comfort
-  |
-  +-- Detalle del equipamiento (marcas/modelos con fotos)
-  +-- Boton WhatsApp ("Habla con nosotros")
-  +-- Boton Calendly ("Reserva una llamada")
-  +-- Formulario email ("Avisame cuando llegueis a mi zona")
-```
-
-### Que vera el usuario en la pagina de detalle del plan
-
-**Cabecera**: Nombre del plan, precio, descripcion y garantia.
-
-**Seccion "Tu equipamiento"**: Una cuadricula con cada categoria de producto mostrando:
-- Nombre de la categoria (ej: "Carrito completo")
-- 2-3 opciones de marca/modelo (ej: Bugaboo Fox 5, Cybex Priam, Stokke Xplory)
-- Nota: "El equipo de Bebloo te ayudara a elegir la mejor opcion para ti"
-
-**Seccion "Siguientes pasos"**: Tres tarjetas de accion:
-1. WhatsApp: enlace directo a chat con mensaje prellenado ("Hola, me interesa el plan X...")
-2. Calendly: enlace embebido o boton que abre Calendly en nueva pestana
-3. Email: formulario simplificado para dejar email (reutilizando la logica actual de leads)
-
-### Detalle tecnico
-
-**Archivos nuevos:**
-
-- `src/pages/PlanDetail.tsx` - Pagina de detalle del plan con tres secciones: info del plan, equipamiento con marcas/modelos, y acciones de contacto (WhatsApp, Calendly, email)
-- `src/data/planEquipment.ts` - Datos estaticos con las marcas y modelos disponibles por categoria y plan. Estructura:
+La página pasará de mostrar todo a la vez a guiar al usuario en dos secciones claras:
 
 ```text
-{
-  category: "Carrito completo",
-  options: [
-    { brand: "Bugaboo", model: "Fox 5", image: "/placeholder.svg" },
-    { brand: "Cybex", model: "Priam", image: "/placeholder.svg" },
-  ]
-}
+Paso 1: "Esto es lo que incluye tu plan [Comfort]"
+  - Grid de categorías con marcas/modelos
+  - Cada categoría tiene checkboxes opcionales para marcar interés
+  - Nota al pie: "¿Necesitas más? Descubre [plan superior]"
+  - Botón "Continuar" (también se puede saltar)
+
+Paso 2: "¿Cómo quieres continuar?"
+  - WhatsApp (con preselección incluida en el mensaje)
+  - Calendly (reservar llamada)
+  - "Comprueba si Bebloo está disponible en tu zona" (email + código postal)
 ```
+
+**2. Preselección orientativa de equipamiento**
+
+- Cada categoría mostrará checkboxes junto a las opciones de marca/modelo
+- La selección es opcional — el usuario puede saltarla e ir directo al contacto
+- Cuando contacte por WhatsApp, el mensaje prellenado incluirá las opciones marcadas
+- Tracking: se registrará qué categorías/modelos generan más interés
+
+**3. Contextualizar la captura de email**
+
+La tarjeta de email cambiará de "Déjanos tu email / te avisamos cuando lleguemos a tu zona" a:
+
+- Título: "Comprueba si Bebloo está disponible en tu zona"
+- El código postal pasa a ser campo principal (no opcional)
+- El email se presenta como "Te avisamos cuando lleguemos a tu código postal"
+- Esto ancla el formulario en Madrid y da una razón real para compartir datos
+
+**4. Solo equipamiento del plan seleccionado**
+
+- Se muestra únicamente lo que incluye el plan elegido, sin items bloqueados de otros planes
+- Al final del grid de equipamiento, un enlace sutil: "¿Necesitas más categorías? Descubre [plan superior]" que lleva a la página de ese plan
+- Esto evita frustración y mantiene la experiencia limpia
+
+### Detalle técnico
 
 **Archivos modificados:**
 
-- `src/App.tsx` - Anadir ruta `/plan/:planId` que renderiza PlanDetail
-- `src/components/PricingSection.tsx` - Cambiar el onClick de los botones para navegar a `/plan/comfort` (etc.) en vez de abrir el modal de email directamente
-- `src/components/FloatingCTA.tsx` - Actualizar el precio mostrado de 89 a 59 euros (precio actual del plan Start)
+- `src/pages/PlanDetail.tsx` — Reestructurar en dos secciones (equipamiento con checkboxes + contacto contextualizado). Añadir estado local para la preselección. Incluir las selecciones en el mensaje de WhatsApp. Cambiar copy del formulario de email a "Comprueba disponibilidad". Añadir enlace al plan superior.
+
+- `src/data/planEquipment.ts` — Añadir campo `upgradePlanId` a cada plan para saber qué plan superior sugerir (ej: Start apunta a Comfort, Comfort a Total Peace). Opcionalmente añadir un campo `selectable: boolean` a cada categoría para controlar cuáles permiten preselección.
 
 **Sin cambios en:**
-- `src/components/EmailCaptureModal.tsx` - Se mantiene como componente reutilizable, se usara dentro de PlanDetail
-- Base de datos - La tabla `leads` ya soporta todo lo necesario
+- Base de datos (la tabla `leads` ya tiene todo lo necesario)
+- `EmailCaptureModal.tsx` (no se usa en esta página)
+- Rutas ni navegación general
 
-### Sobre WhatsApp y Calendly
+### Flujo visual propuesto
 
-Necesitare que me proporciones:
-- Tu enlace de Calendly (ej: `https://calendly.com/tu-usuario/consulta-bebloo`)
-- Tu numero de WhatsApp con codigo de pais (ej: `34612345678`)
+```text
+/plan/comfort
+  |
+  [Cabecera: nombre, precio, garantía]
+  |
+  [Sección 1: "Tu equipamiento en BEBLOO Comfort"]
+  |  - Carrito completo: [ ] Bugaboo Fox 5  [ ] Cybex Priam  [ ] Stokke Xplory
+  |  - Cuna: [ ] Stokke Sleepi  [ ] Babyzen Yoyo  [ ] Cybex Lemo Cot
+  |  - Trona: [ ] Stokke Tripp Trapp  [ ] Cybex Lemo 2
+  |  - ... (resto de categorías)
+  |  - "¿Necesitas más? Descubre Total Peace →"
+  |  - [Botón: "Continuar →"]
+  |
+  [Sección 2: "¿Cómo quieres continuar?"]
+  |  - [WhatsApp] con mensaje: "Hola, me interesa Comfort. Me interesan: Bugaboo Fox 5, Stokke Sleepi..."
+  |  - [Calendly] reservar llamada
+  |  - [Disponibilidad] "Comprueba si Bebloo llega a tu zona"
+  |     - Campo: Código postal
+  |     - Campo: Email
+  |     - Botón: "Comprobar disponibilidad"
+```
 
-Los integrare como enlaces directos (no requieren SDK ni API keys):
-- WhatsApp: `https://wa.me/NUMERO?text=Hola,%20me%20interesa%20BEBLOO%20PLAN`
-- Calendly: enlace directo que abre en nueva pestana
+### Copy clave
 
-### Imagenes del equipamiento
+- Sección equipamiento: "Estos son los modelos disponibles en tu plan {nombre}. Marca los que más te interesan para que podamos preparar tu asesoramiento."
+- Nota preselección: "La selección es orientativa. Tu asesor personal te ayudará a elegir."
+- Email/disponibilidad: "Comprueba si Bebloo está disponible en tu zona de Madrid"
+- Enlace upsell: "¿Necesitas hamaca, portabebé o más? Descubre {plan superior} →"
 
-Inicialmente usare imagenes placeholder. Podras subir las fotos reales de cada marca/modelo mas adelante y se actualizaran facilmente en el archivo de datos.
+### Nuevos eventos de analytics
 
-### Tracking/Analytics
-
-Se anadiran nuevos eventos al sistema de analiticas existente:
-- `plan_detail_view` - cuando alguien entra a la pagina de detalle
-- `contact_click` - con tipo "whatsapp" o "calendly"
+- `equipment_selection` — cuando el usuario marca/desmarca un producto (con categoría y modelo)
+- `plan_upgrade_click` — cuando hace clic en "Descubre [plan superior]"
 
