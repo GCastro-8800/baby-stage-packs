@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { PlanData } from "@/data/planEquipment";
+import type { PlanData, EquipmentOption } from "@/data/planEquipment";
+import ProductPreviewDialog from "./ProductPreviewDialog";
 
 interface EquipmentSectionProps {
   plan: PlanData;
@@ -12,6 +14,8 @@ interface EquipmentSectionProps {
 }
 
 const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentSectionProps) => {
+  const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
+
   const hasAnySelected = (category: string) =>
     plan.equipment
       .find((c) => c.category === category)
@@ -62,10 +66,23 @@ const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentS
                         onCheckedChange={() => onToggle(key)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <label htmlFor={key} className="text-base cursor-pointer select-none leading-tight">
+                      <label htmlFor={key} className="text-base cursor-pointer select-none leading-tight flex-1">
                         <span className="font-medium text-foreground">{opt.brand}</span>{" "}
                         <span className="text-muted-foreground">{opt.model}</span>
                       </label>
+                      {(opt.image || opt.description) && (
+                        <button
+                          type="button"
+                          className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          aria-label={`Ver ${opt.brand} ${opt.model}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewProduct(opt);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      )}
                     </li>
                   );
                 })}
@@ -92,6 +109,11 @@ const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentS
           Continuar <ArrowRight className="h-4 w-4 ml-1" />
         </Button>
       </div>
+      <ProductPreviewDialog
+        product={previewProduct}
+        open={!!previewProduct}
+        onOpenChange={(open) => { if (!open) setPreviewProduct(null); }}
+      />
     </section>
   );
 };
