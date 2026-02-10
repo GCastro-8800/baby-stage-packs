@@ -66,10 +66,23 @@ const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentS
                         onCheckedChange={() => onToggle(key)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <label htmlFor={key} className="text-base cursor-pointer select-none leading-tight">
+                      <label htmlFor={key} className="text-base cursor-pointer select-none leading-tight flex-1">
                         <span className="font-medium text-foreground">{opt.brand}</span>{" "}
                         <span className="text-muted-foreground">{opt.model}</span>
                       </label>
+                      {(opt.image || opt.description) && (
+                        <button
+                          type="button"
+                          className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          aria-label={`Ver ${opt.brand} ${opt.model}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewProduct(opt);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      )}
                     </li>
                   );
                 })}
