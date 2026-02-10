@@ -14,6 +14,8 @@ interface EquipmentSectionProps {
 }
 
 const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentSectionProps) => {
+  const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
+
   const hasAnySelected = (category: string) =>
     plan.equipment
       .find((c) => c.category === category)
