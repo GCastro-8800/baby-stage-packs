@@ -1,29 +1,50 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPlanById } from "@/data/planEquipment";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useAuth } from "@/hooks/useAuth";
 import EquipmentSection from "@/components/plan/EquipmentSection";
 import ContactSection from "@/components/plan/ContactSection";
+
+interface PlanLocationState {
+  selections?: Record<string, boolean>;
+  fromAuth?: boolean;
+}
 
 const PlanDetail = () => {
   const { planId } = useParams<{ planId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { track } = useAnalytics();
+  const { user } = useAuth();
 
-  const [selections, setSelections] = useState<Record<string, boolean>>({});
-  const [step, setStep] = useState<1 | 2>(1);
+  const locationState = location.state as PlanLocationState | null;
+
+  const [selections, setSelections] = useState<Record<string, boolean>>(
+    locationState?.selections || {}
+  );
+  const [step, setStep] = useState<1 | 2>(locationState?.fromAuth ? 2 : 1);
 
   const plan = getPlanById(planId || "");
 
   useEffect(() => {
     if (plan) {
       track("plan_detail_view", { plan: plan.name });
-      setSelections({});
-      setStep(1);
+      // Only reset selections if not coming from auth flow
+      if (!locationState?.fromAuth) {
+        // Don't reset if we have restored selections from state
+        if (!locationState?.selections) {
+          setSelections({});
+        }
+      }
     }
-  }, [plan, track]);
+    // Clear location state to prevent stale data on refresh
+    if (locationState) {
+      window.history.replaceState({}, "");
+    }
+  }, [plan]);
 
   const handleToggle = useCallback(
     (key: string) => {
@@ -39,6 +60,16 @@ const PlanDetail = () => {
   );
 
   const handleContinue = () => {
+    if (!user) {
+      // Redirect to auth, passing selections and return path
+      navigate("/auth", {
+        state: {
+          from: location.pathname,
+          selections,
+        },
+      });
+      return;
+    }
     setStep(2);
     window.scrollTo({ top: 0, behavior: "instant" });
   };

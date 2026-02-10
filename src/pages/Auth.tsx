@@ -46,14 +46,31 @@ export default function Auth() {
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/app";
+  const locationState = location.state as {
+    from?: string | { pathname: string };
+    selections?: Record<string, boolean>;
+  } | null;
+
+  // Determine redirect target
+  const fromPath = typeof locationState?.from === "string"
+    ? locationState.from
+    : locationState?.from?.pathname || "/app";
+
+  const isPlanFlow = fromPath.startsWith("/plan/");
 
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      navigate(from, { replace: true });
+      if (isPlanFlow) {
+        navigate(fromPath, {
+          replace: true,
+          state: { selections: locationState?.selections, fromAuth: true },
+        });
+      } else {
+        navigate(fromPath, { replace: true });
+      }
     }
-  }, [user, navigate, from]);
+  }, [user, navigate, fromPath, isPlanFlow, locationState?.selections]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
