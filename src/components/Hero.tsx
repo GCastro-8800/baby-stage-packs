@@ -44,7 +44,7 @@ const Hero = ({ onSeePricing }: HeroProps) => {
 
             {/* Subheadline */}
             <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0 text-balance">
-              Cunas, hamacas y más — siempre limpios, siempre seguros, renovados cuando tu bebé crece.
+              Cunas, hamacas y más, siempre limpios, siempre seguros, renovados cuando tu bebé crece.
             </p>
 
             {/* Benefits with checkmarks */}
@@ -72,20 +72,18 @@ const Hero = ({ onSeePricing }: HeroProps) => {
             </div>
 
             {/* Micro-validation */}
-            <p className="mt-6 text-sm text-muted-foreground">
-              Desde €89/mes • Sin permanencia • Envío incluido
-            </p>
+            <p className="mt-6 text-sm text-muted-foreground">Desde €89/mes • Sin permanencia • Envío incluido</p>
           </div>
 
           {/* Right column - Image */}
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
             <div className="relative w-full max-w-md lg:max-w-xl">
               <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-secondary shadow-xl">
-              <img
-                src={heroImage}
-                alt="Familia paseando con cochecito de bebé"
-                className="w-full h-full object-cover"
-              />
+                <img
+                  src={heroImage}
+                  alt="Familia paseando con cochecito de bebé"
+                  className="w-full h-full object-cover"
+                />
               </div>
               {/* Floating badge */}
               <div className="absolute -bottom-4 -left-4 md:-bottom-6 md:-left-6 bg-background rounded-2xl shadow-lg p-4 border border-border">
