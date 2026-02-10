@@ -42,8 +42,8 @@ const Footer = () => {
             <h4 className="font-semibold text-background mb-4">Contacto</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a 
-                  href="mailto:hola@bebloo.es" 
+                <a
+                  href="mailto:hola@bebloo.es"
                   className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
                 >
                   <Mail className="h-4 w-4" />
@@ -51,18 +51,18 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="tel:+34600000000" 
+                <a
+                  href="tel:+34638706467"
                   className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
                 >
                   <Phone className="h-4 w-4" />
-                  +34 600 000 000
+                  +34 638 70 6467
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://instagram.com/bebloo" 
-                  target="_blank" 
+                <a
+                  href="https://instagram.com/bebloo"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
                 >
@@ -79,8 +79,12 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-background/50">
             <p>© 2026 bebloo. Todos los derechos reservados.</p>
             <div className="flex gap-6">
-              <Link to="/condiciones" className="hover:text-background/70 transition-colors">Términos y condiciones</Link>
-              <Link to="/privacidad" className="hover:text-background/70 transition-colors">Política de privacidad</Link>
+              <Link to="/condiciones" className="hover:text-background/70 transition-colors">
+                Términos y condiciones
+              </Link>
+              <Link to="/privacidad" className="hover:text-background/70 transition-colors">
+                Política de privacidad
+              </Link>
             </div>
           </div>
         </div>
