@@ -113,7 +113,7 @@ export default function AppDashboard() {
                     Estamos aquí para acompañarte en cada paso.
                   </p>
                 </div>
-                <Button variant="outline">Contactar soporte</Button>
+                <Button variant="outline" onClick={() => window.open(`https://wa.me/34638706467?text=${encodeURIComponent("Hola, necesito ayuda con mi cuenta en bebloo.")}`, "_blank")}>Contactar soporte</Button>
               </div>
             </CardContent>
           </Card>
