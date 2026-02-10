@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { PlanData } from "@/data/planEquipment";
+import type { PlanData, EquipmentOption } from "@/data/planEquipment";
+import ProductPreviewDialog from "./ProductPreviewDialog";
 
 interface EquipmentSectionProps {
   plan: PlanData;
