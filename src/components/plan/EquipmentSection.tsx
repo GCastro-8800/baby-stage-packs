@@ -109,6 +109,11 @@ const EquipmentSection = ({ plan, selections, onToggle, onContinue }: EquipmentS
           Continuar <ArrowRight className="h-4 w-4 ml-1" />
         </Button>
       </div>
+      <ProductPreviewDialog
+        product={previewProduct}
+        open={!!previewProduct}
+        onOpenChange={(open) => { if (!open) setPreviewProduct(null); }}
+      />
     </section>
   );
 };
