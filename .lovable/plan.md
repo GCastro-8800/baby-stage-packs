@@ -1,48 +1,43 @@
 
 
-## Mejora de UX/UI en la seccion de equipamiento
+## Preview modal para productos del equipamiento
 
-### Problema
+### Objetivo
 
-Las tarjetas de equipamiento se ven planas y poco interactivas. Los checkboxes parecen radio buttons circulares (por su tamano pequeno y el estilo de borde), el espaciado es limitado, y las tarjetas no invitan a interactuar. La experiencia no transmite la calidad premium de Bebloo.
+Permitir que el usuario vea una imagen y descripcion breve de cada producto antes de seleccionarlo, resolviendo el problema de que no todos conocen marcas como Bugaboo o Stokke.
 
 ### Cambios propuestos
 
-**1. Tarjetas de equipamiento mas atractivas**
+**1. Ampliar los datos de producto en `src/data/planEquipment.ts`**
 
-- Fondo mas diferenciado: usar `bg-card` con un borde mas suave por defecto y un efecto hover sutil
-- Aumentar el padding interno de cada tarjeta (de `p-6` a `p-6 sm:p-8`)
-- Separar visualmente el titulo de categoria del listado con un separador sutil o mas margen
-- Anadir un icono o indicador visual por categoria (opcional, con iconos de Lucide como `Baby`, `Bed`, `ShoppingBag`)
+Anadir dos campos nuevos a `EquipmentOption`:
+- `image`: URL de imagen del producto (ya existe el campo en la interfaz pero no se usa)
+- `description`: descripcion corta de una linea (nuevo campo)
 
-**2. Checkboxes mas visibles y diferenciados**
+Rellenar estos datos para todos los productos del catalogo. Las imagenes seran URLs publicas de los fabricantes o placeholders iniciales.
 
-- Aumentar el tamano del checkbox de `h-4 w-4` a `h-5 w-5` para que sea claramente un checkbox y no un radio button
-- Aumentar el tamano del icono Check interno de forma proporcional
-- Mejorar el contraste del borde cuando no esta seleccionado (usar `border-muted-foreground/40` en vez de `border-primary`)
-- Cuando esta seleccionado: fondo mas visible con el check mas grande
+**2. Crear componente `src/components/plan/ProductPreviewDialog.tsx`**
 
-**3. Labels mas legibles**
+Un Dialog (usando el componente Dialog existente de shadcn) que muestra:
+- Imagen del producto a tamano medio
+- Nombre: marca + modelo
+- Descripcion breve (1-2 lineas)
+- Boton para cerrar
 
-- Aumentar el tamano del texto de `text-sm` a `text-base` para los nombres de marca/modelo
-- Anadir mas espacio entre items (de `space-y-3` a `space-y-3.5`)
-- Hacer que toda la fila sea clickable con un hover sutil (fondo `hover:bg-muted/50` en el `li`)
+Se abre al pulsar un icono o enlace "Ver" junto al nombre del producto.
 
-**4. Feedback visual de seleccion mejorado**
+**3. Integrar en `src/components/plan/EquipmentSection.tsx`**
 
-- Cuando un item esta seleccionado, anadir un fondo muy suave a la fila (`bg-primary/5 rounded-lg px-2 py-1`)
-- La tarjeta con items seleccionados ya tiene borde `border-primary/50`, mantener eso
-
-**5. Espaciado general**
-
-- Aumentar el gap del grid de `gap-5` a `gap-6`
-- Mejorar la jerarquia del titulo de seccion
+Anadir un boton sutil (icono de ojo o texto "Ver") en cada fila de producto que abre el dialog de preview. El checkbox sigue funcionando igual al hacer clic en la fila; el boton de preview es un elemento separado que no activa el toggle.
 
 ### Detalle tecnico
 
 **Archivos a modificar:**
 
-- `src/components/ui/checkbox.tsx` — Aumentar tamano base a `h-5 w-5`, cambiar borde sin seleccionar a `border-muted-foreground/40`, aumentar icono Check a `h-3.5 w-3.5`
+- `src/data/planEquipment.ts` -- Anadir campo `description` a la interfaz `EquipmentOption`. Rellenar `image` y `description` para cada producto.
 
-- `src/components/plan/EquipmentSection.tsx` — Mejorar el layout de cada tarjeta (padding, hover), aumentar tamano de texto en labels, anadir fondo de seleccion a items individuales, hacer filas clickables con padding y hover, aumentar gap del grid
+- `src/components/plan/ProductPreviewDialog.tsx` (nuevo) -- Dialog con imagen, nombre y descripcion. Recibe `EquipmentOption | null` y un `open` boolean.
 
+- `src/components/plan/EquipmentSection.tsx` -- Anadir estado local para el producto seleccionado en preview. Anadir boton de preview en cada fila (icono `Eye` o `Info` de Lucide) que hace `e.stopPropagation()` para no activar el checkbox. Renderizar el `ProductPreviewDialog`.
+
+**Sin cambios en:** base de datos, rutas, analytics, ni otros componentes.
