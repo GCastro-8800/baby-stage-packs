@@ -72,7 +72,7 @@ const Hero = ({ onSeePricing }: HeroProps) => {
             </div>
 
             {/* Micro-validation */}
-            <p className="mt-6 text-sm text-muted-foreground">Desde €89/mes • Sin permanencia • Envío incluido</p>
+            <p className="mt-6 text-sm text-muted-foreground">Desde €59/mes • Sin permanencia • Envío incluido</p>
           </div>
 
           {/* Right column - Image */}
