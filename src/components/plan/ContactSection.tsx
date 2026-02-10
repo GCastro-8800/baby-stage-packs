@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, CalendarDays, Mail, CheckCircle, MapPin } from "lucide-react";
+import { MessageCircle, CalendarDays, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
   const { toast } = useToast();
   const { track } = useAnalytics();
   const { user } = useAuth();
-  const [postalCode, setPostalCode] = useState("");
+  const [email, setEmail] = useState(user?.email || "");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,18 +40,15 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!postalCode) return;
+    if (!email || !email.includes("@")) return;
 
     setIsLoading(true);
-
-    const email = user?.email || "";
 
     const { error } = await supabase
       .from("leads")
       .insert({
         email,
         plan: plan.name,
-        postal_code: postalCode,
         user_id: user?.id || null,
         selected_products: productNames.length > 0 ? productNames : null,
       });
@@ -79,7 +76,6 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
         body: {
           email,
           plan: plan.name,
-          postalCode,
           selectedProducts: productNames,
         },
       });
@@ -89,7 +85,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
 
     setIsLoading(false);
     setIsSubmitted(true);
-    track("lead_captured", { plan: plan.name, has_postal_code: true, product_count: productNames.length });
+    track("lead_captured", { plan: plan.name, has_email: true, product_count: productNames.length });
   };
 
   return (
@@ -155,17 +151,16 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="w-full mt-2 space-y-2">
               <p className="text-sm text-muted-foreground mb-2">
-                Déjanos tu código postal y te escribimos.
+                Déjanos tu correo y te escribimos.
               </p>
               <div className="flex items-center gap-1.5">
-                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <Input
-                  type="text"
-                  placeholder="Ej. 28001"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value.replace(/\D/g, ""))}
-                  maxLength={5}
-                  inputMode="numeric"
+                  type="email"
+                  placeholder="tu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  maxLength={255}
                   required
                   className="h-10 text-sm"
                 />
