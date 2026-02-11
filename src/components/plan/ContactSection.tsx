@@ -3,7 +3,7 @@ import { MessageCircle, CalendarDays, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { openExternal } from "@/lib/openExternal";
+
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
@@ -109,11 +109,12 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
       {/* 3 contact options grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
         {/* WhatsApp */}
-        <div
-          onClick={() => { handleContactClick("whatsapp"); openExternal(whatsappUrl); }}
-          role="button"
-          tabIndex={0}
-          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer"
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => handleContactClick("whatsapp")}
+          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer no-underline"
         >
           <div className="w-12 h-12 rounded-full bg-[hsl(142,70%,45%)]/10 flex items-center justify-center mb-3">
             <MessageCircle className="h-6 w-6 text-[hsl(142,70%,45%)]" />
@@ -122,14 +123,15 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
           <p className="text-sm text-muted-foreground">
             Respuesta rápida. Resolvemos tus dudas al momento.
           </p>
-        </div>
+        </a>
 
         {/* Calendly */}
-        <div
-          onClick={() => { handleContactClick("calendly"); openExternal(CALENDLY_URL); }}
-          role="button"
-          tabIndex={0}
-          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer"
+        <a
+          href={CALENDLY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => handleContactClick("calendly")}
+          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer no-underline"
         >
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
             <CalendarDays className="h-6 w-6 text-primary" />
@@ -138,7 +140,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
           <p className="text-sm text-muted-foreground">
             30 min para explicarte todo con calma. Elige tu horario.
           </p>
-        </div>
+        </a>
 
         {/* Email / postal code card */}
         <div className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border bg-card">

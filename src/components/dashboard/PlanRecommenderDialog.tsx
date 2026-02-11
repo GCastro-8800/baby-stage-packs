@@ -12,7 +12,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { openExternal } from "@/lib/openExternal";
 
 type Plan = "start" | "comfort" | "total-peace";
 
@@ -245,9 +244,11 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
               <div className="flex flex-col gap-2 mt-4">
                 {result.isAnxious ? (
                   <>
-                    <Button onClick={() => openExternal(buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail))}>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Hablar con una asesora
+                    <Button asChild>
+                      <a href={buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail)} target="_blank" rel="noopener noreferrer">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Hablar con una asesora
+                      </a>
                     </Button>
                     <Button
                       variant="outline"
@@ -270,9 +271,11 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                       Ver detalles de {planData.name}
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
-                    <Button variant="outline" onClick={() => openExternal(buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail))}>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Prefiero hablar con una asesora primero
+                    <Button variant="outline" asChild>
+                      <a href={buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail)} target="_blank" rel="noopener noreferrer">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Prefiero hablar con una asesora primero
+                      </a>
                     </Button>
                   </>
                 )}

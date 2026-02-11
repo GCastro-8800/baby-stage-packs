@@ -9,7 +9,6 @@ import { BabyAgeCard } from "@/components/dashboard/BabyAgeCard";
 import { StageCard } from "@/components/dashboard/StageCard";
 import { EmotionalTip } from "@/components/dashboard/EmotionalTip";
 import logo from "@/assets/logo-bebloo.png";
-import { openExternal } from "@/lib/openExternal";
 
 export default function AppDashboard() {
   const navigate = useNavigate();
@@ -114,7 +113,9 @@ export default function AppDashboard() {
                     Estamos aquí para acompañarte en cada paso.
                   </p>
                 </div>
-                <Button variant="outline" onClick={() => openExternal(`https://wa.me/34638706467?text=${encodeURIComponent("Hola, necesito ayuda con mi cuenta en bebloo.")}`)}>Contactar soporte</Button>
+                <Button variant="outline" asChild>
+                  <a href={`https://wa.me/34638706467?text=${encodeURIComponent("Hola, necesito ayuda con mi cuenta en bebloo.")}`} target="_blank" rel="noopener noreferrer">Contactar soporte</a>
+                </Button>
               </div>
             </CardContent>
           </Card>
