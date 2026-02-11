@@ -1,29 +1,48 @@
 
 
-## Corregir enlaces externos (WhatsApp, Calendly) bloqueados en preview
+## Corregir enlaces externos bloqueados en el iframe de preview
 
 ### Problema
 
-Los enlaces a `wa.me` y otros sitios externos muestran `ERR_BLOCKED_BY_RESPONSE` porque `api.whatsapp.com` rechaza ser cargado dentro de un iframe. La vista previa de Lovable ejecuta la app dentro de un iframe, lo que causa este bloqueo. En la app publicada (`bebloo.lovable.app`) esto no deberia ocurrir, pero igualmente se puede mejorar.
+El error `ERR_BLOCKED_BY_RESPONSE` ocurre porque la vista previa de Lovable se ejecuta dentro de un iframe, y tanto `<a target="_blank">` como `window.open()` son bloqueados por las politicas de seguridad del navegador en ese contexto.
 
 ### Solucion
 
-Cambiar todos los enlaces externos para usar `window.open()` de forma explicita, lo cual fuerza al navegador a abrir una nueva ventana/pestana fuera del contexto del iframe.
+Crear una funcion helper reutilizable que abra enlaces externos de forma fiable, usando la tecnica de crear un elemento `<a>` temporal, asignarle el href, y disparar un click programatico. Esta tecnica sortea las restricciones de iframe en la mayoria de navegadores.
 
-### Archivos a modificar
+### Cambios
 
-**1. `src/pages/AppDashboard.tsx` (linea 116)**
-- Ya usa `window.open()`, mantener como esta (no cambiar a `<a>` como se habia planificado antes)
+**1. Crear `src/lib/openExternal.ts` (nuevo archivo)**
 
-**2. `src/components/plan/ContactSection.tsx` (lineas 111-125 y 128-134)**
-- WhatsApp: cambiar el `<a href={whatsappUrl} target="_blank">` por un `<div>` con `onClick={() => window.open(whatsappUrl, "_blank")}`
-- Calendly: cambiar el `<a href={CALENDLY_URL} target="_blank">` por un `<div>` con `onClick={() => window.open(CALENDLY_URL, "_blank")}`
-- Mantener estilos y clases identicos, solo cambiar la etiqueta y el metodo de apertura
+```typescript
+export function openExternal(url: string) {
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+```
 
-**3. `src/components/dashboard/PlanRecommenderDialog.tsx` (lineas 247-251 y 278-282)**
-- Los botones de Calendly con `<a target="_blank">`: cambiar a `<Button onClick={() => window.open(url, "_blank")}>` sin `asChild`
-- Aplicar lo mismo para ambos CTAs de Calendly en el resultado del quiz
+**2. `src/components/plan/ContactSection.tsx`**
+- Importar `openExternal`
+- Reemplazar `window.open(whatsappUrl, "_blank")` por `openExternal(whatsappUrl)`
+- Reemplazar `window.open(CALENDLY_URL, "_blank")` por `openExternal(CALENDLY_URL)`
 
-### Nota importante
+**3. `src/components/dashboard/PlanRecommenderDialog.tsx`**
+- Importar `openExternal`
+- Reemplazar los dos `window.open(buildCalendlyUrl(...), "_blank")` por `openExternal(buildCalendlyUrl(...))`
 
-Este cambio mejora la experiencia en el preview de Lovable. En la version publicada, ambas soluciones (enlaces nativos y `window.open`) funcionan correctamente. La ventaja de `window.open` es que es mas robusto en contextos de iframe.
+**4. `src/pages/AppDashboard.tsx`**
+- Importar `openExternal`
+- Reemplazar `window.open(...)` en el boton de soporte WhatsApp por `openExternal(...)`
+
+### URL de WhatsApp
+
+Todas las URLs ya usan el formato correcto: `https://wa.me/34638706467`. No hay error en la URL.
+
+### Nota
+
+En la version publicada (`bebloo.lovable.app`) no hay iframe, por lo que estos enlaces funcionarian con cualquier metodo. Este cambio asegura que funcionen tambien en el preview de desarrollo.
