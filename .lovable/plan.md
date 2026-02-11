@@ -1,23 +1,29 @@
 
 
-## Corregir seleccion por defecto en el quiz recomendador
+## Corregir enlaces externos (WhatsApp, Calendly) bloqueados en preview
 
 ### Problema
 
-Cuando avanzas de una pregunta a la siguiente, la nueva pregunta aparece con la primera opcion visualmente seleccionada aunque no lo este realmente. Esto ocurre porque el componente `RadioGroup` no maneja correctamente el valor `undefined` para limpiar la seleccion visual.
+Los enlaces a `wa.me` y otros sitios externos muestran `ERR_BLOCKED_BY_RESPONSE` porque `api.whatsapp.com` rechaza ser cargado dentro de un iframe. La vista previa de Lovable ejecuta la app dentro de un iframe, lo que causa este bloqueo. En la app publicada (`bebloo.lovable.app`) esto no deberia ocurrir, pero igualmente se puede mejorar.
 
 ### Solucion
 
-En `src/components/dashboard/PlanRecommenderDialog.tsx`, cambiar el estado `currentAnswer` para que use una cadena vacia `""` en lugar de `undefined` como valor de "sin seleccion". Esto le indica claramente al RadioGroup que no hay ninguna opcion seleccionada.
+Cambiar todos los enlaces externos para usar `window.open()` de forma explicita, lo cual fuerza al navegador a abrir una nueva ventana/pestana fuera del contexto del iframe.
 
-### Cambios concretos
+### Archivos a modificar
 
-**Archivo:** `src/components/dashboard/PlanRecommenderDialog.tsx`
+**1. `src/pages/AppDashboard.tsx` (linea 116)**
+- Ya usa `window.open()`, mantener como esta (no cambiar a `<a>` como se habia planificado antes)
 
-- Cambiar el tipo del estado `currentAnswer` de `string | undefined` a `string`
-- Inicializar con `""` en lugar de `undefined`
-- En `handleNext`, `handleBack` y `handleReset`: resetear a `""` en vez de `undefined`
-- En la condicion del boton "Siguiente": comprobar `currentAnswer === ""` en vez de `currentAnswer === undefined`
+**2. `src/components/plan/ContactSection.tsx` (lineas 111-125 y 128-134)**
+- WhatsApp: cambiar el `<a href={whatsappUrl} target="_blank">` por un `<div>` con `onClick={() => window.open(whatsappUrl, "_blank")}`
+- Calendly: cambiar el `<a href={CALENDLY_URL} target="_blank">` por un `<div>` con `onClick={() => window.open(CALENDLY_URL, "_blank")}`
+- Mantener estilos y clases identicos, solo cambiar la etiqueta y el metodo de apertura
 
-Son aproximadamente 5 lineas de cambio, sin afectar logica, estilos ni otros archivos.
+**3. `src/components/dashboard/PlanRecommenderDialog.tsx` (lineas 247-251 y 278-282)**
+- Los botones de Calendly con `<a target="_blank">`: cambiar a `<Button onClick={() => window.open(url, "_blank")}>` sin `asChild`
+- Aplicar lo mismo para ambos CTAs de Calendly en el resultado del quiz
 
+### Nota importante
+
+Este cambio mejora la experiencia en el preview de Lovable. En la version publicada, ambas soluciones (enlaces nativos y `window.open`) funcionan correctamente. La ventaja de `window.open` es que es mas robusto en contextos de iframe.
