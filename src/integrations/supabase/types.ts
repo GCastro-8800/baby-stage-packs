@@ -44,6 +44,44 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          item_key: string
+          rating: string
+          shipment_id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          item_key: string
+          rating: string
+          shipment_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          item_key?: string
+          rating?: string
+          shipment_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           created_at: string | null
@@ -113,6 +151,89 @@ export type Database = {
         }
         Relationships: []
       }
+      shipments: {
+        Row: {
+          created_at: string
+          delivered_date: string | null
+          id: string
+          items: Json
+          scheduled_date: string
+          shipped_date: string | null
+          stage: Database["public"]["Enums"]["baby_stage"]
+          status: Database["public"]["Enums"]["shipment_status"]
+          subscription_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivered_date?: string | null
+          id?: string
+          items?: Json
+          scheduled_date: string
+          shipped_date?: string | null
+          stage: Database["public"]["Enums"]["baby_stage"]
+          status?: Database["public"]["Enums"]["shipment_status"]
+          subscription_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivered_date?: string | null
+          id?: string
+          items?: Json
+          scheduled_date?: string
+          shipped_date?: string | null
+          stage?: Database["public"]["Enums"]["baby_stage"]
+          status?: Database["public"]["Enums"]["shipment_status"]
+          subscription_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_stage: Database["public"]["Enums"]["baby_stage"]
+          id: string
+          next_shipment_date: string | null
+          plan_name: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_stage?: Database["public"]["Enums"]["baby_stage"]
+          id?: string
+          next_shipment_date?: string | null
+          plan_name?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_stage?: Database["public"]["Enums"]["baby_stage"]
+          id?: string
+          next_shipment_date?: string | null
+          plan_name?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -149,6 +270,9 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "admin"
+      baby_stage: "prenatal" | "0-3m" | "3-6m" | "6-12m" | "12-18m" | "18-24m"
+      shipment_status: "scheduled" | "packed" | "shipped" | "delivered"
+      subscription_status: "active" | "paused" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -277,6 +401,9 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "admin"],
+      baby_stage: ["prenatal", "0-3m", "3-6m", "6-12m", "12-18m", "18-24m"],
+      shipment_status: ["scheduled", "packed", "shipped", "delivered"],
+      subscription_status: ["active", "paused", "cancelled"],
     },
   },
 } as const

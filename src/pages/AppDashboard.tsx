@@ -1,13 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { LogOut, Settings, Calendar } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useBabyStage } from "@/hooks/useBabyStage";
+import { useSubscription } from "@/hooks/useSubscription";
 import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
 import { BabyAgeCard } from "@/components/dashboard/BabyAgeCard";
 import { StageCard } from "@/components/dashboard/StageCard";
 import { EmotionalTip } from "@/components/dashboard/EmotionalTip";
+import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
+import { ShipmentCard } from "@/components/dashboard/ShipmentCard";
+import { NoSubscriptionCard } from "@/components/dashboard/NoSubscriptionCard";
 import logo from "@/assets/logo-bebloo.png";
 import { openExternal } from "@/lib/openExternal";
 
@@ -15,10 +19,15 @@ export default function AppDashboard() {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
   const babyStage = useBabyStage(profile);
+  const { subscription, shipments, nextShipment, lastDelivered, feedback, submitFeedback } = useSubscription();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleFeedback = (shipmentId: string) => (itemKey: string, rating: "useful" | "not_useful") => {
+    submitFeedback.mutate({ shipmentId, itemKey, rating });
   };
 
   return (
@@ -55,7 +64,6 @@ export default function AppDashboard() {
 
           {/* Cards grid */}
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Baby age card - shows countdown or age */}
             <BabyAgeCard
               situation={babyStage.situation}
               ageText={babyStage.ageText}
@@ -63,8 +71,6 @@ export default function AppDashboard() {
               daysUntilBirth={babyStage.daysUntilBirth}
               dueDateFormatted={babyStage.dueDateFormatted}
             />
-
-            {/* Stage card - shows current stage and progress */}
             <StageCard
               stage={babyStage.stage}
               stageName={babyStage.stageName}
@@ -81,28 +87,31 @@ export default function AppDashboard() {
             isFirstChild={babyStage.isFirstChild}
           />
 
-          {/* Subscription card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Calendar className="h-5 w-5 text-primary" />
-                Tu suscripción
-              </CardTitle>
-              <CardDescription>Estado de tu plan</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center py-6">
-                <div className="text-center">
-                  <p className="text-muted-foreground text-sm mb-3">
-                    Aún no tienes una suscripción activa
-                  </p>
-                  <Button size="sm" onClick={() => navigate("/#precios")}>
-                    Ver planes
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Subscription section */}
+          {subscription ? (
+            <SubscriptionCard subscription={subscription} />
+          ) : (
+            <NoSubscriptionCard />
+          )}
+
+          {/* Next shipment */}
+          {nextShipment && (
+            <ShipmentCard
+              shipment={nextShipment}
+              feedback={feedback}
+              onFeedback={handleFeedback(nextShipment.id)}
+              isNext
+            />
+          )}
+
+          {/* Last delivered shipment with feedback */}
+          {lastDelivered && (
+            <ShipmentCard
+              shipment={lastDelivered}
+              feedback={feedback}
+              onFeedback={handleFeedback(lastDelivered.id)}
+            />
+          )}
 
           {/* Help section */}
           <Card className="bg-primary/5 border-primary/20">
