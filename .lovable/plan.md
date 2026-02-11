@@ -1,62 +1,72 @@
 
-## Registro obligatorio en el flujo de plan + email con seleccion de productos
 
-### Objetivo
+## Quiz Recomendador de Planes - Version mejorada
 
-Cuando un usuario pulsa "Continuar" en la pagina de equipamiento, si no tiene cuenta se le obliga a crearla o iniciar sesion antes de avanzar. Una vez autenticado, se le envia un email automatico con los productos que ha seleccionado. Ademas, se redisena la seccion de contacto (Step 2) eliminando el divisor "o bien" y reorganizando las 3 opciones de contacto al mismo nivel.
+### Resumen
 
-### Cambios propuestos
+Se creara un nuevo componente `PlanRecommenderDialog.tsx` con un quiz de 4 preguntas diagnosticas que analiza el perfil del usuario y recomienda el plan mas adecuado (Start, Comfort o Total Peace). El resultado incluye CTAs contextuales segun si el usuario tiene un perfil ansioso o no, con integracion directa a Calendly.
 
-**1. Interceptar "Continuar" con comprobacion de autenticacion**
+### Componente nuevo: `src/components/dashboard/PlanRecommenderDialog.tsx`
 
-En `PlanDetail.tsx`, al pulsar "Continuar":
-- Si el usuario NO esta autenticado: redirigir a `/auth` pasando como estado la ruta de retorno (`/plan/:planId`) y las selecciones actuales (via `location.state`)
-- Si el usuario SI esta autenticado: avanzar al Step 2 como ahora
+**Estructura del quiz (4 pasos + resultado):**
 
-En `Auth.tsx`, tras login/signup exitoso:
-- Si viene de un plan (detectado via `location.state`), redirigir de vuelta a `/plan/:planId` restaurando las selecciones
-- El onboarding se saltaria en este flujo (o se pospone), ya que el objetivo inmediato es completar la seleccion de productos
+- Paso 1: "Que te preocupa MAS ahora mismo sobre el equipamiento del bebe?" (4 opciones)
+- Paso 2: "Como te sientes con la idea de comprar todo nuevo?" (4 opciones)
+- Paso 3: "Si pudieras delegar UNA SOLA COSA del primer ano, cual seria?" (4 opciones)
+- Paso 4: "Cuanto espacio de almacenaje tienes disponible para equipamiento bebe?" (3 opciones)
+- Paso 5: Pantalla de resultado
 
-**2. Guardar selecciones en el estado de navegacion**
+**Logica de puntuacion:**
 
-Al redirigir a `/auth`, pasar las selecciones en `location.state`:
-```text
-{ from: "/plan/comfort", selections: { "Carrito::Bugaboo Fox 5": true, ... } }
-```
+Cada respuesta suma puntos a uno de los tres planes:
 
-Al volver de `/auth`, `PlanDetail.tsx` lee `location.state` y restaura las selecciones, avanzando directamente al Step 2.
+| Pregunta | Opcion | Puntos |
+|----------|--------|--------|
+| P1 - "No se que necesito" | Start +2 |
+| P1 - "Me agobia acumular" | Comfort +2 |
+| P1 - "Miedo seguridad" | Total Peace +2, marca perfil ansioso |
+| P1 - "No tengo tiempo" | Comfort +1, Total Peace +1 |
+| P2 - "Gasto inicial" | Start +2 |
+| P2 - "Obsoleto en meses" | Comfort +2 |
+| P2 - "Espacio" | Total Peace +1, Comfort +1 |
+| P2 - "Odio gestionar reventa" | Comfort +1, Total Peace +1 |
+| P3 - "Elegir que comprar" | Start +1, Comfort +1 |
+| P3 - "Limpiar/desinfectar" | Comfort +2 |
+| P3 - "Gestionar cambios" | Comfort +1, Total Peace +1 |
+| P3 - "Deshacerme de lo usado" | Total Peace +2 |
+| P4 - "Menos de 2m2" | Total Peace +2 |
+| P4 - "2-4m2" | Comfort +1 |
+| P4 - "Mas de 4m2" | Start +1 |
 
-**3. Enviar email con productos seleccionados**
+En caso de empate, se recomienda Comfort.
 
-Crear o ampliar la edge function para enviar un email al usuario recien registrado/autenticado con:
-- Confirmacion de que su cuenta esta creada
-- Lista de los productos que ha preseleccionado
-- Mensaje invitando a continuar el proceso
+**Pantalla de resultado:**
 
-Esto se dispara automaticamente al llegar al Step 2 con usuario autenticado.
+- Titulo del plan + precio
+- Frase personalizada segun plan recomendado (copys proporcionadas)
+- CTA principal: si perfil ansioso, boton "Hablar 15min con Patricia" abriendo Calendly; si no, "Ver detalles de BEBLOO [Plan]" navegando a `/plan/[id]`
+- CTA secundario: la opcion contraria al principal
+- Link terciario: "No estas segura? Ver todos los planes" hacia `/#precios`
 
-**4. Redisenar ContactSection (Step 2)**
+**Integracion Calendly:**
 
-Eliminar el divisor "o bien" y la seccion separada de "Comprobar disponibilidad". Reorganizar en 3 opciones al mismo nivel visual:
+El boton de Calendly abrira la URL existente (`https://calendly.com/martincabanaspaola/30min`) con parametros pre-rellenados si el usuario esta autenticado: `name`, `email`, y en el campo de notas: "Lead desde Quiz - Perfil: [Plan] - Alta ansiedad: Si/No".
 
-1. **WhatsApp** - Habla directamente con nosotros (como esta ahora)
-2. **Reserva una llamada** - Calendly (como esta ahora)  
-3. **Dejanos tu email** - Nuevo: formulario simple (solo codigo postal) que guarda un lead vinculado al usuario autenticado y envia el email de confirmacion con los productos
+### Modificacion: `src/components/dashboard/StageCard.tsx`
 
-Las 3 opciones aparecen como tarjetas iguales en un grid de 3 columnas (o apiladas en movil).
+- Importar el nuevo `PlanRecommenderDialog`
+- Anadir estado `open` para controlar el dialog
+- Cambiar el `onClick` del boton "Ver pack recomendado" para abrir el dialog en vez de navegar a `/#precios`
+- Pasar la `situation` como prop al dialog para contexto
 
 ### Detalle tecnico
 
-**Archivos a modificar:**
+- El componente usa `Dialog` de shadcn/ui con RadioGroup para las opciones
+- Estado interno: `step` (0-4), `answers` (array de indices), `isAnxious` (boolean)
+- La puntuacion se calcula al llegar al paso 5 sumando los puntos de cada respuesta
+- Todo es client-side, sin llamadas a base de datos ni edge functions
+- El boton de Calendly construye la URL con query params: `?name=...&email=...&a1=Lead+desde+Quiz...`
 
-- `src/pages/PlanDetail.tsx` -- Importar `useAuth`. En `handleContinue`, comprobar si `user` existe; si no, `navigate("/auth", { state: { from: location.pathname, selections } })`. Al montar, si hay `location.state.selections`, restaurarlas y avanzar a step 2.
+### Sin cambios en
 
-- `src/pages/Auth.tsx` -- Ajustar la redireccion post-login: si `from` apunta a `/plan/:planId`, redirigir alli con `state.selections` preservadas en vez de ir a `/app`. Saltar el onboarding en este caso (el usuario puede completarlo mas tarde).
-
-- `src/components/plan/ContactSection.tsx` -- Eliminar el bloque "o bien" (lineas 131-136) y la seccion de "Comprobar disponibilidad". Reemplazar con un grid de 3 tarjetas iguales: WhatsApp, Calendly, y "Dejanos tus datos" (formulario con codigo postal que guarda lead vinculado al user_id).
-
-- `supabase/functions/send-confirmation-email/index.ts` -- Ampliar para aceptar un parametro opcional `selectedProducts: string[]` y renderizarlos en el cuerpo del email como lista HTML.
-
-- **Migracion de base de datos** -- Anadir columna `user_id uuid references auth.users(id)` (nullable) a la tabla `leads` para vincular leads con usuarios registrados. Anadir columna `selected_products text[]` (nullable) para guardar la lista de productos seleccionados.
-
-**Sin cambios en:** onboarding flow, dashboard, landing page, ni componentes UI base.
+Base de datos, edge functions, auth, ContactSection, ni otros componentes del dashboard.
