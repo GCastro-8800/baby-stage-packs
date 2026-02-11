@@ -108,12 +108,11 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
       {/* 3 contact options grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
         {/* WhatsApp */}
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => handleContactClick("whatsapp")}
-          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md"
+        <div
+          onClick={() => { handleContactClick("whatsapp"); window.open(whatsappUrl, "_blank"); }}
+          role="button"
+          tabIndex={0}
+          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer"
         >
           <div className="w-12 h-12 rounded-full bg-[hsl(142,70%,45%)]/10 flex items-center justify-center mb-3">
             <MessageCircle className="h-6 w-6 text-[hsl(142,70%,45%)]" />
@@ -122,15 +121,14 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
           <p className="text-sm text-muted-foreground">
             Respuesta rápida. Resolvemos tus dudas al momento.
           </p>
-        </a>
+        </div>
 
         {/* Calendly */}
-        <a
-          href={CALENDLY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => handleContactClick("calendly")}
-          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md"
+        <div
+          onClick={() => { handleContactClick("calendly"); window.open(CALENDLY_URL, "_blank"); }}
+          role="button"
+          tabIndex={0}
+          className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer"
         >
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
             <CalendarDays className="h-6 w-6 text-primary" />
@@ -139,7 +137,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
           <p className="text-sm text-muted-foreground">
             30 min para explicarte todo con calma. Elige tu horario.
           </p>
-        </a>
+        </div>
 
         {/* Email / postal code card */}
         <div className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border bg-card">
