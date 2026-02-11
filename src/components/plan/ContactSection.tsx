@@ -3,6 +3,7 @@ import { MessageCircle, CalendarDays, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { openExternal } from "@/lib/openExternal";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
@@ -109,7 +110,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
         {/* WhatsApp */}
         <div
-          onClick={() => { handleContactClick("whatsapp"); window.open(whatsappUrl, "_blank"); }}
+          onClick={() => { handleContactClick("whatsapp"); openExternal(whatsappUrl); }}
           role="button"
           tabIndex={0}
           className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer"
@@ -125,7 +126,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
 
         {/* Calendly */}
         <div
-          onClick={() => { handleContactClick("calendly"); window.open(CALENDLY_URL, "_blank"); }}
+          onClick={() => { handleContactClick("calendly"); openExternal(CALENDLY_URL); }}
           role="button"
           tabIndex={0}
           className="flex flex-col items-center text-center p-6 rounded-xl border-2 border-border hover:border-primary/40 bg-card transition-all hover:shadow-md cursor-pointer"
