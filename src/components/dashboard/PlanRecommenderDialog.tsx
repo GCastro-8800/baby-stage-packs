@@ -251,7 +251,7 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                         rel="noopener noreferrer"
                       >
                         <Calendar className="h-4 w-4 mr-2" />
-                        Hablar 15min con Patricia
+                        Hablar con una asesora
                       </a>
                     </Button>
                     <Button
@@ -282,7 +282,7 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                         rel="noopener noreferrer"
                       >
                         <Calendar className="h-4 w-4 mr-2" />
-                        Prefiero hablar con Patricia primero
+                        Prefiero hablar con una asesora primero
                       </a>
                     </Button>
                   </>
