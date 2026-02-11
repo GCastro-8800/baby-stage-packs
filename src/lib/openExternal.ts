@@ -1,9 +1,9 @@
 export function openExternal(url: string) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  // Try opening from the top-level window to escape iframe restrictions
+  const top = window.top || window.parent || window;
+  const win = top.open(url, "_blank", "noopener,noreferrer");
+  if (!win) {
+    // Fallback: try from current window
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
 }
