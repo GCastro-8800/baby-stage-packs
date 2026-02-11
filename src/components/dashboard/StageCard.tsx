@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { PlanRecommenderDialog } from "@/components/dashboard/PlanRecommenderDialog";
 import type { Situation } from "@/types/baby";
 
 interface StageCardProps {
@@ -22,7 +23,7 @@ export function StageCard({
   totalDaysInStage,
   situation,
 }: StageCardProps) {
-  const navigate = useNavigate();
+  const [quizOpen, setQuizOpen] = useState(false);
   if (!stage || !stageName) {
     return null;
   }
@@ -59,9 +60,10 @@ export function StageCard({
               </div>
             )}
 
-            <Button variant="outline" size="sm" className="w-full" onClick={() => navigate("/#precios")}>
+            <Button variant="outline" size="sm" className="w-full" onClick={() => setQuizOpen(true)}>
               Ver pack recomendado
             </Button>
+            <PlanRecommenderDialog open={quizOpen} onOpenChange={setQuizOpen} />
           </div>
         </div>
       </CardContent>
