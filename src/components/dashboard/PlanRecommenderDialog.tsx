@@ -125,7 +125,7 @@ function buildCalendlyUrl(plan: Plan, isAnxious: boolean, name?: string, email?:
 export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDialogProps) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
-  const [currentAnswer, setCurrentAnswer] = useState<string | undefined>(undefined);
+  const [currentAnswer, setCurrentAnswer] = useState("");
   const navigate = useNavigate();
   const { user, profile } = useAuth();
 
@@ -133,10 +133,10 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
   const isResult = step >= totalSteps;
 
   const handleNext = () => {
-    if (currentAnswer === undefined) return;
+    if (currentAnswer === "") return;
     const newAnswers = [...answers, parseInt(currentAnswer)];
     setAnswers(newAnswers);
-    setCurrentAnswer(undefined);
+    setCurrentAnswer("");
     setStep(step + 1);
   };
 
@@ -144,14 +144,14 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
     if (step === 0) return;
     const newAnswers = answers.slice(0, -1);
     setAnswers(newAnswers);
-    setCurrentAnswer(undefined);
+    setCurrentAnswer("");
     setStep(step - 1);
   };
 
   const handleReset = () => {
     setStep(0);
     setAnswers([]);
-    setCurrentAnswer(undefined);
+    setCurrentAnswer("");
   };
 
   const handleOpenChange = (val: boolean) => {
@@ -219,7 +219,7 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                 className="ml-auto"
                 size="sm"
                 onClick={handleNext}
-                disabled={currentAnswer === undefined}
+                disabled={currentAnswer === ""}
               >
                 {step < totalSteps - 1 ? "Siguiente" : "Ver resultado"}
                 <ChevronRight className="h-4 w-4 ml-1" />
