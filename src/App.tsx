@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import AppDashboard from "./pages/AppDashboard";
@@ -44,6 +45,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               path="/admin"
               element={
