@@ -20,23 +20,26 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const { data: authData, error: authError } =
-        await supabase.auth.signInWithPassword({ email, password });
+      // Call the admin-login edge function
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "admin-login",
+        { body: { email, password } }
+      );
 
-      if (authError) {
-        setError("Credenciales inválidas.");
+      if (fnError || data?.error) {
+        setError(data?.error || "Error de autenticación");
         setLoading(false);
         return;
       }
 
-      const { data: isAdmin, error: roleError } = await supabase.rpc(
-        "has_role",
-        { _user_id: authData.user.id, _role: "admin" }
-      );
+      // Use the token hash to create a session
+      const { error: otpError } = await supabase.auth.verifyOtp({
+        type: "magiclink",
+        token_hash: data.token_hash,
+      });
 
-      if (roleError || !isAdmin) {
-        await supabase.auth.signOut();
-        setError("No tienes permisos de administrador.");
+      if (otpError) {
+        setError("Error creando sesión. Inténtalo de nuevo.");
         setLoading(false);
         return;
       }
@@ -77,7 +80,7 @@ export default function AdminLogin() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password">Contraseña admin</Label>
             <Input
               id="password"
               type="password"
