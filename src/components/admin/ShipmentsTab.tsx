@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2, ArrowRight, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
+import { CreateShipmentDialog } from "./CreateShipmentDialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type ShipmentStatus = Database["public"]["Enums"]["shipment_status"];
@@ -29,6 +31,7 @@ const statusLabels: Record<string, string> = {
 
 export function ShipmentsTab() {
   const queryClient = useQueryClient();
+  const [createOpen, setCreateOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-shipments"],
@@ -84,7 +87,13 @@ export function ShipmentsTab() {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" /> Nuevo envío
+        </Button>
+      </div>
+      <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -137,6 +146,8 @@ export function ShipmentsTab() {
           })}
         </TableBody>
       </Table>
+      </div>
+      <CreateShipmentDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   );
 }
