@@ -53,47 +53,47 @@ serve(async (req) => {
 
   try {
     const { messages } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "GEMINI_API_KEY is not configured" }),
+        JSON.stringify({ error: "OPENAI_API_KEY is not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Convert messages to Gemini format
-    const contents = messages.map((m: { role: string; content: string }) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
-
-    const geminiBody = {
-      contents,
-      systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }],
-      },
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 1024,
-      },
-    };
-
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-
-    const geminiRes = await fetch(geminiUrl, {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(geminiBody),
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...messages,
+        ],
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 1024,
+      }),
     });
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      console.error("Gemini API error:", geminiRes.status, errText);
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("OpenAI API error:", response.status, errText);
 
-      if (geminiRes.status === 429) {
+      if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Demasiadas solicitudes. Intenta de nuevo en unos segundos." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (response.status === 401) {
+        return new Response(
+          JSON.stringify({ error: "API key inválida o expirada." }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
@@ -103,55 +103,7 @@ serve(async (req) => {
       );
     }
 
-    // Stream Gemini's SSE response, converting to OpenAI-compatible SSE format
-    const reader = geminiRes.body!.getReader();
-    const decoder = new TextDecoder();
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        const encoder = new TextEncoder();
-        let buffer = "";
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-
-            let newlineIdx: number;
-            while ((newlineIdx = buffer.indexOf("\n")) !== -1) {
-              const line = buffer.slice(0, newlineIdx).trim();
-              buffer = buffer.slice(newlineIdx + 1);
-
-              if (!line.startsWith("data: ")) continue;
-              const jsonStr = line.slice(6);
-
-              try {
-                const parsed = JSON.parse(jsonStr);
-                const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                  // Convert to OpenAI-compatible SSE format
-                  const sseData = JSON.stringify({
-                    choices: [{ delta: { content: text } }],
-                  });
-                  controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
-                }
-              } catch {
-                // Incomplete JSON, skip
-              }
-            }
-          }
-        } catch (e) {
-          console.error("Stream error:", e);
-        } finally {
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(stream, {
+    return new Response(response.body, {
       headers: {
         ...corsHeaders,
         "Content-Type": "text/event-stream",
