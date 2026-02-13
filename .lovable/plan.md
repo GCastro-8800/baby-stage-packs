@@ -1,79 +1,100 @@
 
+# Gestion operativa: Admin manual + Suscripcion con pago
 
-# Login admin con contraseña separada
+## Fase 1: Admin puede crear suscripciones y envios manualmente
 
-## Concepto
+Esta es la parte mas inmediata y te permite operar ya con los primeros clientes.
 
-El login admin usara email + una contraseña exclusiva para admin (diferente de la contraseña/Google de la cuenta normal). Maximo 2 cuentas admin.
+### Cambios en el panel admin
 
-## Como funciona
+**Tab Suscripciones - Boton "Nueva suscripcion"**
+- Dialog/formulario con:
+  - Selector de usuario (dropdown con los perfiles registrados)
+  - Selector de plan (Start / Comfort / Total Peace)
+  - Etapa actual del bebe (prenatal, 0-3m, 3-6m, etc.)
+  - Fecha del proximo envio
+- Al guardar, se inserta directamente en la tabla `subscriptions`
 
-```text
-Usuario va a /admin/login
-        |
-  Ingresa email + contraseña admin
-        |
-  Edge function "admin-login":
-    1. Busca usuario por email
-    2. Verifica que tenga rol admin
-    3. Compara contraseña contra hash en tabla admin_credentials
-    4. Si todo OK, genera un magic link token (sin enviar email)
-    5. Retorna el token al cliente
-        |
-  Cliente usa el token para crear sesion de Supabase
-        |
-  Redirige a /admin (con sesion activa + rol admin = RLS funciona)
-```
+**Tab Envios - Boton "Nuevo envio"**
+- Dialog/formulario con:
+  - Selector de suscripcion activa (muestra usuario + plan)
+  - Etapa del envio
+  - Fecha programada
+  - Items del envio (agregar productos del catalogo existente en `planEquipment.ts`)
+- Al guardar, se inserta en la tabla `shipments`
 
-## Cambios
+**Tab Suscripciones - Acciones por fila**
+- Boton para pausar/reactivar/cancelar suscripcion
+- Editar fecha de proximo envio
 
-### 1. Nueva tabla: `admin_credentials`
-
-Almacena la contraseña admin (hasheada con bcrypt) separada de la autenticacion normal.
-
-- `id` UUID (PK)
-- `user_id` UUID (referencia a auth.users, unico)
-- `password_hash` TEXT
-- `created_at` TIMESTAMP
-
-Politicas RLS: bloquear todo acceso (solo el edge function con service role puede leer/escribir). Trigger para limitar a maximo 2 filas.
-
-### 2. Edge function: `admin-login`
-
-Recibe `{ email, password }` y:
-1. Busca el usuario por email usando el admin API (service role)
-2. Verifica que tenga rol admin en `user_roles`
-3. Verifica la contraseña contra el hash en `admin_credentials` usando bcrypt
-4. Si todo es valido, genera un magic link token via `auth.admin.generateLink`
-5. Retorna el token hasheado al cliente
-6. El cliente llama `supabase.auth.verifyOtp()` para crear la sesion
-
-### 3. Edge function: `set-admin-password`
-
-Para configurar/cambiar la contraseña admin. Requiere estar autenticado + tener rol admin. Recibe `{ password }` y guarda el hash en `admin_credentials`.
-
-### 4. Actualizar `AdminLogin.tsx`
-
-Cambiar el flujo: en vez de `signInWithPassword`, llamar al edge function `admin-login`. Si retorna el token, usarlo con `verifyOtp` para crear sesion y navegar a `/admin`.
-
-### 5. Setup inicial
-
-Despues de desplegar, usaremos el edge function `set-admin-password` para establecer tu contraseña admin. Te pedire que me digas que contraseña quieres usar (o la configuras directamente).
-
-## Seguridad
-
-- Las contraseñas admin se almacenan hasheadas con bcrypt (nunca en texto plano)
-- Solo el service role puede acceder a `admin_credentials`
-- El magic link token se genera server-side y nunca se envia por email
-- Maximo 2 cuentas admin (forzado por trigger en la tabla)
-- RLS sigue protegiendo todos los datos del panel admin
-
-## Archivos
+### Archivos a crear/modificar
 
 | Accion | Archivo |
 |--------|---------|
-| Crear | `supabase/functions/admin-login/index.ts` |
-| Crear | `supabase/functions/set-admin-password/index.ts` |
-| Migrar | Nueva tabla `admin_credentials` + trigger limite 2 filas |
-| Modificar | `src/pages/AdminLogin.tsx` - usar edge function en vez de signInWithPassword |
+| Crear | `src/components/admin/CreateSubscriptionDialog.tsx` |
+| Crear | `src/components/admin/CreateShipmentDialog.tsx` |
+| Modificar | `src/components/admin/SubscriptionsTab.tsx` - agregar boton + acciones |
+| Modificar | `src/components/admin/ShipmentsTab.tsx` - agregar boton |
 
+No se necesitan cambios en la base de datos: las tablas `subscriptions` y `shipments` ya existen con las columnas necesarias, y las politicas RLS ya permiten a los admins hacer INSERT/UPDATE/DELETE.
+
+---
+
+## Fase 2: Flujo de pago con Stripe para usuarios
+
+Permite que los usuarios se suscriban directamente desde la app.
+
+### Flujo del usuario
+
+```text
+Usuario en /plan/:planId
+  -> Selecciona equipamiento
+  -> Click "Suscribirme"
+  -> Se redirige a Stripe Checkout (suscripcion mensual)
+  -> Stripe procesa el pago
+  -> Webhook de Stripe notifica al backend
+  -> Backend crea la suscripcion + primer envio automaticamente
+  -> Usuario ve su suscripcion activa en /app
+```
+
+### Implementacion tecnica
+
+1. **Habilitar Stripe** - Conectar la integracion de Stripe con tu clave secreta
+2. **Crear productos/precios en Stripe** - Un precio recurrente por cada plan (Start 59EUR/mes, Comfort 129EUR/mes, Total Peace 149EUR/mes)
+3. **Edge function para crear sesion de Checkout** - Recibe el plan seleccionado y el equipamiento elegido, crea una sesion de Stripe Checkout
+4. **Webhook de Stripe** - Escucha eventos `checkout.session.completed` y `customer.subscription.deleted` para crear/cancelar suscripciones automaticamente en la base de datos
+5. **Actualizar la pagina del plan** - Cambiar el boton de contacto por un boton de pago que inicia el flujo de Stripe
+
+### Archivos a crear/modificar
+
+| Accion | Archivo |
+|--------|---------|
+| Crear | Edge function para Stripe Checkout |
+| Crear | Edge function webhook de Stripe |
+| Modificar | `src/pages/PlanDetail.tsx` - boton de pago |
+| Migrar | Tabla para mapear Stripe customer ID con user ID (opcional) |
+
+---
+
+## Orden recomendado
+
+Sugiero empezar por la **Fase 1** (admin manual) porque:
+- Es mas rapida de implementar (no requiere integracion externa)
+- Te permite operar inmediatamente con los primeros clientes
+- Puedes validar el flujo completo antes de automatizarlo
+
+La Fase 2 (Stripe) se puede agregar despues cuando estes listo para escalar.
+
+## Seccion tecnica
+
+### Fase 1 - Detalles
+
+Los dialogs de creacion usaran los componentes existentes de shadcn/ui (Dialog, Select, Input, Calendar). Las mutaciones se haran directamente con el cliente de la base de datos, aprovechando que las politicas RLS ya otorgan permisos completos a los administradores (`has_role(auth.uid(), 'admin')`).
+
+Para el selector de usuarios, se consultara la tabla `profiles` filtrando usuarios que no tengan ya una suscripcion activa.
+
+Para los items del envio, se reutilizara el catalogo de `src/data/planEquipment.ts` para que el admin seleccione los productos correctos segun el plan.
+
+### Fase 2 - Detalles
+
+Stripe se integrara usando la herramienta nativa de Lovable. Se crearan precios recurrentes mensuales para cada plan. El webhook verificara la firma de Stripe antes de procesar eventos, y usara el service role para insertar suscripciones y envios en la base de datos.
