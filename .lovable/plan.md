@@ -1,100 +1,77 @@
 
-# Gestion operativa: Admin manual + Suscripcion con pago
 
-## Fase 1: Admin puede crear suscripciones y envios manualmente
+# Fase 2: Suscripcion con pago via Stripe
 
-Esta es la parte mas inmediata y te permite operar ya con los primeros clientes.
+Actualmente, cuando un usuario selecciona un plan y su equipamiento, llega a una pagina de contacto (WhatsApp, Calendly, email). Para que puedan suscribirse directamente, integraremos Stripe Checkout con pagos recurrentes mensuales.
 
-### Cambios en el panel admin
-
-**Tab Suscripciones - Boton "Nueva suscripcion"**
-- Dialog/formulario con:
-  - Selector de usuario (dropdown con los perfiles registrados)
-  - Selector de plan (Start / Comfort / Total Peace)
-  - Etapa actual del bebe (prenatal, 0-3m, 3-6m, etc.)
-  - Fecha del proximo envio
-- Al guardar, se inserta directamente en la tabla `subscriptions`
-
-**Tab Envios - Boton "Nuevo envio"**
-- Dialog/formulario con:
-  - Selector de suscripcion activa (muestra usuario + plan)
-  - Etapa del envio
-  - Fecha programada
-  - Items del envio (agregar productos del catalogo existente en `planEquipment.ts`)
-- Al guardar, se inserta en la tabla `shipments`
-
-**Tab Suscripciones - Acciones por fila**
-- Boton para pausar/reactivar/cancelar suscripcion
-- Editar fecha de proximo envio
-
-### Archivos a crear/modificar
-
-| Accion | Archivo |
-|--------|---------|
-| Crear | `src/components/admin/CreateSubscriptionDialog.tsx` |
-| Crear | `src/components/admin/CreateShipmentDialog.tsx` |
-| Modificar | `src/components/admin/SubscriptionsTab.tsx` - agregar boton + acciones |
-| Modificar | `src/components/admin/ShipmentsTab.tsx` - agregar boton |
-
-No se necesitan cambios en la base de datos: las tablas `subscriptions` y `shipments` ya existen con las columnas necesarias, y las politicas RLS ya permiten a los admins hacer INSERT/UPDATE/DELETE.
-
----
-
-## Fase 2: Flujo de pago con Stripe para usuarios
-
-Permite que los usuarios se suscriban directamente desde la app.
-
-### Flujo del usuario
+## Flujo del usuario
 
 ```text
-Usuario en /plan/:planId
-  -> Selecciona equipamiento
-  -> Click "Suscribirme"
-  -> Se redirige a Stripe Checkout (suscripcion mensual)
-  -> Stripe procesa el pago
-  -> Webhook de Stripe notifica al backend
-  -> Backend crea la suscripcion + primer envio automaticamente
-  -> Usuario ve su suscripcion activa en /app
+/plan/:planId (selecciona equipamiento)
+  -> Click "Suscribirme" (requiere login)
+  -> Se crea una sesion de Stripe Checkout (suscripcion mensual)
+  -> Usuario paga en Stripe
+  -> Stripe envia webhook
+  -> Backend crea suscripcion + primer envio automaticamente
+  -> Usuario vuelve a /app y ve su suscripcion activa
 ```
 
-### Implementacion tecnica
+## Que se va a hacer
 
-1. **Habilitar Stripe** - Conectar la integracion de Stripe con tu clave secreta
-2. **Crear productos/precios en Stripe** - Un precio recurrente por cada plan (Start 59EUR/mes, Comfort 129EUR/mes, Total Peace 149EUR/mes)
-3. **Edge function para crear sesion de Checkout** - Recibe el plan seleccionado y el equipamiento elegido, crea una sesion de Stripe Checkout
-4. **Webhook de Stripe** - Escucha eventos `checkout.session.completed` y `customer.subscription.deleted` para crear/cancelar suscripciones automaticamente en la base de datos
-5. **Actualizar la pagina del plan** - Cambiar el boton de contacto por un boton de pago que inicia el flujo de Stripe
+### 1. Habilitar Stripe
+- Conectar la integracion nativa de Stripe en Lovable con tu clave secreta
 
-### Archivos a crear/modificar
+### 2. Crear productos y precios en Stripe
+- Tres precios recurrentes mensuales:
+  - BEBLOO Start: 59 EUR/mes
+  - BEBLOO Comfort: 129 EUR/mes
+  - BEBLOO Total Peace: 149 EUR/mes
+
+### 3. Backend function: crear sesion de Checkout
+- Recibe: planId, equipamiento seleccionado, userId
+- Crea (o recupera) un cliente de Stripe asociado al usuario
+- Genera una sesion de Stripe Checkout en modo suscripcion
+- Devuelve la URL de pago
+
+### 4. Backend function: webhook de Stripe
+- Escucha el evento `checkout.session.completed`
+- Verifica la firma del webhook para seguridad
+- Crea automaticamente una fila en `subscriptions` y un primer `shipment` programado
+- Escucha `customer.subscription.deleted` para cancelar suscripciones
+
+### 5. Actualizar la pagina del plan (paso 2)
+- Reemplazar la seccion de contacto actual por dos opciones:
+  - Boton principal "Suscribirme" que inicia el pago con Stripe
+  - Seccion secundaria "Prefiero hablar primero" con las opciones de contacto actuales (WhatsApp, Calendly, email)
+- Esto mantiene ambos caminos: pago directo y contacto humano
+
+### 6. Pagina de exito post-pago
+- Crear una pagina `/checkout/success` que confirme la suscripcion y redirija al dashboard
+
+## Archivos a crear o modificar
 
 | Accion | Archivo |
 |--------|---------|
-| Crear | Edge function para Stripe Checkout |
-| Crear | Edge function webhook de Stripe |
-| Modificar | `src/pages/PlanDetail.tsx` - boton de pago |
-| Migrar | Tabla para mapear Stripe customer ID con user ID (opcional) |
-
----
-
-## Orden recomendado
-
-Sugiero empezar por la **Fase 1** (admin manual) porque:
-- Es mas rapida de implementar (no requiere integracion externa)
-- Te permite operar inmediatamente con los primeros clientes
-- Puedes validar el flujo completo antes de automatizarlo
-
-La Fase 2 (Stripe) se puede agregar despues cuando estes listo para escalar.
+| Crear | Backend function `stripe-checkout` |
+| Crear | Backend function `stripe-webhook` |
+| Crear | `src/pages/CheckoutSuccess.tsx` |
+| Modificar | `src/pages/PlanDetail.tsx` - paso 2 ahora ofrece pago |
+| Modificar | `src/components/plan/ContactSection.tsx` - reorganizar como opcion secundaria |
+| Modificar | `src/App.tsx` - nueva ruta /checkout/success |
 
 ## Seccion tecnica
 
-### Fase 1 - Detalles
+### Stripe Checkout Session
+La funcion `stripe-checkout` usara la API de Stripe para crear un `checkout.session` en modo `subscription` con el `price_id` correspondiente al plan. Los productos seleccionados se guardaran como metadata en la sesion para que el webhook pueda crear el envio con los items correctos.
 
-Los dialogs de creacion usaran los componentes existentes de shadcn/ui (Dialog, Select, Input, Calendar). Las mutaciones se haran directamente con el cliente de la base de datos, aprovechando que las politicas RLS ya otorgan permisos completos a los administradores (`has_role(auth.uid(), 'admin')`).
+### Webhook
+La funcion `stripe-webhook` verificara la firma (`stripe-signature` header) usando el webhook secret. Al recibir `checkout.session.completed`, insertara en `subscriptions` (plan, etapa prenatal por defecto, estado activo) y en `shipments` (primer envio programado a 7 dias) usando el service role key para bypass de RLS.
 
-Para el selector de usuarios, se consultara la tabla `profiles` filtrando usuarios que no tengan ya una suscripcion activa.
+### Mapeo Stripe-Usuario
+Se guardara el `stripe_customer_id` en la tabla `profiles` (nueva columna) para vincular el cliente de Stripe con el usuario de la app. Esto requiere una migracion sencilla.
 
-Para los items del envio, se reutilizara el catalogo de `src/data/planEquipment.ts` para que el admin seleccione los productos correctos segun el plan.
+### Seguridad
+- El webhook verifica la firma de Stripe antes de procesar cualquier evento
+- Las inserciones en la base de datos se hacen con service role (solo desde el backend)
+- El usuario debe estar autenticado para crear una sesion de checkout
 
-### Fase 2 - Detalles
-
-Stripe se integrara usando la herramienta nativa de Lovable. Se crearan precios recurrentes mensuales para cada plan. El webhook verificara la firma de Stripe antes de procesar eventos, y usara el service role para insertar suscripciones y envios en la base de datos.
