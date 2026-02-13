@@ -1,77 +1,65 @@
 
 
-# Fase 2: Suscripcion con pago via Stripe
+# Fase 2: Stripe - Crear todo sin conectar la API todavia
 
-Actualmente, cuando un usuario selecciona un plan y su equipamiento, llega a una pagina de contacto (WhatsApp, Calendly, email). Para que puedan suscribirse directamente, integraremos Stripe Checkout con pagos recurrentes mensuales.
-
-## Flujo del usuario
-
-```text
-/plan/:planId (selecciona equipamiento)
-  -> Click "Suscribirme" (requiere login)
-  -> Se crea una sesion de Stripe Checkout (suscripcion mensual)
-  -> Usuario paga en Stripe
-  -> Stripe envia webhook
-  -> Backend crea suscripcion + primer envio automaticamente
-  -> Usuario vuelve a /app y ve su suscripcion activa
-```
+Vamos a preparar toda la infraestructura para que cuando conectes Stripe, todo funcione automaticamente.
 
 ## Que se va a hacer
 
-### 1. Habilitar Stripe
-- Conectar la integracion nativa de Stripe en Lovable con tu clave secreta
+### 1. Migracion de base de datos
+- Agregar columna `stripe_customer_id` a la tabla `profiles` para vincular usuarios con clientes de Stripe
 
-### 2. Crear productos y precios en Stripe
-- Tres precios recurrentes mensuales:
-  - BEBLOO Start: 59 EUR/mes
-  - BEBLOO Comfort: 129 EUR/mes
-  - BEBLOO Total Peace: 149 EUR/mes
-
-### 3. Backend function: crear sesion de Checkout
-- Recibe: planId, equipamiento seleccionado, userId
-- Crea (o recupera) un cliente de Stripe asociado al usuario
-- Genera una sesion de Stripe Checkout en modo suscripcion
+### 2. Backend function: `stripe-checkout`
+- Recibe `planId`, equipamiento seleccionado, y el token del usuario autenticado
+- Crea o recupera un cliente de Stripe usando el email del usuario
+- Genera una sesion de Stripe Checkout en modo suscripcion con el precio correspondiente
+- Guarda el equipamiento seleccionado como metadata para que el webhook lo use despues
 - Devuelve la URL de pago
+- Por ahora usara un placeholder para el `STRIPE_SECRET_KEY` (fallara hasta que conectes Stripe)
 
-### 4. Backend function: webhook de Stripe
-- Escucha el evento `checkout.session.completed`
-- Verifica la firma del webhook para seguridad
-- Crea automaticamente una fila en `subscriptions` y un primer `shipment` programado
-- Escucha `customer.subscription.deleted` para cancelar suscripciones
+### 3. Backend function: `stripe-webhook`
+- Verifica la firma del webhook (`stripe-signature` header) con `STRIPE_WEBHOOK_SECRET`
+- Al recibir `checkout.session.completed`: crea la suscripcion + primer envio programado a 7 dias
+- Al recibir `customer.subscription.deleted`: cancela la suscripcion en la base de datos
+- Usa el service role para bypass de RLS
 
-### 5. Actualizar la pagina del plan (paso 2)
-- Reemplazar la seccion de contacto actual por dos opciones:
-  - Boton principal "Suscribirme" que inicia el pago con Stripe
-  - Seccion secundaria "Prefiero hablar primero" con las opciones de contacto actuales (WhatsApp, Calendly, email)
-- Esto mantiene ambos caminos: pago directo y contacto humano
+### 4. Actualizar pagina del plan (paso 2)
+- El paso 2 ahora muestra dos secciones:
+  - **Principal**: Boton "Suscribirme" con resumen del plan y precio, que llama a la edge function y redirige a Stripe
+  - **Secundaria**: "Prefiero hablar primero" con las opciones de contacto actuales (WhatsApp, Calendly, email)
 
-### 6. Pagina de exito post-pago
-- Crear una pagina `/checkout/success` que confirme la suscripcion y redirija al dashboard
+### 5. Pagina de exito post-pago
+- Nueva ruta `/checkout/success` que confirma la suscripcion y redirige al dashboard
+- Nueva ruta en `App.tsx`
 
 ## Archivos a crear o modificar
 
 | Accion | Archivo |
 |--------|---------|
-| Crear | Backend function `stripe-checkout` |
-| Crear | Backend function `stripe-webhook` |
+| Crear | `supabase/functions/stripe-checkout/index.ts` |
+| Crear | `supabase/functions/stripe-webhook/index.ts` |
 | Crear | `src/pages/CheckoutSuccess.tsx` |
-| Modificar | `src/pages/PlanDetail.tsx` - paso 2 ahora ofrece pago |
-| Modificar | `src/components/plan/ContactSection.tsx` - reorganizar como opcion secundaria |
-| Modificar | `src/App.tsx` - nueva ruta /checkout/success |
+| Modificar | `src/pages/PlanDetail.tsx` - paso 2 ofrece pago + contacto |
+| Modificar | `src/components/plan/ContactSection.tsx` - se convierte en seccion secundaria |
+| Modificar | `src/App.tsx` - nueva ruta `/checkout/success` |
+| Migracion | Agregar `stripe_customer_id` a `profiles` |
+
+## Que falta para que funcione en produccion
+- Conectar tu clave secreta de Stripe (la pediremos cuando estes listo)
+- Configurar el `STRIPE_WEBHOOK_SECRET` en los secrets
+- Crear los 3 productos/precios en Stripe y poner sus IDs en la edge function (o crearlos programaticamente)
 
 ## Seccion tecnica
 
-### Stripe Checkout Session
-La funcion `stripe-checkout` usara la API de Stripe para crear un `checkout.session` en modo `subscription` con el `price_id` correspondiente al plan. Los productos seleccionados se guardaran como metadata en la sesion para que el webhook pueda crear el envio con los items correctos.
+### Mapeo de precios
+La edge function `stripe-checkout` tendra un mapeo de `planId` a `price_id` de Stripe. Inicialmente usara placeholders (`price_xxx`) que se actualizaran cuando crees los productos en Stripe.
 
-### Webhook
-La funcion `stripe-webhook` verificara la firma (`stripe-signature` header) usando el webhook secret. Al recibir `checkout.session.completed`, insertara en `subscriptions` (plan, etapa prenatal por defecto, estado activo) y en `shipments` (primer envio programado a 7 dias) usando el service role key para bypass de RLS.
+### Flujo de autenticacion
+El boton "Suscribirme" verifica si el usuario esta logueado. Si no, redirige a `/auth` con el estado actual (selecciones + ruta de retorno), igual que el flujo existente.
 
-### Mapeo Stripe-Usuario
-Se guardara el `stripe_customer_id` en la tabla `profiles` (nueva columna) para vincular el cliente de Stripe con el usuario de la app. Esto requiere una migracion sencilla.
+### Webhook seguridad
+La funcion `stripe-webhook` se configurara sin verificacion JWT (`verify_jwt = false`) ya que Stripe envia los eventos directamente. La seguridad se garantiza verificando la firma del webhook.
 
-### Seguridad
-- El webhook verifica la firma de Stripe antes de procesar cualquier evento
-- Las inserciones en la base de datos se hacen con service role (solo desde el backend)
-- El usuario debe estar autenticado para crear una sesion de checkout
+### Metadata en la sesion
+El equipamiento seleccionado se pasa como metadata de la sesion de Stripe para que el webhook pueda crear el primer envio con los items correctos.
 
