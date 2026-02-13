@@ -133,7 +133,7 @@ export default function ChatBot() {
       <>
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 left-4 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          className="fixed bottom-20 right-4 z-50 h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-[0_4px_14px_-3px_hsl(var(--accent)/0.4)] flex items-center justify-center hover:scale-105 transition-transform animate-scale-in"
           aria-label="Abrir chat"
         >
           <MessageCircle className="h-6 w-6" />
@@ -160,7 +160,7 @@ export default function ChatBot() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+          className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-accent text-accent-foreground shadow-[0_4px_14px_-3px_hsl(var(--accent)/0.4)] flex items-center justify-center hover:scale-105 transition-transform animate-scale-in"
           aria-label="Abrir chat"
         >
           <MessageCircle className="h-6 w-6" />
@@ -168,9 +168,9 @@ export default function ChatBot() {
       )}
 
       {isOpen && (
-        <div className="fixed bottom-6 left-6 z-50 w-[380px] h-[500px] bg-background border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-50 w-[380px] h-[500px] bg-background border border-border rounded-2xl shadow-[0_8px_30px_-6px_hsl(var(--accent)/0.2)] flex flex-col overflow-hidden animate-scale-in origin-bottom-right">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-accent/5 to-primary/5">
             <span className="text-sm font-semibold">💬 Asistente bebloo</span>
             <button
               onClick={() => setIsOpen(false)}
