@@ -144,6 +144,7 @@ export type Database = {
           is_first_child: boolean | null
           onboarding_completed: boolean | null
           parent_situation: string | null
+          stripe_customer_id: string | null
           updated_at: string
         }
         Insert: {
@@ -156,6 +157,7 @@ export type Database = {
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          stripe_customer_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -168,6 +170,7 @@ export type Database = {
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          stripe_customer_id?: string | null
           updated_at?: string
         }
         Relationships: []

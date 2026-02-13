@@ -10,7 +10,8 @@ type EventType =
   | "plan_detail_view"
   | "contact_click"
   | "equipment_selection"
-  | "plan_upgrade_click";
+  | "plan_upgrade_click"
+  | "checkout_start";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;
