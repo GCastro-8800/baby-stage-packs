@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { compare } from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+import { compareSync } from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const passwordValid = await compare(password, cred.password_hash);
+    const passwordValid = compareSync(password, cred.password_hash);
 
     if (!passwordValid) {
       return new Response(
