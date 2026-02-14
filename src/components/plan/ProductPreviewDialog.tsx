@@ -52,10 +52,15 @@ const ProductPreviewDialog = ({ product, open, onOpenChange }: ProductPreviewDia
             />
           </div>
         )}
-        <Button variant="outline" size="sm" className="gap-2 w-full" onClick={handleCTA}>
-          Incluido en nuestros planes
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Button>
+        <div className="space-y-2">
+          <Button size="sm" className="gap-2 w-full" onClick={handleCTA}>
+            Ver planes desde 59&nbsp;€/mes
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            Incluido en todos nuestros planes. Sin comprar, sin acumular.
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );

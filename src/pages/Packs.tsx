@@ -40,6 +40,22 @@ const Packs = () => {
         </div>
       </section>
 
+      {/* Trust banner */}
+      <section className="container max-w-3xl px-4 pb-8">
+        <div className="rounded-xl bg-primary/5 border border-primary/10 p-6 md:p-8 text-center">
+          <p className="font-serif text-lg md:text-xl font-semibold text-foreground">
+            Equipamiento premium rotativo desde 59&nbsp;€/mes
+          </p>
+          <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
+            Sin compras, sin acumulación. Todo llega limpio, revisado y a tiempo.
+          </p>
+          <Button className="gap-2 mt-4" onClick={handleHeroCTA}>
+            Descubre los planes
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </section>
+
       {/* Tabs */}
       <section className="container max-w-5xl px-4 pb-20">
         <Tabs defaultValue="0-3m" className="w-full">
@@ -58,7 +74,7 @@ const Packs = () => {
           ))}
         </Tabs>
 
-        {/* CTA */}
+        {/* Final CTA */}
         <div className="text-center mt-16 space-y-4">
           <h3 className="font-serif text-xl md:text-2xl font-semibold text-foreground">
             ¿Lista para empezar?
@@ -69,7 +85,10 @@ const Packs = () => {
           <Button
             size="lg"
             className="gap-2"
-            onClick={() => navigate("/#precios")}
+            onClick={() => {
+              track("cta_click", { location: "packs_bottom", action: "scroll_to_pricing" });
+              navigate("/#precios");
+            }}
           >
             Ver planes y empezar
             <ArrowRight className="h-4 w-4" />
