@@ -22,6 +22,8 @@ const StageTab = ({ stage }: StageTabProps) => {
     navigate("/#precios");
   };
 
+  const midpoint = Math.floor(stage.equipment.length / 2);
+
   return (
     <div className="space-y-10">
       {/* Stage header */}
@@ -35,33 +37,56 @@ const StageTab = ({ stage }: StageTabProps) => {
         <p className="text-muted-foreground mt-3 leading-relaxed">
           {stage.description}
         </p>
+        {/* CTA right after description */}
+        <Button size="sm" variant="link" className="mt-2 gap-1 text-primary" onClick={handleStageCTA}>
+          Ver qué incluyen nuestros planes
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Button>
       </div>
 
-      {/* Equipment categories */}
-      {stage.equipment.map((cat) => (
-        <section key={cat.category} className="space-y-4">
-          <div>
-            <h3 className="font-serif text-lg font-semibold text-foreground">
-              {cat.category}
-            </h3>
-            <p className="text-sm text-muted-foreground mt-0.5">{cat.why}</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {cat.options.map((product) => (
-              <PackProductCard
-                key={`${product.brand}-${product.model}`}
-                product={product}
-                onPreview={setPreviewProduct}
-              />
-            ))}
-          </div>
-        </section>
+      {/* Equipment categories with inline CTA */}
+      {stage.equipment.map((cat, index) => (
+        <div key={cat.category}>
+          <section className="space-y-4">
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-foreground">
+                {cat.category}
+              </h3>
+              <p className="text-sm text-muted-foreground mt-0.5">{cat.why}</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {cat.options.map((product) => (
+                <PackProductCard
+                  key={`${product.brand}-${product.model}`}
+                  product={product}
+                  onPreview={setPreviewProduct}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Inline CTA banner at midpoint */}
+          {index === midpoint && stage.equipment.length > 2 && (
+            <div className="my-8 rounded-xl bg-primary/5 border border-primary/10 p-6 text-center">
+              <p className="text-sm font-medium text-foreground mb-1">
+                ¿Te gusta lo que ves?
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">
+                Todo esto está incluido en tu suscripción. Sin comprar, sin acumular.
+              </p>
+              <Button size="sm" className="gap-2" onClick={handleStageCTA}>
+                Ver planes desde 59&nbsp;€/mes
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
       ))}
 
       {/* Contextual CTA */}
       <div className="text-center py-8 border-t border-border">
         <p className="text-muted-foreground text-sm mb-3">{stage.cta}</p>
-        <Button variant="outline" className="gap-2" onClick={handleStageCTA}>
+        <Button className="gap-2" onClick={handleStageCTA}>
           Ver planes desde 59&nbsp;€/mes
           <ArrowRight className="h-4 w-4" />
         </Button>
