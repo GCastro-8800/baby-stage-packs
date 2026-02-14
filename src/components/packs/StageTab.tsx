@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import type { StageData } from "@/data/packsByStage";
 import type { EquipmentOption } from "@/data/planEquipment";
+import { Button } from "@/components/ui/button";
 import PackProductCard from "./PackProductCard";
 import ProductPreviewDialog from "@/components/plan/ProductPreviewDialog";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface StageTabProps {
   stage: StageData;
@@ -10,6 +14,13 @@ interface StageTabProps {
 
 const StageTab = ({ stage }: StageTabProps) => {
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
+  const navigate = useNavigate();
+  const { track } = useAnalytics();
+
+  const handleStageCTA = () => {
+    track("cta_click", { location: `packs_stage_${stage.id}`, action: "scroll_to_pricing" });
+    navigate("/#precios");
+  };
 
   return (
     <div className="space-y-10">
@@ -46,6 +57,15 @@ const StageTab = ({ stage }: StageTabProps) => {
           </div>
         </section>
       ))}
+
+      {/* Contextual CTA */}
+      <div className="text-center py-8 border-t border-border">
+        <p className="text-muted-foreground text-sm mb-3">{stage.cta}</p>
+        <Button variant="outline" className="gap-2" onClick={handleStageCTA}>
+          Ver planes desde 59&nbsp;€/mes
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
 
       <ProductPreviewDialog
         product={previewProduct}

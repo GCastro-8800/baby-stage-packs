@@ -1,14 +1,22 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowDown } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FloatingCTA from "@/components/FloatingCTA";
 import StageTab from "@/components/packs/StageTab";
 import { packsByStage } from "@/data/packsByStage";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Packs = () => {
   const navigate = useNavigate();
+  const { track } = useAnalytics();
+
+  const handleHeroCTA = () => {
+    track("cta_click", { location: "packs_hero", action: "scroll_to_pricing" });
+    navigate("/#precios");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,6 +33,10 @@ const Packs = () => {
             Alguien responsable ya pensó en esto. Descubre qué equipamiento
             acompaña cada etapa de tu bebé.
           </p>
+          <Button size="lg" className="gap-2 mt-2" onClick={handleHeroCTA}>
+            Ver planes desde 59&nbsp;€/mes
+            <ArrowDown className="h-4 w-4" />
+          </Button>
         </div>
       </section>
 
@@ -65,6 +77,7 @@ const Packs = () => {
         </div>
       </section>
 
+      <FloatingCTA />
       <Footer />
     </div>
   );
