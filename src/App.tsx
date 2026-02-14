@@ -15,6 +15,7 @@ import AppDashboard from "./pages/AppDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import PlanDetail from "./pages/PlanDetail";
+import Packs from "./pages/Packs";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
@@ -56,6 +57,7 @@ const App = () => (
               }
             />
             <Route path="/plan/:planId" element={<PlanDetail />} />
+            <Route path="/packs" element={<Packs />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/condiciones" element={<TermsOfService />} />
