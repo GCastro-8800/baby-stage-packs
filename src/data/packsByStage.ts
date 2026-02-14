@@ -5,6 +5,7 @@ export interface StageData {
   name: string;
   ageRange: string;
   description: string;
+  cta: string;
   equipment: {
     category: string;
     why: string;
@@ -19,6 +20,7 @@ export const packsByStage: StageData[] = [
     ageRange: "0–3 meses",
     description:
       "Todo gira alrededor del descanso, el contacto piel con piel y los primeros paseos. Necesitas lo esencial, bien pensado, para que tú también puedas descansar.",
+    cta: "Empieza con todo listo desde el primer día",
     equipment: [
       {
         category: "Carrito con capazo",
@@ -76,6 +78,7 @@ export const packsByStage: StageData[] = [
     ageRange: "3–6 meses",
     description:
       "El bebé empieza a sostener la cabeza, a sonreír y a interesarse por todo. Es momento de incorporar la trona y el parque para que explore con seguridad.",
+    cta: "El equipamiento evoluciona con tu bebé",
     equipment: [
       {
         category: "Carrito (cambio a silla)",
@@ -115,6 +118,7 @@ export const packsByStage: StageData[] = [
     ageRange: "6–9 meses",
     description:
       "Empieza a gatear, a sentarse solo y a querer tocarlo todo. El parque y la trona se convierten en protagonistas del día a día.",
+    cta: "Sin comprar, sin acumular",
     equipment: [
       {
         category: "Parque de juegos",
@@ -146,6 +150,7 @@ export const packsByStage: StageData[] = [
     ageRange: "9–12 meses",
     description:
       "Se pone de pie, da sus primeros pasos y come prácticamente de todo. El equipamiento evoluciona con él para seguir siendo útil.",
+    cta: "Todo incluido hasta su primer cumpleaños",
     equipment: [
       {
         category: "Trona evolutiva",
