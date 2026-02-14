@@ -16,6 +16,7 @@ import logo from "@/assets/logo-bebloo.png";
 
 const navLinks = [
   { label: "Cómo funciona", href: "#como-funciona" },
+  { label: "Packs", href: "/packs", isRoute: true },
   { label: "Precios", href: "#precios" },
   { label: "FAQ", href: "#faq" },
 ];
@@ -36,12 +37,16 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (href: string) => {
-    const id = href.replace("#", "");
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      track("cta_click", { source: "header", action: `nav_${id}` });
+  const handleNavClick = (link: typeof navLinks[number]) => {
+    if ((link as any).isRoute) {
+      navigate(link.href);
+    } else {
+      const id = link.href.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        track("cta_click", { source: "header", action: `nav_${id}` });
+      }
     }
     setIsOpen(false);
   };
@@ -96,7 +101,7 @@ const Header = () => {
               {navLinks.map((link) => (
                 <button
                   key={link.href}
-                  onClick={() => scrollToSection(link.href)}
+                  onClick={() => handleNavClick(link)}
                   className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
                 >
                   {link.label}
@@ -153,7 +158,7 @@ const Header = () => {
                   {navLinks.map((link) => (
                     <button
                       key={link.href}
-                      onClick={() => scrollToSection(link.href)}
+                      onClick={() => handleNavClick(link)}
                       className="text-lg font-medium text-foreground text-left hover:text-primary transition-colors"
                     >
                       {link.label}
