@@ -1,19 +1,7 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Profile {
-  id: string;
-  full_name: string | null;
-  baby_due_date: string | null;
-  baby_birth_date: string | null;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
-  onboarding_completed: boolean | null;
-  is_first_child: boolean | null;
-  parent_situation: string | null;
-}
+import type { Profile } from "@/types/baby";
 
 interface AuthContextType {
   user: User | null;
@@ -36,8 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const profileFetchedForRef = useRef<string | null>(null);
 
   const fetchProfile = async (userId: string) => {
+    // Prevent duplicate fetches for the same user
+    if (profileFetchedForRef.current === userId) return;
+    profileFetchedForRef.current = userId;
+
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -47,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       console.error("Error fetching profile:", error);
       setProfile(null);
+      profileFetchedForRef.current = null;
     } else {
       setProfile(data as Profile);
     }
@@ -61,14 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Defer profile fetch to avoid deadlock
         if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
+          fetchProfile(session.user.id);
         } else {
           setProfile(null);
           setProfileLoaded(true);
+          profileFetchedForRef.current = null;
         }
       }
     );
@@ -126,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (user) {
+      profileFetchedForRef.current = null;
       await fetchProfile(user.id);
     }
   };

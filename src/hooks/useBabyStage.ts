@@ -1,14 +1,7 @@
 import { useMemo } from "react";
 import { differenceInDays, differenceInMonths, format } from "date-fns";
 import { es } from "date-fns/locale";
-import type { Stage, Situation } from "@/types/baby";
-
-interface Profile {
-  parent_situation: string | null;
-  is_first_child: boolean | null;
-  baby_birth_date: string | null;
-  baby_due_date: string | null;
-}
+import type { Stage, Situation, Profile } from "@/types/baby";
 
 interface BabyStageResult {
   // Estado

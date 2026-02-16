@@ -25,7 +25,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const productNames = selectedItems.map((k) => k.split("::")[1]);
+  const productNames = selectedItems.map((k) => k.split("::")[1]).filter(Boolean);
 
   const selectionText = productNames.length > 0
     ? ` Me interesan: ${productNames.join(", ")}.`
@@ -41,7 +41,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes("@")) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
 
     setIsLoading(true);
 

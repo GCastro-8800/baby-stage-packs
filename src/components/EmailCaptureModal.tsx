@@ -32,7 +32,7 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
 
     setIsLoading(true);
     
