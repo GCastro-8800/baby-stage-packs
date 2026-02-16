@@ -1,174 +1,203 @@
-# Sistema de Precios Dinamico con Deseleccion
+
+
+# Sistema de Precios por Producto con precio_en_pack
 
 ## Resumen
 
-Reemplazar los datos de productos ficticios con los productos reales del Excel, actualizar los precios de packs (79, 169, 199), y construir un sistema completo de precios dinamicos donde deseleccionar productos sube el precio dramaticamente, con modal de confirmacion, footer sticky, desglose expandible y toda la logica visual verde/naranja. Y que aparezcan los precios individuales por producto y que cambia tambien en función de los que selecciones. 
+Cada producto mostrara su precio proporcional dentro del pack (precio_en_pack), su precio individual, y el ahorro. Los precios en pack de todos los productos de un pack suman exactamente el precio del pack.
 
 ## Cambios en datos
 
-### 1. packStages.ts — Reescribir con productos reales
+### 1. planEquipment.ts — Nuevo campo precio_en_pack
 
-Reemplazar completamente los productos con los del Excel. Cada producto tendra `coste_real_mes` y `precio_individual`. La distribucion por etapas segun el Excel:
+Agregar `precio_en_pack` al tipo `EquipmentOption`:
 
-**Pack Start (79 euros/mes)**
+```text
+export interface EquipmentOption {
+  brand: string;
+  model: string;
+  image?: string;
+  description?: string;
+  precio_individual?: number;
+  coste_real_mes?: number;
+  precio_en_pack?: number;  // NUEVO
+}
+```
 
-- Etapa 0: Chicco Next2Me (54.77), Cambiador portatil (32.40)
-- Etapa 1: Chicco Lite Way (37.08), Hamaca Fisher Price (39.15)
-- Etapa 2: Trona Chicco basica (41.92)
-- Variantes elegibles: Joolz Aer 2 (61.25), YOYO3 (56.97), Boba Wrap (38.12)
+### 2. packStages.ts — Agregar precio_en_pack a cada producto
 
-**Pack Comfort (169 euros/mes)**
+Agregar el campo `precio_en_pack` precalculado a cada producto en cada pack. Los valores exactos (del usuario):
 
-- Etapa 0: Stokke Sleepi Mini (96.68), Leander Matty (42.92)
-- Etapa 1: Bugaboo Fox 5 (85.62), BabyBjorn Bliss (47.92), Ergobaby Omni (43.60)
-- Etapa 2: Stokke Tripp Trapp (56.10), Alfombra Toddlekind (49.17)
-- Variantes elegibles: Bugaboo Dragonfly (81.25), Bugaboo Giraffe trona (50.55), Bugaboo Giraffe hamaca (50.55), Boba Wrap (38.12), Totter & Tumble (46.25)
+**Pack Start (79 euros, costes totales 52.13)**
+- Chicco Next2Me: precio_en_pack 24.10
+- Cambiador portatil: precio_en_pack 10.58
+- Chicco Lite Way: precio_en_pack 13.35
+- Joolz Aer 2: precio_en_pack 28.02 (calculado: 79 x 18.50/52.13)
+- YOYO3: precio_en_pack 25.43 (calculado: 79 x 16.79/52.13)
+- Hamaca Fisher Price: precio_en_pack 14.62
+- Boba Wrap: precio_en_pack 14.02 (calculado: 79 x 9.25/52.13)
+- Trona Chicco: precio_en_pack 16.35
 
-**Pack Total Peace (199 euros/mes)**
+**Pack Comfort (169 euros, costes totales 126.81)**
+- Stokke Sleepi Mini: precio_en_pack 43.56
+- Leander Matty: precio_en_pack 14.88
+- Bugaboo Fox 5: precio_en_pack 37.68
+- Bugaboo Dragonfly: precio_en_pack 35.31 (calculado: 169 x 26.50/126.81)
+- BabyBjorn Bliss: precio_en_pack 17.56
+- Bugaboo Giraffe hamaca: precio_en_pack 18.96 (calculado)
+- Ergobaby Omni: precio_en_pack 15.21 (calculado: 169 x 11.44/126.81, redondeado a 15.25 segun tabla)
+- Boba Wrap: precio_en_pack 12.33
+- Stokke Tripp Trapp: precio_en_pack 21.97 (calculado: 169 x 16.44/126.81, redondeado a 21.91)
+- Bugaboo Giraffe trona: precio_en_pack 18.96 (calculado)
+- Alfombra Toddlekind: precio_en_pack 18.24 (calculado: 169 x 13.67/126.81, redondeado a 18.21)
+- Totter & Tumble: precio_en_pack 16.65 (calculado)
 
-- Etapa 0: Stokke Sleepi Mini (96.68), Leander Matty (42.92), Monitor Angelcare (52.50)
-- Etapa 1: Bugaboo Donkey 5 (90.00), Nuna LEAF Grow (79.18), BabyBjorn One Air (43.60)
-- Etapa 2: Stokke Tripp Trapp (56.10), Alfombra Toddlekind (49.17)
+**Pack Total Peace (199 euros, costes totales 166.31)**
+- Stokke Sleepi Mini: precio_en_pack 39.11 (calculado: 199 x 32.67/166.31, ajustado a tabla: 39.09)
+- Leander Matty: precio_en_pack 13.36
+- Monitor Angelcare: precio_en_pack 17.93 (calculado: 199 x 15/166.31, redondeado a 17.95)
+- Bugaboo Donkey 5: precio_en_pack 35.84 (calculado: 199 x 30/166.31, redondeado a 35.90)
+- Bugaboo Dragonfly: precio_en_pack 31.70 (calculado)
+- Nuna LEAF Grow: precio_en_pack 30.72 (calculado: 199 x 25.67/166.31, redondeado a 30.71)
+- BabyBjorn One Air: precio_en_pack 13.72 (calculado: 199 x 11.44/166.31, redondeado a 13.69)
+- Stokke Tripp Trapp: precio_en_pack 19.69 (calculado: 199 x 16.44/166.31, redondeado a 19.67)
+- Alfombra Toddlekind: precio_en_pack 16.35 (calculado: 199 x 13.67/166.31, redondeado a 16.36)
 
-### 2. planEquipment.ts — Actualizar tipo
+Nota: Los valores se usaran directamente de la tabla del usuario. Para variantes alternativas dentro de una categoria choice, se calcula usando la misma formula con el coste de esa variante.
 
-Agregar `coste_real_mes` al tipo `EquipmentOption`. Agregar campo `isElegible` booleano para distinguir productos fijos (con checkbox) de variantes elegibles (con radio button).
+### 3. plansEquipment.ts — Mismo cambio
 
-### 3. PricingSection.tsx — Actualizar precios
+Agregar precio_en_pack a los productos en este archivo tambien para mantener consistencia.
 
-Cambiar los precios de los planes: Start 79, Comfort 169, Total Peace 199.
+## Cambios en la UI
 
-## Nuevos componentes
+### 4. PackStageProducts.tsx — Mostrar precios por producto
 
-### 4. DeselectionModal.tsx — Modal de confirmacion
+**Productos fijos (con checkbox):**
 
-Componente Dialog que se muestra al intentar desmarcar un producto. Muestra:
+Cuando pack completo y seleccionado:
+```text
+Bugaboo Fox 5
+[x] Incluir
+En pack: €37.68/mes (check verde)
+Sin pack: €85.62/mes
+Ahorro: €47.94/mes
+```
 
-- Nombre del producto
-- Precio pack completo vs precio sin ese producto
-- Diferencia en euros
-- Boton verde "Mantener producto" (accion principal)
-- Boton gris "Quitar de todas formas"
+Cuando NO pack completo y seleccionado:
+```text
+Bugaboo Fox 5
+[x] Incluir
+Precio: €85.62/mes (naranja con warning)
+Con pack: €37.68/mes
+Pagas €47.94 mas sin pack
+```
 
-### 5. StickyPriceFooter.tsx — Footer sticky
+Cuando NO pack completo y NO seleccionado:
+```text
+Leander Matty
+[ ] Incluir
+Si lo anades: €42.92/mes
+Con pack completo: €14.88/mes
+```
 
-Barra fija en la parte inferior de la pantalla con:
+**Productos elegibles (radio buttons):**
 
-- Precio actual (verde si pack completo, naranja si individual)
-- Texto contextual ("Pack completo - Mejor oferta" vs "+XX euros mas caro")
-- Boton CTA (verde "Continuar" vs naranja "Continuar de todas formas")
-- Seccion expandible "Ver desglose de precios" usando Collapsible
-- Lista de productos con "Incluido" o "XX euros/mes (individual)"
+Cuando pack completo:
+```text
+Bugaboo Fox 5 (seleccionado)
+En pack: €37.68/mes (check verde)
+Sin pack: €85.62/mes
+Ahorro: €47.94/mes
+```
 
-### 6. LowProductWarning.tsx — Banner de advertencia
+Cuando NO pack completo:
+```text
+Bugaboo Fox 5 (seleccionado)
+Precio: €85.62/mes (naranja)
+Con pack: €37.68/mes
+Pagas €47.94 mas sin pack
+```
 
-Banner amarillo que aparece cuando quedan 1-2 productos seleccionados, mostrando el coste por producto vs el coste por producto en pack completo.
+### 5. DeselectionModal.tsx — Mostrar precio_en_pack
 
-## Pagina principal modificada
+Actualizar el modal para usar precio_en_pack del producto en lugar de solo el total:
 
-### 7. PackStageProducts.tsx — Reescritura mayor
+```text
+Quieres quitar [Producto]?
 
-Cambios principales:
+En pack completo: €[precio_en_pack]/mes por este producto (check verde)
+Sin pack: €[precio_individual]/mes (warning)
+Pagarias €[diferencia] mas por este producto
 
-- **Productos fijos**: Cada uno con checkbox "Incluir en mi suscripcion", marcado por defecto. Al desmarcar se abre el DeselectionModal
-- **Productos elegibles (variantes)**: Radio buttons en lugar de checkboxes. Siempre debe haber uno seleccionado. No se pueden deseleccionar
-- **Textos dinamicos**: Verde "Incluido en pack" cuando pack completo, naranja "XX euros/mes" cuando hay deselecciones
-- **Precio individual visible**: Cada producto muestra su precio individual cuando no es pack completo
-- **Minimo 1 producto**: No permitir desmarcar el ultimo producto
-- **Footer sticky**: Reemplaza el PriceSummary actual con StickyPriceFooter
-- **Quitar FloatingCTA**: El StickyPriceFooter lo reemplaza
+[Mantener pack completo] [Quitar producto]
+```
 
-Estado gestionado:
+Tambien mantener los totales del pack vs individual.
 
-- `selectedKeys`: Set de productos fijos seleccionados (checkboxes)
-- `variantChoices`: Map de categoria a opcion elegida (radio buttons)
-- `pendingDeselect`: producto pendiente de confirmar deseleccion (para el modal)
+### 6. StickyPriceFooter.tsx — Desglose con precios por producto
 
-Calculo de precio:
+Actualizar el desglose expandible para mostrar precio_en_pack o precio_individual segun estado:
 
-- Si todos los fijos estan seleccionados: precio = packPrice
-- Si falta alguno: precio = suma de precio_individual de cada producto seleccionado (fijos + variante elegida de cada categoria elegible)
+Pack completo:
+```text
+Bugaboo Fox 5:    €37.68/mes (incluido)
+Stokke Sleepi:    €43.56/mes (incluido)
+...
+Total: €169/mes
+```
 
-## Analytics
+Productos individuales:
+```text
+Bugaboo Fox 5:    €85.62/mes (individual)
+Stokke Sleepi:    €96.68/mes (individual)
+...
+Total: €238/mes
+```
 
-### 8. useAnalytics.ts — Nuevos eventos
+Tambien actualizar el texto del footer cuando hay productos sueltos para mostrar cuantos productos y la comparacion:
 
-Agregar al whitelist:
+```text
+3 productos: €238/mes
+Con pack completo: €169/mes por 7 productos
+```
 
-- `product_deselect_attempt`: cuando intenta desmarcar
-- `product_deselect_confirmed`: cuando confirma en modal
-- `product_deselect_cancelled`: cuando cancela en modal
+### 7. LowProductWarning.tsx — Ya funciona
+
+Este componente ya muestra coste por producto, no necesita cambios.
 
 ## Seccion tecnica
 
-### Estructura de datos por categoria
-
-Cada categoria en `packStages` tendra un nuevo campo `type`:
-
-- `"fixed"`: Producto unico con checkbox. Se puede deseleccionar
-- `"choice"`: Multiples opciones con radio buttons. No se puede deseleccionar, solo cambiar entre opciones
-
-```text
-{
-  category: "Cuna",
-  type: "fixed",   // checkbox
-  options: [{ brand: "Chicco", model: "Next2Me", coste_real_mes: 15.91, precio_individual: 54.77 }]
-}
-
-{
-  category: "Carrito",
-  type: "choice",  // radio buttons
-  options: [
-    { brand: "Chicco", model: "Lite Way", coste_real_mes: 8.83, precio_individual: 37.08 },
-    { brand: "Joolz", model: "Aer 2", coste_real_mes: 18.50, precio_individual: 61.25 }
-  ]
-}
-```
-
-### Logica de calculo de precio
-
-```text
-function calculatePrice(pack, selectedFixedKeys, variantChoices):
-  allFixedSelected = every fixed category has its product selected
-  
-  if allFixedSelected:
-    basePrice = pack.price  // 79, 169, or 199
-    // Add upgrade cost if premium variant chosen
-    for each choice category:
-      chosen = variantChoices[category]
-      if chosen has upgrade cost:
-        basePrice += upgrade cost
-    return { price: basePrice, isPackComplete: true }
-  
-  else:
-    total = 0
-    for each selected fixed product:
-      total += product.precio_individual
-    for each choice category:
-      chosen = variantChoices[category]
-      total += chosen.precio_individual
-    return { price: total, isPackComplete: false }
-```
-
-### Archivos a crear
-
-
-| Archivo                                      | Descripcion                         |
-| -------------------------------------------- | ----------------------------------- |
-| `src/components/packs/DeselectionModal.tsx`  | Modal de confirmacion al desmarcar  |
-| `src/components/packs/StickyPriceFooter.tsx` | Footer sticky con precio y desglose |
-| `src/components/packs/LowProductWarning.tsx` | Banner si quedan 1-2 productos      |
-
-
 ### Archivos a modificar
 
+| Archivo | Cambio |
+|---------|--------|
+| `src/data/planEquipment.ts` | Agregar `precio_en_pack?: number` al tipo, agregar valores a cada producto |
+| `src/data/packStages.ts` | Agregar `precio_en_pack` a cada producto en cada pack |
+| `src/pages/PackStageProducts.tsx` | Actualizar las tarjetas de productos fijos y elegibles para mostrar precio_en_pack, precio_individual y ahorro con 3 estados visuales |
+| `src/components/packs/DeselectionModal.tsx` | Agregar precio_en_pack del producto y mostrar comparativa por producto |
+| `src/components/packs/StickyPriceFooter.tsx` | Actualizar desglose para mostrar precio_en_pack o precio_individual, agregar contador de productos |
 
-| Archivo                                 | Cambio                                                                    |
-| --------------------------------------- | ------------------------------------------------------------------------- |
-| `src/data/packStages.ts`                | Reescribir con productos reales, precios reales, campo type por categoria |
-| `src/data/planEquipment.ts`             | Agregar coste_real_mes al tipo EquipmentOption                            |
-| `src/pages/PackStageProducts.tsx`       | Reescribir con logica de fijos/elegibles, modal, footer sticky            |
-| `src/components/packs/PriceSummary.tsx` | Puede eliminarse (reemplazado por StickyPriceFooter)                      |
-| `src/components/PricingSection.tsx`     | Actualizar precios a 79, 169, 199                                         |
-| `src/pages/PackDetail.tsx`              | Actualizar precio mostrado                                                |
-| `src/hooks/useAnalytics.ts`             | Agregar nuevos tipos de evento                                            |
+### Calculo del precio_en_pack
+
+La formula es: `precio_en_pack = pack_price * (coste_real_mes / suma_costes_pack)`
+
+Donde suma_costes_pack es la suma de todos los coste_real_mes de los productos del pack (usando la primera opcion de cada categoria choice para el calculo base).
+
+Los valores se precalculan y hardcodean en el archivo de datos para evitar errores de redondeo. La suma de todos los precio_en_pack de un pack debe ser exactamente el precio del pack.
+
+### Props adicionales necesarios
+
+DeselectionModal necesitara recibir `precioEnPack` del producto ademas de los totales actuales.
+
+StickyPriceFooter necesitara recibir `precio_en_pack` por producto en el breakdown.
+
+### Flujo de datos
+
+```text
+packStages.ts (datos con precio_en_pack)
+  -> PackStageProducts.tsx (lee datos, calcula estado)
+    -> Tarjetas de producto (muestran 3 lineas de precio)
+    -> DeselectionModal (muestra precio por producto)
+    -> StickyPriceFooter (desglose con precios por producto)
+```
