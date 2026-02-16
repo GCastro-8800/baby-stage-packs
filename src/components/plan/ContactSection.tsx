@@ -2,12 +2,10 @@ import { useState } from "react";
 import { MessageCircle, CalendarDays, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { openExternal } from "@/lib/openExternal";
-import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
-import { PG_UNIQUE_VIOLATION } from "@/lib/constants";
+import { useLeadCapture } from "@/hooks/useLeadCapture";
 import type { PlanData } from "@/data/planEquipment";
 
 const WHATSAPP_NUMBER = "34638706467";
@@ -19,12 +17,10 @@ interface ContactSectionProps {
 }
 
 const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
-  const { toast } = useToast();
   const { track } = useAnalytics();
   const { user } = useAuth();
   const [email, setEmail] = useState(user?.email || "");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { submitLead, isLoading, isSubmitted } = useLeadCapture();
 
   const productNames = selectedItems.map((k) => k.split("::")[1]).filter(Boolean);
 
@@ -44,50 +40,16 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
 
-    setIsLoading(true);
-
-    const { error } = await supabase
-      .from("leads")
-      .insert({
+    await submitLead(
+      {
         email,
         plan: plan.name,
         user_id: user?.id || null,
         selected_products: productNames.length > 0 ? productNames : null,
-      });
-
-    if (error) {
-      setIsLoading(false);
-      if (error.code === PG_UNIQUE_VIOLATION) {
-        toast({
-          title: "Ya te habías registrado",
-          description: "Este email ya está en nuestra lista. Te avisaremos pronto.",
-        });
-        setIsSubmitted(true);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Algo salió mal",
-          description: "No pudimos guardar tu información. Inténtalo de nuevo.",
-        });
-      }
-      return;
-    }
-
-    try {
-      await supabase.functions.invoke("send-confirmation-email", {
-        body: {
-          email,
-          plan: plan.name,
-          selectedProducts: productNames,
-        },
-      });
-    } catch (emailError) {
-      console.error("Error sending confirmation email:", emailError);
-    }
-
-    setIsLoading(false);
-    setIsSubmitted(true);
-    track("lead_captured", { plan: plan.name, has_email: true, product_count: productNames.length });
+      },
+      { email, plan: plan.name, selectedProducts: productNames },
+      { plan: plan.name, has_email: true, product_count: productNames.length },
+    );
   };
 
   return (
