@@ -148,7 +148,7 @@ export default function TermsOfService() {
             <h2 className="text-xl font-semibold text-foreground mb-3">12. Contacto</h2>
             <p className="leading-relaxed">
               Para cualquier consulta sobre estos términos, puedes escribirnos a{" "}
-              <a href="mailto:hola@bebloo.es" className="text-primary hover:underline">hola@bebloo.es</a>.
+              <a href="mailto:info@bebloo.es" className="text-primary hover:underline">info@bebloo.es</a>.
             </p>
           </section>
         </div>
