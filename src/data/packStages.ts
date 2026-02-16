@@ -33,14 +33,21 @@ export const packStages: Record<string, PackConfig> = {
             category: "Cuna",
             type: "fixed",
             options: [
-              { brand: "Chicco", model: "Next2Me", coste_real_mes: 15.91, precio_individual: 54.77, precio_en_pack: 24.10, description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres." },
+              { brand: "Chicco", model: "Next2Me", coste_real_mes: 22.58, precio_individual: 71.46, precio_en_pack: 31.58, description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres." },
             ],
           },
           {
             category: "Cambiador",
             type: "fixed",
             options: [
-              { brand: "Bebloo", model: "Cambiador portátil", coste_real_mes: 6.96, precio_individual: 32.40, precio_en_pack: 10.58, description: "Cambiador portátil funcional y ligero." },
+              { brand: "Bebloo", model: "Cambiador portátil", coste_real_mes: 11.04, precio_individual: 44.27, precio_en_pack: 16.38, description: "Cambiador portátil funcional y ligero. Acompaña todo el ciclo." },
+            ],
+          },
+          {
+            category: "Monitor",
+            type: "fixed",
+            options: [
+              { brand: "Bebloo", model: "Monitor bebé solo audio", coste_real_mes: 8.75, precio_individual: 42.70, precio_en_pack: 15.51, description: "Monitor de audio para vigilar al bebé. Acompaña todo el ciclo." },
             ],
           },
         ],
@@ -48,45 +55,14 @@ export const packStages: Record<string, PackConfig> = {
       {
         id: "etapa-1",
         name: "Etapa 1 — Primeros meses",
-        subtitle: "0–6 meses",
-        description: "El equipamiento para los paseos y el día a día con un recién nacido.",
+        subtitle: "0–12 meses",
+        description: "El carrito para los paseos y el día a día con tu bebé.",
         products: [
           {
             category: "Carrito",
-            type: "choice",
-            options: [
-              { brand: "Chicco", model: "Lite Way", coste_real_mes: 8.83, precio_individual: 37.08, precio_en_pack: 13.35, description: "Carrito ligero y compacto, ideal para ciudad." },
-              { brand: "Joolz", model: "Aer 2", coste_real_mes: 18.50, precio_individual: 61.25, precio_en_pack: 28.02, description: "Carrito urbano ultraligero con plegado compacto." },
-              { brand: "Babyzen", model: "YOYO3", coste_real_mes: 16.79, precio_individual: 56.97, precio_en_pack: 25.43, description: "El carrito compacto por excelencia. Cabe en equipaje de mano." },
-            ],
-          },
-          {
-            category: "Hamaca",
             type: "fixed",
             options: [
-              { brand: "Fisher Price", model: "Hamaca básica", coste_real_mes: 9.66, precio_individual: 39.15, precio_en_pack: 14.62, description: "Hamaca con balanceo natural, cómoda y segura." },
-            ],
-          },
-          {
-            category: "Porteo",
-            type: "choice",
-            options: [
-              { brand: "Boba", model: "Wrap", coste_real_mes: 9.25, precio_individual: 38.12, precio_en_pack: 14.02, description: "Fular portabebé elástico, ideal para recién nacidos." },
-            ],
-          },
-        ],
-      },
-      {
-        id: "etapa-2",
-        name: "Etapa 2 — Crecimiento",
-        subtitle: "6–12 meses",
-        description: "Tu bebé crece y necesita nuevo equipamiento adaptado.",
-        products: [
-          {
-            category: "Trona",
-            type: "fixed",
-            options: [
-              { brand: "Chicco", model: "Trona básica", coste_real_mes: 10.77, precio_individual: 41.92, precio_en_pack: 16.35, description: "Trona funcional y ajustable en altura." },
+              { brand: "Chicco", model: "Lite Way", coste_real_mes: 11.17, precio_individual: 42.92, precio_en_pack: 15.63, description: "Carrito ligero y compacto, ideal para ciudad." },
             ],
           },
         ],
