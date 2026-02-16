@@ -47,7 +47,7 @@ const Footer = () => {
                   className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
                 >
                   <Mail className="h-4 w-4" />
-                  info@bebloo.es
+                  hola@bebloo.es
                 </a>
               </li>
               <li>
@@ -67,7 +67,7 @@ const Footer = () => {
                   className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
                 >
                   <Instagram className="h-4 w-4" />
-                  @bebloo
+                  @bebloo.es
                 </a>
               </li>
             </ul>
