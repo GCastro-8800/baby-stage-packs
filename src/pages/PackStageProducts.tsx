@@ -108,7 +108,8 @@ const PackStageProducts = () => {
 
   const handleFixedToggle = (category: string, product: EquipmentOption) => {
     if (selectedFixed.has(category)) {
-      if (selectedFixed.size === 1 && choiceCategories.length === 0) {
+      const totalAfterRemoval = (selectedFixed.size - 1) + choiceCategories.length;
+      if (totalAfterRemoval < 1) {
         toast.error("Debes tener al menos un producto seleccionado");
         return;
       }
