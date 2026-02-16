@@ -11,7 +11,9 @@ type EventType =
   | "contact_click"
   | "equipment_selection"
   | "plan_upgrade_click"
-  | "checkout_start";
+  | "checkout_start"
+  | "pack_stage_click"
+  | "pack_stage_next";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;

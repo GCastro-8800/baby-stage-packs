@@ -16,6 +16,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import PlanDetail from "./pages/PlanDetail";
 import Packs from "./pages/Packs";
+import PackDetail from "./pages/PackDetail";
+import PackStageProducts from "./pages/PackStageProducts";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
@@ -58,6 +60,8 @@ const App = () => (
             />
             <Route path="/plan/:planId" element={<PlanDetail />} />
             <Route path="/packs" element={<Packs />} />
+            <Route path="/packs/:packId" element={<PackDetail />} />
+            <Route path="/packs/:packId/etapa/:stageId" element={<PackStageProducts />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/condiciones" element={<TermsOfService />} />
