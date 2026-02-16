@@ -157,7 +157,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
 
   const handleSelectPlan = (plan: Plan) => {
     track("pricing_click", { plan: plan.name });
-    navigate(`/plan/${plan.id}`);
+    navigate(`/packs/${plan.id}`);
   };
 
   const renderCardContent = (plan: Plan) => (

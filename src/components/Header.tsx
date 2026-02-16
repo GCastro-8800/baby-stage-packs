@@ -16,7 +16,6 @@ import logo from "@/assets/logo-bebloo.png";
 
 const navLinks = [
   { label: "Cómo funciona", href: "#como-funciona" },
-  { label: "Packs", href: "/packs", isRoute: true },
   { label: "Precios", href: "#precios" },
   { label: "FAQ", href: "#faq" },
 ];
