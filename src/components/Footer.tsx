@@ -43,7 +43,7 @@ const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:hola@bebloo.es"
+                  href="mailto:info@bebloo.es"
                   className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
                 >
                   <Mail className="h-4 w-4" />
