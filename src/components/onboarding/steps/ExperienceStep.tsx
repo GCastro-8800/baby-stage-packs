@@ -1,6 +1,6 @@
-import { Card } from "@/components/ui/card";
 import { Sparkles, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SelectionCard } from "../SelectionCard";
 
 interface ExperienceStepProps {
   value: boolean | null;
@@ -20,57 +20,20 @@ export function ExperienceStep({ value, onChange }: ExperienceStepProps) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card
-          className={cn(
-            "p-6 cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-md",
-            value === true && "border-primary bg-primary/5 shadow-md"
-          )}
+        <SelectionCard
+          icon={<Sparkles className={cn("h-8 w-8 transition-colors", value === true ? "text-primary" : "text-muted-foreground")} />}
+          title="Sí, es mi primero"
+          description="Todo es nuevo para mí"
+          selected={value === true}
           onClick={() => onChange(true)}
-        >
-          <div className="flex flex-col items-center text-center gap-4">
-            <div className={cn(
-              "p-4 rounded-full transition-colors",
-              value === true ? "bg-primary/10" : "bg-muted"
-            )}>
-              <Sparkles className={cn(
-                "h-8 w-8 transition-colors",
-                value === true ? "text-primary" : "text-muted-foreground"
-              )} />
-            </div>
-            <div>
-              <h3 className="font-medium text-lg">Sí, es mi primero</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Todo es nuevo para mí
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card
-          className={cn(
-            "p-6 cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-md",
-            value === false && "border-primary bg-primary/5 shadow-md"
-          )}
+        />
+        <SelectionCard
+          icon={<Users className={cn("h-8 w-8 transition-colors", value === false ? "text-primary" : "text-muted-foreground")} />}
+          title="No, ya tengo experiencia"
+          description="Ya he pasado por esto"
+          selected={value === false}
           onClick={() => onChange(false)}
-        >
-          <div className="flex flex-col items-center text-center gap-4">
-            <div className={cn(
-              "p-4 rounded-full transition-colors",
-              value === false ? "bg-primary/10" : "bg-muted"
-            )}>
-              <Users className={cn(
-                "h-8 w-8 transition-colors",
-                value === false ? "text-primary" : "text-muted-foreground"
-              )} />
-            </div>
-            <div>
-              <h3 className="font-medium text-lg">No, ya tengo experiencia</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Ya he pasado por esto
-              </p>
-            </div>
-          </div>
-        </Card>
+        />
       </div>
     </div>
   );
