@@ -14,7 +14,7 @@ const PackDetail = () => {
   const { track } = useAnalytics();
   const pack = packId ? getPackConfig(packId) : undefined;
 
-  if (!pack) return <Navigate to="/packs" replace />;
+  if (!pack) return <Navigate to="/#precios" replace />;
 
   return (
     <div className="min-h-screen bg-background">

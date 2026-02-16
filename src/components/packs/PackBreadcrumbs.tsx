@@ -20,10 +20,10 @@ const PackBreadcrumbs = ({ packName, packId, stageName }: PackBreadcrumbsProps) 
       <BreadcrumbItem>
         {packName ? (
           <BreadcrumbLink asChild>
-            <Link to="/packs">Packs</Link>
+            <Link to="/#precios">Planes</Link>
           </BreadcrumbLink>
         ) : (
-          <BreadcrumbPage>Packs</BreadcrumbPage>
+          <BreadcrumbPage>Planes</BreadcrumbPage>
         )}
       </BreadcrumbItem>
 

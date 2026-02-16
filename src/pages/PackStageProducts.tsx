@@ -39,7 +39,7 @@ const PackStageProducts = () => {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set(allKeys));
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
 
-  if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/packs"} replace />;
+  if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/#precios"} replace />;
 
   const toggleKey = (key: string) => {
     setSelectedKeys((prev) => {
