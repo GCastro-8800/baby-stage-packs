@@ -1,58 +1,57 @@
 
-# Corregir deseleccion y precios dinamicos en categorias "choice"
+# Simplificar modelo de precios: precio individual = precio en pack x 3
 
-## Problema
+## Resumen
 
-Las categorias "choice" no se pueden deseleccionar y los precios no cambian dinamicamente. En etapas del Pack Comfort que solo tienen productos "choice" (Etapa 1 y Etapa 2), el usuario no puede quitar ningun producto.
+Eliminar el campo `coste_real_mes` de todos los productos y cambiar la formula de `precio_individual` a simplemente `precio_en_pack * 3`. Esto aplica a los packs Start, Comfort y Total Peace.
 
-## Solucion
+## Que cambia para el usuario
 
-Agregar un estado `selectedChoice` que permita incluir/excluir categorias "choice" de la suscripcion, con la misma logica de modal de advertencia que ya existe para productos "fixed".
+Nada visual cambia en la interfaz. El usuario sigue viendo:
+- Precio en pack (lo que paga si tiene el pack completo)
+- Precio sin pack (ahora siempre es exactamente el triple)
+- La logica de deseleccion sigue igual
 
-## Cambios en `src/pages/PackStageProducts.tsx`
+## Cambios tecnicos
 
-### 1. Nuevo estado `selectedChoice`
+### 1. Datos: `src/data/packStages.ts`
 
-Agregar un `Set<string>` que rastrea que categorias choice estan incluidas (todas por defecto).
+Eliminar `coste_real_mes` de todos los productos y actualizar `precio_individual` para que sea `precio_en_pack * 3`.
 
-### 2. Corregir `isPackComplete` (linea 56)
+**Pack Start (4 productos):**
 
-De: `fixedKeys.every(k => selectedFixed.has(k))`
-A: `fixedKeys.every(k => selectedFixed.has(k)) && choiceCategories.every(c => selectedChoice.has(c.category))`
+| Producto | precio_en_pack | precio_individual (nuevo) |
+|----------|---------------|--------------------------|
+| Chicco Next2Me | 31.58 | 94.74 |
+| Cambiador portatil | 16.38 | 49.14 |
+| Monitor audio | 15.51 | 46.53 |
+| Chicco Lite Way | 15.63 | 46.89 |
 
-### 3. Corregir `selectedCount` (linea 74)
+**Pack Comfort (8 productos):**
 
-De: `selectedFixed.size + choiceCategories.length`
-A: `selectedFixed.size + selectedChoice.size`
+| Producto | precio_en_pack | precio_individual (nuevo) |
+|----------|---------------|--------------------------|
+| Cuna (3 opciones) | 50.70 | 152.10 |
+| Monitor | 13.70 | 41.10 |
+| Cambiador (3 opciones) | 11.32 | 33.96 |
+| Carrito (5 opciones) | 29.49 | 88.47 |
+| Hamaca (4 opciones) | 14.83 | 44.49 |
+| Mochila (4 opciones) | 15.34 | 46.02 |
+| Trona (2 opciones) | 17.12 | 51.36 |
+| Alfombra (3 opciones) | 16.51 | 49.53 |
 
-### 4. Corregir `calculateIndividualTotal` (lineas 66-69)
+**Pack Total Peace (8 productos):** Se actualizan con la misma formula (x3). Los valores de precio_en_pack se mantienen.
 
-Las categorias choice solo suman su precio individual si estan en `selectedChoice`.
+### 2. Tipo: `src/data/planEquipment.ts`
 
-### 5. Corregir `productBreakdown` (linea 101)
+Eliminar `coste_real_mes` de la interfaz `EquipmentOption` (ya es opcional, pero lo quitamos para limpiar).
 
-De: `included: true`
-A: `included: selectedChoice.has(cat.category)`
+### 3. Sin cambios en UI
 
-### 6. Reset en cambio de etapa (lineas 44-51)
+Los componentes `PackStageProducts.tsx`, `DeselectionModal.tsx`, `StickyPriceFooter.tsx` y `PriceSummary.tsx` ya usan solo `precio_en_pack` y `precio_individual`, por lo que no necesitan modificaciones.
 
-Agregar `setSelectedChoice(new Set(choiceKeys))` al useEffect.
+## Verificacion
 
-### 7. Nuevo handler `handleChoiceToggle`
-
-Misma logica que `handleFixedToggle`: al deseleccionar abre modal de advertencia, al re-seleccionar agrega de vuelta.
-
-### 8. Corregir `handleConfirmDeselect` y `handleFixedToggle`
-
-Unificar para que funcionen tanto con categorias fixed como choice. Se agrega un campo `type` al estado `pendingDeselect` para saber de que set eliminar.
-
-### 9. UI: Agregar checkbox a categorias choice
-
-Debajo del RadioGroup de cada categoria choice, agregar un checkbox "Incluir en mi suscripcion". Cuando la categoria esta deseleccionada, el RadioGroup se muestra con opacidad reducida.
-
-## Resultado esperado
-
-- Cada categoria (fixed o choice) tiene un checkbox para incluir/excluir
-- Deseleccionar cualquier categoria abre el modal de advertencia con impacto en precio
-- El precio del footer se actualiza dinamicamente
-- El pack se marca como "completo" solo cuando TODAS las categorias estan seleccionadas
+- Start: 31.58 + 16.38 + 15.51 + 15.63 = 79.10 (pack) vs 94.74 + 49.14 + 46.53 + 46.89 = 237.30 (individual)
+- Comfort: suma precio_en_pack = 169.01 vs suma individual = 507.03
+- Ratio siempre exacto: x3
