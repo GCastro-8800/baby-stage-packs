@@ -44,28 +44,28 @@ const Footer = () => {
               <li>
                 <a
                   href="mailto:info@bebloo.es"
-                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
-                >
+                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
+
                   <Mail className="h-4 w-4" />
-                  info@bebloo.es
+                  hola@bebloo.es
                 </a>
               </li>
               <li>
                 <a
                   href="tel:+34638706467"
-                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
-                >
+                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
+
                   <Phone className="h-4 w-4" />
                   +34 638 70 6467
                 </a>
               </li>
               <li>
                 <a
-                  href="https://instagram.com/bebloo"
+
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors"
-                >
+                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors" href="https://instagram.com/bebloo.es">
+
                   <Instagram className="h-4 w-4" />
                   @bebloo
                 </a>
@@ -89,8 +89,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 };
 
 export default Footer;
