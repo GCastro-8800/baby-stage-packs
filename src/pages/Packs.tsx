@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowDown } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowRight, ArrowDown, Package, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
-import StageTab from "@/components/packs/StageTab";
-import { packsByStage } from "@/data/packsByStage";
+import PackBreadcrumbs from "@/components/packs/PackBreadcrumbs";
+import { packStages, getTotalProductCount } from "@/data/packStages";
 import { useAnalytics } from "@/hooks/useAnalytics";
+
+const packOrder = ["start", "comfort", "total-peace"] as const;
 
 const Packs = () => {
   const navigate = useNavigate();
@@ -56,23 +57,59 @@ const Packs = () => {
         </div>
       </section>
 
-      {/* Tabs */}
+      {/* Pack cards */}
       <section className="container max-w-5xl px-4 pb-20">
-        <Tabs defaultValue="0-3m" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-10">
-            {packsByStage.map((stage) => (
-              <TabsTrigger key={stage.id} value={stage.id} className="text-xs sm:text-sm">
-                {stage.ageRange}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        <PackBreadcrumbs />
 
-          {packsByStage.map((stage) => (
-            <TabsContent key={stage.id} value={stage.id}>
-              <StageTab stage={stage} />
-            </TabsContent>
-          ))}
-        </Tabs>
+        <div className="grid gap-6 md:grid-cols-3">
+          {packOrder.map((packId) => {
+            const pack = packStages[packId];
+            if (!pack) return null;
+            const productCount = getTotalProductCount(packId);
+            const isPopular = packId === "comfort";
+
+            return (
+              <div
+                key={packId}
+                className={`relative rounded-2xl border-2 bg-card p-6 md:p-8 flex flex-col transition-all hover:shadow-lg ${
+                  isPopular ? "border-primary shadow-md" : "border-border hover:border-primary/30"
+                }`}
+              >
+                {isPopular && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                    <Star className="h-3 w-3" /> Más elegido
+                  </span>
+                )}
+
+                <h3 className="font-serif text-xl font-bold text-foreground mb-1">{pack.name}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{pack.tagline}</p>
+
+                <p className="text-3xl font-bold text-primary mb-1">
+                  {pack.price}&nbsp;€<span className="text-base font-normal text-muted-foreground">/mes</span>
+                </p>
+
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2 mb-6">
+                  <Package className="h-3.5 w-3.5" />
+                  {productCount} productos · 3 etapas
+                </div>
+
+                <div className="mt-auto">
+                  <Button
+                    className="w-full gap-2"
+                    variant={isPopular ? "default" : "outline"}
+                    onClick={() => {
+                      track("cta_click", { location: "packs_card", pack: packId });
+                      navigate(`/packs/${packId}`);
+                    }}
+                  >
+                    Explorar pack
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         {/* Final CTA */}
         <div className="text-center mt-16 space-y-4">

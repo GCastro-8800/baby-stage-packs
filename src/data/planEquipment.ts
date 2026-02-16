@@ -3,6 +3,7 @@ export interface EquipmentOption {
   model: string;
   image?: string;
   description?: string;
+  precio_individual?: number;
 }
 
 export interface EquipmentCategory {
