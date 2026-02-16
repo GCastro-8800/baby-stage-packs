@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { ArrowRight, Eye, CheckCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,12 +40,20 @@ const PackStageProducts = () => {
     return choices;
   });
 
+  // Reset state when navigating between stages
+  useEffect(() => {
+    setSelectedFixed(new Set(fixedKeys));
+    const choices: Record<string, number> = {};
+    if (stage) {
+      stage.products.filter((c) => c.type === "choice").forEach((c) => { choices[c.category] = 0; });
+    }
+    setVariantChoices(choices);
+  }, [stageId]);
+
   const [pendingDeselect, setPendingDeselect] = useState<{ category: string; product: EquipmentOption } | null>(null);
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
 
-  if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/#precios"} replace />;
-
-  const isPackComplete = fixedKeys.every((k) => selectedFixed.has(k));
+  const isPackComplete = pack ? fixedKeys.every((k) => selectedFixed.has(k)) : false;
 
   const calculateIndividualTotal = useCallback((withoutCategory?: string) => {
     let total = 0;
@@ -62,8 +70,41 @@ const PackStageProducts = () => {
     return total;
   }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
 
-  const currentPrice = isPackComplete ? pack.price : calculateIndividualTotal();
+  const currentPrice = pack ? (isPackComplete ? pack.price : calculateIndividualTotal()) : 0;
   const selectedCount = Array.from(selectedFixed).length + choiceCategories.length;
+
+  const priceWithoutPending = useMemo(() => {
+    if (!pendingDeselect) return 0;
+    return calculateIndividualTotal(pendingDeselect.category);
+  }, [pendingDeselect, calculateIndividualTotal]);
+
+  const productBreakdown = useMemo(() => {
+    const items: { name: string; precio_en_pack: number; precio_individual: number; included: boolean }[] = [];
+    fixedCategories.forEach((cat) => {
+      const opt = cat.options[0];
+      if (!opt) return;
+      items.push({
+        name: `${opt.brand} ${opt.model}`,
+        precio_en_pack: opt.precio_en_pack || 0,
+        precio_individual: opt.precio_individual || 0,
+        included: selectedFixed.has(cat.category),
+      });
+    });
+    choiceCategories.forEach((cat) => {
+      const idx = variantChoices[cat.category] || 0;
+      const opt = cat.options[idx];
+      if (!opt) return;
+      items.push({
+        name: `${opt.brand} ${opt.model}`,
+        precio_en_pack: opt.precio_en_pack || 0,
+        precio_individual: opt.precio_individual || 0,
+        included: true,
+      });
+    });
+    return items;
+  }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
+
+  if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/#precios"} replace />;
 
   const handleFixedToggle = (category: string, product: EquipmentOption) => {
     if (selectedFixed.has(category)) {
@@ -96,38 +137,6 @@ const PackStageProducts = () => {
     setPendingDeselect(null);
   };
 
-  const priceWithoutPending = useMemo(() => {
-    if (!pendingDeselect) return 0;
-    return calculateIndividualTotal(pendingDeselect.category);
-  }, [pendingDeselect, calculateIndividualTotal]);
-
-  // Build breakdown for footer
-  const productBreakdown = useMemo(() => {
-    const items: { name: string; precio_en_pack: number; precio_individual: number; included: boolean }[] = [];
-    fixedCategories.forEach((cat) => {
-      const opt = cat.options[0];
-      if (!opt) return;
-      items.push({
-        name: `${opt.brand} ${opt.model}`,
-        precio_en_pack: opt.precio_en_pack || 0,
-        precio_individual: opt.precio_individual || 0,
-        included: selectedFixed.has(cat.category),
-      });
-    });
-    choiceCategories.forEach((cat) => {
-      const idx = variantChoices[cat.category] || 0;
-      const opt = cat.options[idx];
-      if (!opt) return;
-      items.push({
-        name: `${opt.brand} ${opt.model}`,
-        precio_en_pack: opt.precio_en_pack || 0,
-        precio_individual: opt.precio_individual || 0,
-        included: true,
-      });
-    });
-    return items;
-  }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
-
   const currentStageIdx = pack.stages.findIndex((s) => s.id === stageId);
   const nextStage = pack.stages[currentStageIdx + 1];
 
@@ -142,7 +151,7 @@ const PackStageProducts = () => {
     if (nextStage) {
       navigate(`/packs/${pack.id}/etapa/${nextStage.id}`);
     } else {
-      navigate("/#precios");
+      navigate(`/plan/${pack.id}`);
     }
   };
 
