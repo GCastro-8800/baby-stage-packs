@@ -7,6 +7,7 @@ import { openExternal } from "@/lib/openExternal";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
+import { PG_UNIQUE_VIOLATION } from "@/lib/constants";
 import type { PlanData } from "@/data/planEquipment";
 
 const WHATSAPP_NUMBER = "34638706467";
@@ -56,7 +57,7 @@ const ContactSection = ({ plan, selectedItems }: ContactSectionProps) => {
 
     if (error) {
       setIsLoading(false);
-      if (error.code === "23505") {
+      if (error.code === PG_UNIQUE_VIOLATION) {
         toast({
           title: "Ya te habías registrado",
           description: "Este email ya está en nuestra lista. Te avisaremos pronto.",

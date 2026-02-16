@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { PG_UNIQUE_VIOLATION } from "@/lib/constants";
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalP
 
     if (error) {
       setIsLoading(false);
-      if (error.code === '23505') {
+      if (error.code === PG_UNIQUE_VIOLATION) {
         // Email duplicado
         toast({
           title: "Ya te habías registrado",
