@@ -69,9 +69,6 @@ const PackStageProducts = () => {
   // Global counts
   const globalCounts = pack ? getGlobalCounts(pack) : { selectedCount: 0, totalCount: 0 };
 
-  // Local stage selected count (for the at-least-1 check)
-  const localSelectedCount = selectedFixed.size + selectedChoice.size;
-
   const calculateIndividualTotalWithout = useCallback((withoutCategory: string) => {
     // Calculate what the global price would be if we removed this category
     if (!pack) return 0;
@@ -107,7 +104,7 @@ const PackStageProducts = () => {
   const handleToggle = (category: string, product: EquipmentOption, type: "fixed" | "choice") => {
     const isSelected = type === "fixed" ? selectedFixed.has(category) : selectedChoice.has(category);
     if (isSelected) {
-      if (localSelectedCount <= 1) {
+      if (globalCounts.selectedCount <= 1) {
         toast.error("Debes tener al menos un producto seleccionado");
         return;
       }
