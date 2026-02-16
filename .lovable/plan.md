@@ -1,93 +1,174 @@
+# Sistema de Precios Dinamico con Deseleccion
 
+## Resumen
 
-# Flujo desde Precios: Pricing → Pack → Etapas → Productos
+Reemplazar los datos de productos ficticios con los productos reales del Excel, actualizar los precios de packs (79, 169, 199), y construir un sistema completo de precios dinamicos donde deseleccionar productos sube el precio dramaticamente, con modal de confirmacion, footer sticky, desglose expandible y toda la logica visual verde/naranja. Y que aparezcan los precios individuales por producto y que cambia tambien en función de los que selecciones. 
 
-## Que cambia
+## Cambios en datos
 
-Actualmente el flujo tiene dos entradas separadas: la seccion de precios en la landing (que lleva a `/plan/:planId`) y la pagina `/packs` (que lleva a `/packs/:packId`). El usuario se confunde con dos caminos distintos.
+### 1. packStages.ts — Reescribir con productos reales
 
-El nuevo flujo unificado es:
+Reemplazar completamente los productos con los del Excel. Cada producto tendra `coste_real_mes` y `precio_individual`. La distribucion por etapas segun el Excel:
 
-```text
-Landing → Seccion Precios (3 tarjetas) 
-  → Click "Seleccionar Start" → /packs/start (ve las 3 etapas)
-    → Click "Etapa 1" → /packs/start/etapa/etapa-1 (selector de productos + precios)
-```
+**Pack Start (79 euros/mes)**
 
-La pagina `/packs` (listado de los 3 packs) ya NO es necesaria porque ese rol lo cumple la seccion de precios en la landing.
+- Etapa 0: Chicco Next2Me (54.77), Cambiador portatil (32.40)
+- Etapa 1: Chicco Lite Way (37.08), Hamaca Fisher Price (39.15)
+- Etapa 2: Trona Chicco basica (41.92)
+- Variantes elegibles: Joolz Aer 2 (61.25), YOYO3 (56.97), Boba Wrap (38.12)
 
-## Cambios concretos
+**Pack Comfort (169 euros/mes)**
 
-### 1. PricingSection.tsx — Cambiar destino de los botones
+- Etapa 0: Stokke Sleepi Mini (96.68), Leander Matty (42.92)
+- Etapa 1: Bugaboo Fox 5 (85.62), BabyBjorn Bliss (47.92), Ergobaby Omni (43.60)
+- Etapa 2: Stokke Tripp Trapp (56.10), Alfombra Toddlekind (49.17)
+- Variantes elegibles: Bugaboo Dragonfly (81.25), Bugaboo Giraffe trona (50.55), Bugaboo Giraffe hamaca (50.55), Boba Wrap (38.12), Totter & Tumble (46.25)
 
-Actualmente los botones "Seleccionar X" navegan a `/plan/:planId`. Hay que cambiarlos para que naveguen a `/packs/:planId` (la pagina de etapas que ya existe).
+**Pack Total Peace (199 euros/mes)**
 
-### 2. Header.tsx — Quitar enlace "Packs" del menu
+- Etapa 0: Stokke Sleepi Mini (96.68), Leander Matty (42.92), Monitor Angelcare (52.50)
+- Etapa 1: Bugaboo Donkey 5 (90.00), Nuna LEAF Grow (79.18), BabyBjorn One Air (43.60)
+- Etapa 2: Stokke Tripp Trapp (56.10), Alfombra Toddlekind (49.17)
 
-El enlace "Packs" en la navegacion ya no tiene sentido porque el punto de entrada es la seccion de precios. Se elimina del menu.
+### 2. planEquipment.ts — Actualizar tipo
 
-### 3. App.tsx — Eliminar ruta /packs y limpiar la ruta /plan/:planId
+Agregar `coste_real_mes` al tipo `EquipmentOption`. Agregar campo `isElegible` booleano para distinguir productos fijos (con checkbox) de variantes elegibles (con radio button).
 
-- La ruta `/packs` (listado) se puede eliminar o redirigir a `/#precios`
-- La ruta `/plan/:planId` se puede redirigir a `/packs/:planId` para no romper links existentes
-- Las rutas `/packs/:packId` y `/packs/:packId/etapa/:stageId` se mantienen tal cual
+### 3. PricingSection.tsx — Actualizar precios
 
-### 4. PackDetail.tsx — Ajustar el boton "Volver"
+Cambiar los precios de los planes: Start 79, Comfort 169, Total Peace 199.
 
-El boton de volver actualmente lleva a `/packs`. Hay que cambiarlo para que vuelva a `/#precios` (la seccion de precios en la landing).
+## Nuevos componentes
 
-### 5. PackStageProducts.tsx — Ajustar navegacion
+### 4. DeselectionModal.tsx — Modal de confirmacion
 
-El boton "Volver a etapas" ya apunta a `/packs/:packId` que es correcto. El boton final "Ver planes" deberia llevar al checkout o a contacto, no de vuelta a precios.
+Componente Dialog que se muestra al intentar desmarcar un producto. Muestra:
 
-### 6. PackBreadcrumbs.tsx — Actualizar primer nivel
+- Nombre del producto
+- Precio pack completo vs precio sin ese producto
+- Diferencia en euros
+- Boton verde "Mantener producto" (accion principal)
+- Boton gris "Quitar de todas formas"
 
-Actualmente el primer breadcrumb es "Packs" y enlaza a `/packs`. Hay que cambiarlo a "Precios" y que enlace a `/#precios`.
+### 5. StickyPriceFooter.tsx — Footer sticky
+
+Barra fija en la parte inferior de la pantalla con:
+
+- Precio actual (verde si pack completo, naranja si individual)
+- Texto contextual ("Pack completo - Mejor oferta" vs "+XX euros mas caro")
+- Boton CTA (verde "Continuar" vs naranja "Continuar de todas formas")
+- Seccion expandible "Ver desglose de precios" usando Collapsible
+- Lista de productos con "Incluido" o "XX euros/mes (individual)"
+
+### 6. LowProductWarning.tsx — Banner de advertencia
+
+Banner amarillo que aparece cuando quedan 1-2 productos seleccionados, mostrando el coste por producto vs el coste por producto en pack completo.
+
+## Pagina principal modificada
+
+### 7. PackStageProducts.tsx — Reescritura mayor
+
+Cambios principales:
+
+- **Productos fijos**: Cada uno con checkbox "Incluir en mi suscripcion", marcado por defecto. Al desmarcar se abre el DeselectionModal
+- **Productos elegibles (variantes)**: Radio buttons en lugar de checkboxes. Siempre debe haber uno seleccionado. No se pueden deseleccionar
+- **Textos dinamicos**: Verde "Incluido en pack" cuando pack completo, naranja "XX euros/mes" cuando hay deselecciones
+- **Precio individual visible**: Cada producto muestra su precio individual cuando no es pack completo
+- **Minimo 1 producto**: No permitir desmarcar el ultimo producto
+- **Footer sticky**: Reemplaza el PriceSummary actual con StickyPriceFooter
+- **Quitar FloatingCTA**: El StickyPriceFooter lo reemplaza
+
+Estado gestionado:
+
+- `selectedKeys`: Set de productos fijos seleccionados (checkboxes)
+- `variantChoices`: Map de categoria a opcion elegida (radio buttons)
+- `pendingDeselect`: producto pendiente de confirmar deseleccion (para el modal)
+
+Calculo de precio:
+
+- Si todos los fijos estan seleccionados: precio = packPrice
+- Si falta alguno: precio = suma de precio_individual de cada producto seleccionado (fijos + variante elegida de cada categoria elegible)
+
+## Analytics
+
+### 8. useAnalytics.ts — Nuevos eventos
+
+Agregar al whitelist:
+
+- `product_deselect_attempt`: cuando intenta desmarcar
+- `product_deselect_confirmed`: cuando confirma en modal
+- `product_deselect_cancelled`: cuando cancela en modal
 
 ## Seccion tecnica
 
-### PricingSection.tsx
+### Estructura de datos por categoria
+
+Cada categoria en `packStages` tendra un nuevo campo `type`:
+
+- `"fixed"`: Producto unico con checkbox. Se puede deseleccionar
+- `"choice"`: Multiples opciones con radio buttons. No se puede deseleccionar, solo cambiar entre opciones
+
 ```text
-// Cambiar:
-navigate(`/plan/${plan.id}`)
-// Por:
-navigate(`/packs/${plan.id}`)
+{
+  category: "Cuna",
+  type: "fixed",   // checkbox
+  options: [{ brand: "Chicco", model: "Next2Me", coste_real_mes: 15.91, precio_individual: 54.77 }]
+}
+
+{
+  category: "Carrito",
+  type: "choice",  // radio buttons
+  options: [
+    { brand: "Chicco", model: "Lite Way", coste_real_mes: 8.83, precio_individual: 37.08 },
+    { brand: "Joolz", model: "Aer 2", coste_real_mes: 18.50, precio_individual: 61.25 }
+  ]
+}
 ```
 
-### Header.tsx
+### Logica de calculo de precio
+
 ```text
-// Eliminar de navLinks:
-{ label: "Packs", href: "/packs", isRoute: true }
+function calculatePrice(pack, selectedFixedKeys, variantChoices):
+  allFixedSelected = every fixed category has its product selected
+  
+  if allFixedSelected:
+    basePrice = pack.price  // 79, 169, or 199
+    // Add upgrade cost if premium variant chosen
+    for each choice category:
+      chosen = variantChoices[category]
+      if chosen has upgrade cost:
+        basePrice += upgrade cost
+    return { price: basePrice, isPackComplete: true }
+  
+  else:
+    total = 0
+    for each selected fixed product:
+      total += product.precio_individual
+    for each choice category:
+      chosen = variantChoices[category]
+      total += chosen.precio_individual
+    return { price: total, isPackComplete: false }
 ```
 
-### App.tsx
-```text
-// Eliminar:
-<Route path="/packs" element={<Packs />} />
+### Archivos a crear
 
-// Agregar redirect para /plan/:planId:
-<Route path="/plan/:planId" element={<Navigate to ... />} />
 
-// Mantener:
-<Route path="/packs/:packId" element={<PackDetail />} />
-<Route path="/packs/:packId/etapa/:stageId" element={<PackStageProducts />} />
-```
+| Archivo                                      | Descripcion                         |
+| -------------------------------------------- | ----------------------------------- |
+| `src/components/packs/DeselectionModal.tsx`  | Modal de confirmacion al desmarcar  |
+| `src/components/packs/StickyPriceFooter.tsx` | Footer sticky con precio y desglose |
+| `src/components/packs/LowProductWarning.tsx` | Banner si quedan 1-2 productos      |
 
-### PackDetail.tsx
-- Boton volver → `navigate("/#precios")` en lugar de `/packs`
-- CTA inferior se mantiene igual
 
-### PackBreadcrumbs.tsx
-- Primer nivel: "Planes" → enlace a `/#precios`
+### Archivos a modificar
 
-### Archivos que ya NO se necesitan
-- `src/pages/Packs.tsx` — se puede eliminar (su funcion la cumple la seccion de precios)
 
-| Archivo | Accion |
-|---------|--------|
-| `src/components/PricingSection.tsx` | Cambiar navigate a `/packs/:id` |
-| `src/components/Header.tsx` | Quitar enlace "Packs" |
-| `src/App.tsx` | Eliminar ruta `/packs`, redirect `/plan/:id` |
-| `src/pages/PackDetail.tsx` | Boton volver a `/#precios` |
-| `src/components/packs/PackBreadcrumbs.tsx` | Primer nivel "Planes" → `/#precios` |
-| `src/pages/Packs.tsx` | Eliminar archivo |
+| Archivo                                 | Cambio                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------- |
+| `src/data/packStages.ts`                | Reescribir con productos reales, precios reales, campo type por categoria |
+| `src/data/planEquipment.ts`             | Agregar coste_real_mes al tipo EquipmentOption                            |
+| `src/pages/PackStageProducts.tsx`       | Reescribir con logica de fijos/elegibles, modal, footer sticky            |
+| `src/components/packs/PriceSummary.tsx` | Puede eliminarse (reemplazado por StickyPriceFooter)                      |
+| `src/components/PricingSection.tsx`     | Actualizar precios a 79, 169, 199                                         |
+| `src/pages/PackDetail.tsx`              | Actualizar precio mostrado                                                |
+| `src/hooks/useAnalytics.ts`             | Agregar nuevos tipos de evento                                            |
