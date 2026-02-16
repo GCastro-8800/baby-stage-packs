@@ -83,16 +83,27 @@ export const packStages: Record<string, PackConfig> = {
         products: [
           {
             category: "Cuna",
+            type: "choice",
+            options: [
+              { brand: "Chicco", model: "Next2Me", coste_real_mes: 45.17, precio_individual: 127.92, precio_en_pack: 50.70, description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres." },
+              { brand: "Stokke", model: "Sleepi V3", coste_real_mes: 45.17, precio_individual: 127.92, precio_en_pack: 50.70, description: "Cuna ovalada evolutiva que crece con el bebé. Diseño escandinavo en madera de haya." },
+              { brand: "Artesanal", model: "Moisés de mimbre", coste_real_mes: 45.17, precio_individual: 127.92, precio_en_pack: 50.70, description: "Moisés clásico de mimbre natural. Acogedor y transpirable para los primeros meses." },
+            ],
+          },
+          {
+            category: "Monitor",
             type: "fixed",
             options: [
-              { brand: "Stokke", model: "Sleepi Mini", coste_real_mes: 32.67, precio_individual: 96.68, precio_en_pack: 43.56, description: "Minicuna ovalada que crece con el bebé. Diseño escandinavo en madera de haya." },
+              { brand: "Premium", model: "Monitor con cámara", coste_real_mes: 12.21, precio_individual: 45.52, precio_en_pack: 13.70, description: "Monitor con cámara HD para vigilar al bebé día y noche. Máxima tranquilidad." },
             ],
           },
           {
             category: "Cambiador",
-            type: "fixed",
+            type: "choice",
             options: [
-              { brand: "Leander", model: "Matty", coste_real_mes: 11.17, precio_individual: 42.92, precio_en_pack: 14.88, description: "Cambiador ergonómico con diseño danés premium." },
+              { brand: "Artesanal", model: "Cesto mimbre", coste_real_mes: 10.08, precio_individual: 40.21, precio_en_pack: 11.32, description: "Cambiador de mimbre natural, funcional y decorativo." },
+              { brand: "Zara Home", model: "Cambiador", coste_real_mes: 10.08, precio_individual: 40.21, precio_en_pack: 11.32, description: "Cambiador de diseño elegante y minimalista." },
+              { brand: "Leander", model: "Matty", coste_real_mes: 10.08, precio_individual: 40.21, precio_en_pack: 11.32, description: "Cambiador ergonómico con diseño danés premium." },
             ],
           },
         ],
@@ -107,24 +118,31 @@ export const packStages: Record<string, PackConfig> = {
             category: "Carrito",
             type: "choice",
             options: [
-              { brand: "Bugaboo", model: "Fox 5", coste_real_mes: 28.25, precio_individual: 85.62, precio_en_pack: 37.68, description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable." },
-              { brand: "Bugaboo", model: "Dragonfly", coste_real_mes: 26.50, precio_individual: 81.25, precio_en_pack: 35.31, description: "Carrito ultraligero y compacto, ideal para ciudad." },
+              { brand: "Bugaboo", model: "Fox 5", coste_real_mes: 26.28, precio_individual: 80.69, precio_en_pack: 29.49, description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable." },
+              { brand: "Bugaboo", model: "Donkey 5", coste_real_mes: 26.28, precio_individual: 80.69, precio_en_pack: 29.49, description: "Carrito gemelar/mono convertible. Máxima versatilidad." },
+              { brand: "Bugaboo", model: "Dragonfly", coste_real_mes: 26.28, precio_individual: 80.69, precio_en_pack: 29.49, description: "Carrito ultraligero y compacto, ideal para ciudad." },
+              { brand: "Joolz", model: "Aer 2", coste_real_mes: 26.28, precio_individual: 80.69, precio_en_pack: 29.49, description: "Silla de paseo ultraligera con plegado compacto." },
+              { brand: "Babyzen", model: "YOYO 3", coste_real_mes: 26.28, precio_individual: 80.69, precio_en_pack: 29.49, description: "El carrito más compacto del mercado. Homologado como equipaje de mano." },
             ],
           },
           {
             category: "Hamaca",
             type: "choice",
             options: [
-              { brand: "BabyBjörn", model: "Bliss", coste_real_mes: 13.17, precio_individual: 47.92, precio_en_pack: 17.56, description: "Hamaca con balanceo natural. Tejido suave y transpirable." },
-              { brand: "Bugaboo", model: "Giraffe hamaca", coste_real_mes: 14.22, precio_individual: 50.55, precio_en_pack: 18.96, description: "Hamaca ergonómica compatible con trona Giraffe." },
+              { brand: "BabyBjörn", model: "Bliss", coste_real_mes: 13.21, precio_individual: 48.02, precio_en_pack: 14.83, description: "Hamaca con balanceo natural. Tejido suave y transpirable." },
+              { brand: "BabyBjörn", model: "Balance Soft", coste_real_mes: 13.21, precio_individual: 48.02, precio_en_pack: 14.83, description: "Hamaca ergonómica con asiento acolchado y balanceo suave." },
+              { brand: "Bugaboo", model: "Giraffe hamaca", coste_real_mes: 13.21, precio_individual: 48.02, precio_en_pack: 14.83, description: "Hamaca ergonómica compatible con trona Giraffe." },
+              { brand: "Nuna", model: "LEAF Grow", coste_real_mes: 13.21, precio_individual: 48.02, precio_en_pack: 14.83, description: "Hamaca de balanceo silencioso que crece con el bebé." },
             ],
           },
           {
-            category: "Porteo",
+            category: "Mochila portabebé",
             type: "choice",
             options: [
-              { brand: "Ergobaby", model: "Omni Breeze", coste_real_mes: 11.44, precio_individual: 43.60, precio_en_pack: 15.25, description: "Malla transpirable SoftFlex. Todas las posiciones desde recién nacido." },
-              { brand: "Boba", model: "Wrap", coste_real_mes: 9.25, precio_individual: 38.12, precio_en_pack: 12.33, description: "Fular portabebé elástico, ideal para recién nacidos." },
+              { brand: "BabyBjörn", model: "One", coste_real_mes: 13.67, precio_individual: 49.17, precio_en_pack: 15.34, description: "Portabebé ergonómico con múltiples posiciones. De 0 a 3 años." },
+              { brand: "BabyBjörn", model: "One Air", coste_real_mes: 13.67, precio_individual: 49.17, precio_en_pack: 15.34, description: "Portabebé ergonómico con malla transpirable. De 0 a 3 años." },
+              { brand: "Ergobaby", model: "Omni Breeze", coste_real_mes: 13.67, precio_individual: 49.17, precio_en_pack: 15.34, description: "Malla transpirable SoftFlex. Todas las posiciones desde recién nacido." },
+              { brand: "Boba", model: "Wrap", coste_real_mes: 13.67, precio_individual: 49.17, precio_en_pack: 15.34, description: "Fular portabebé elástico, ideal para recién nacidos." },
             ],
           },
         ],
@@ -139,16 +157,17 @@ export const packStages: Record<string, PackConfig> = {
             category: "Trona",
             type: "choice",
             options: [
-              { brand: "Stokke", model: "Tripp Trapp", coste_real_mes: 16.44, precio_individual: 56.10, precio_en_pack: 21.91, description: "La trona de referencia. Crece con el niño hasta adulto." },
-              { brand: "Bugaboo", model: "Giraffe trona", coste_real_mes: 14.22, precio_individual: 50.55, precio_en_pack: 18.96, description: "Trona evolutiva de diseño con ajuste en altura." },
+              { brand: "Stokke", model: "Tripp Trapp", coste_real_mes: 15.25, precio_individual: 53.12, precio_en_pack: 17.12, description: "La trona de referencia. Crece con el niño hasta adulto." },
+              { brand: "Bugaboo", model: "Giraffe trona", coste_real_mes: 15.25, precio_individual: 53.12, precio_en_pack: 17.12, description: "Trona evolutiva de diseño con ajuste en altura." },
             ],
           },
           {
-            category: "Alfombra de juegos",
+            category: "Alfombra de juego",
             type: "choice",
             options: [
-              { brand: "Toddlekind", model: "Alfombra premium", coste_real_mes: 13.67, precio_individual: 49.17, precio_en_pack: 18.21, description: "Alfombra de juegos de diseño, suave y fácil de limpiar." },
-              { brand: "Totter & Tumble", model: "Alfombra reversible", coste_real_mes: 12.50, precio_individual: 46.25, precio_en_pack: 16.65, description: "Alfombra de juegos reversible con diseños elegantes." },
+              { brand: "Toddlekind", model: "Alfombra premium", coste_real_mes: 14.71, precio_individual: 51.77, precio_en_pack: 16.51, description: "Alfombra de juegos de diseño, suave y fácil de limpiar." },
+              { brand: "Skip Hop", model: "Playspot Geo", coste_real_mes: 14.71, precio_individual: 51.77, precio_en_pack: 16.51, description: "Alfombra de espuma con piezas encajables de diseño geométrico." },
+              { brand: "Totter & Tumble", model: "Alfombra reversible", coste_real_mes: 14.71, precio_individual: 51.77, precio_en_pack: 16.51, description: "Alfombra de juegos reversible con diseños elegantes." },
             ],
           },
         ],
