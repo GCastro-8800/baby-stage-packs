@@ -13,7 +13,10 @@ type EventType =
   | "plan_upgrade_click"
   | "checkout_start"
   | "pack_stage_click"
-  | "pack_stage_next";
+  | "pack_stage_next"
+  | "product_deselect_attempt"
+  | "product_deselect_confirmed"
+  | "product_deselect_cancelled";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;

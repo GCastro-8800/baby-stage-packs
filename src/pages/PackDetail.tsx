@@ -31,7 +31,7 @@ const PackDetail = () => {
             <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto">
               {pack.tagline}
             </p>
-            <p className="text-2xl font-bold text-primary">{pack.price}&nbsp;€/mes</p>
+            <p className="text-2xl font-bold text-primary">Desde {pack.price}&nbsp;€/mes</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">

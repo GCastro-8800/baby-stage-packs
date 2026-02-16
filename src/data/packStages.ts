@@ -1,14 +1,11 @@
-import type { EquipmentOption } from "./planEquipment";
+import type { EquipmentOption, EquipmentCategory } from "./planEquipment";
 
 export interface PackStage {
   id: string;
   name: string;
   subtitle: string;
   description: string;
-  products: {
-    category: string;
-    options: EquipmentOption[];
-  }[];
+  products: EquipmentCategory[];
 }
 
 export interface PackConfig {
@@ -23,7 +20,7 @@ export const packStages: Record<string, PackConfig> = {
   start: {
     id: "start",
     name: "BEBLOO Start",
-    price: 59,
+    price: 79,
     tagline: "Lo esencial para empezar con tranquilidad",
     stages: [
       {
@@ -33,23 +30,17 @@ export const packStages: Record<string, PackConfig> = {
         description: "Todo lo que necesitas tener listo antes de que llegue el bebé.",
         products: [
           {
-            category: "Cuna o minicuna",
+            category: "Cuna",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Sleepi Mini", description: "Minicuna ovalada que crece con el bebé. Diseño escandinavo en madera de haya.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 25 },
-              { brand: "Babyzen", model: "Yoyo Bassinet", description: "Capazo ligero compatible con el chasis Yoyo. Ventilación optimizada.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 22 },
+              { brand: "Chicco", model: "Next2Me", coste_real_mes: 15.91, precio_individual: 54.77, description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres." },
             ],
           },
           {
             category: "Cambiador",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Care", description: "Cambiador ergonómico a la altura perfecta. Madera maciza con múltiples alturas.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 15 },
-              { brand: "IKEA", model: "Sniglar", description: "Cambiador funcional y asequible en madera de haya. Sencillo y estable.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 8 },
-            ],
-          },
-          {
-            category: "Monitor de bebé (solo audio)",
-            options: [
-              { brand: "Philips Avent", model: "SCD503", description: "Monitor DECT con sonido cristalino y luz nocturna. Alcance de 330m.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 10 },
+              { brand: "Bebloo", model: "Cambiador portátil", coste_real_mes: 6.96, precio_individual: 32.40, description: "Cambiador portátil funcional y ligero." },
             ],
           },
         ],
@@ -61,10 +52,26 @@ export const packStages: Record<string, PackConfig> = {
         description: "El equipamiento para los paseos y el día a día con un recién nacido.",
         products: [
           {
-            category: "Carrito básico",
+            category: "Carrito",
+            type: "choice",
             options: [
-              { brand: "Bugaboo", model: "Dragonfly", description: "Carrito ultraligero y compacto, ideal para ciudad. Plegado con una mano.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 35 },
-              { brand: "Cybex", model: "Eezy S Twist", description: "Silla giratoria 360° con plegado compacto. Perfecta para espacios reducidos.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 30 },
+              { brand: "Chicco", model: "Lite Way", coste_real_mes: 8.83, precio_individual: 37.08, description: "Carrito ligero y compacto, ideal para ciudad." },
+              { brand: "Joolz", model: "Aer 2", coste_real_mes: 18.50, precio_individual: 61.25, description: "Carrito urbano ultraligero con plegado compacto." },
+              { brand: "Babyzen", model: "YOYO3", coste_real_mes: 16.79, precio_individual: 56.97, description: "El carrito compacto por excelencia. Cabe en equipaje de mano." },
+            ],
+          },
+          {
+            category: "Hamaca",
+            type: "fixed",
+            options: [
+              { brand: "Fisher Price", model: "Hamaca básica", coste_real_mes: 9.66, precio_individual: 39.15, description: "Hamaca con balanceo natural, cómoda y segura." },
+            ],
+          },
+          {
+            category: "Porteo",
+            type: "choice",
+            options: [
+              { brand: "Boba", model: "Wrap", coste_real_mes: 9.25, precio_individual: 38.12, description: "Fular portabebé elástico, ideal para recién nacidos." },
             ],
           },
         ],
@@ -74,14 +81,22 @@ export const packStages: Record<string, PackConfig> = {
         name: "Etapa 2 — Crecimiento",
         subtitle: "6–12 meses",
         description: "Tu bebé crece y necesita nuevo equipamiento adaptado.",
-        products: [],
+        products: [
+          {
+            category: "Trona",
+            type: "fixed",
+            options: [
+              { brand: "Chicco", model: "Trona básica", coste_real_mes: 10.77, precio_individual: 41.92, description: "Trona funcional y ajustable en altura." },
+            ],
+          },
+        ],
       },
     ],
   },
   comfort: {
     id: "comfort",
     name: "BEBLOO Comfort",
-    price: 129,
+    price: 169,
     tagline: "Todo el equipamiento esencial, entregado por etapas",
     stages: [
       {
@@ -91,24 +106,17 @@ export const packStages: Record<string, PackConfig> = {
         description: "Prepara la habitación del bebé con todo lo necesario antes de su llegada.",
         products: [
           {
-            category: "Cuna o minicuna",
+            category: "Cuna",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Sleepi", description: "Cuna evolutiva ovalada que se transforma en cama infantil. Hasta los 5 años.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 35 },
-              { brand: "Babyzen", model: "Yoyo Bassinet", description: "Capazo ligero compatible con el chasis Yoyo. Ventilación optimizada.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 28 },
-              { brand: "Cybex", model: "Lemo Cot", description: "Cuna de diseño minimalista con laterales de malla transpirable.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 30 },
+              { brand: "Stokke", model: "Sleepi Mini", coste_real_mes: 32.67, precio_individual: 96.68, description: "Minicuna ovalada que crece con el bebé. Diseño escandinavo en madera de haya." },
             ],
           },
           {
             category: "Cambiador",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Care", description: "Cambiador ergonómico a la altura perfecta. Madera maciza con múltiples alturas.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 18 },
-            ],
-          },
-          {
-            category: "Monitor de bebé",
-            options: [
-              { brand: "Philips Avent", model: "SCD923", description: "Monitor con vídeo HD y conexión segura. Visión nocturna y canciones de cuna.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 15 },
-              { brand: "Eufy", model: "SpaceView Pro", description: "Pantalla grande de 5\", sin WiFi para máxima privacidad. Batería duradera.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 14 },
+              { brand: "Leander", model: "Matty", coste_real_mes: 11.17, precio_individual: 42.92, description: "Cambiador ergonómico con diseño danés premium." },
             ],
           },
         ],
@@ -120,25 +128,27 @@ export const packStages: Record<string, PackConfig> = {
         description: "Carrito, hamaca y portabebé para los primeros paseos y el día a día.",
         products: [
           {
-            category: "Carrito completo (capazo + silla)",
+            category: "Carrito",
+            type: "choice",
             options: [
-              { brand: "Bugaboo", model: "Fox 5", description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 45 },
-              { brand: "Cybex", model: "Priam", description: "Elegancia y funcionalidad. Chasis ligero con amortiguación en todas las ruedas.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 42 },
-              { brand: "Stokke", model: "Xplory X", description: "Altura única que acerca al bebé. Diseño icónico escandinavo.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 48 },
+              { brand: "Bugaboo", model: "Fox 5", coste_real_mes: 28.25, precio_individual: 85.62, description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable." },
+              { brand: "Bugaboo", model: "Dragonfly", coste_real_mes: 26.50, precio_individual: 81.25, description: "Carrito ultraligero y compacto, ideal para ciudad." },
             ],
           },
           {
-            category: "Hamaca ergonómica",
+            category: "Hamaca",
+            type: "choice",
             options: [
-              { brand: "BabyBjörn", model: "Bliss", description: "Hamaca con balanceo natural. Tejido suave y transpirable, sin baterías.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 20 },
-              { brand: "Stokke", model: "Steps Bouncer", description: "Hamaca que se acopla a la trona Steps. Movimiento suave y natural.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 22 },
+              { brand: "BabyBjörn", model: "Bliss", coste_real_mes: 13.17, precio_individual: 47.92, description: "Hamaca con balanceo natural. Tejido suave y transpirable." },
+              { brand: "Bugaboo", model: "Giraffe hamaca", coste_real_mes: 14.22, precio_individual: 50.55, description: "Hamaca ergonómica compatible con trona Giraffe." },
             ],
           },
           {
-            category: "Mochila portabebé",
+            category: "Porteo",
+            type: "choice",
             options: [
-              { brand: "BabyBjörn", model: "Harmony", description: "Portabebé ergonómico con soporte lumbar acolchado. De 0 a 3 años.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 18 },
-              { brand: "Ergobaby", model: "Omni Breeze", description: "Malla transpirable SoftFlex. Todas las posiciones de porteo desde recién nacido.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 20 },
+              { brand: "Ergobaby", model: "Omni Breeze", coste_real_mes: 11.44, precio_individual: 43.60, description: "Malla transpirable SoftFlex. Todas las posiciones desde recién nacido." },
+              { brand: "Boba", model: "Wrap", coste_real_mes: 9.25, precio_individual: 38.12, description: "Fular portabebé elástico, ideal para recién nacidos." },
             ],
           },
         ],
@@ -150,17 +160,19 @@ export const packStages: Record<string, PackConfig> = {
         description: "Tu bebé empieza a sentarse, gatear y comer solo. Nuevo equipamiento adaptado.",
         products: [
           {
-            category: "Trona evolutiva",
+            category: "Trona",
+            type: "choice",
             options: [
-              { brand: "Stokke", model: "Tripp Trapp", description: "La trona de referencia. Crece con el niño desde recién nacido hasta adulto.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 25 },
-              { brand: "Cybex", model: "Lemo 2", description: "Trona moderna con ajuste en altura y profundidad. Diseño elegante.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 22 },
+              { brand: "Stokke", model: "Tripp Trapp", coste_real_mes: 16.44, precio_individual: 56.10, description: "La trona de referencia. Crece con el niño hasta adulto." },
+              { brand: "Bugaboo", model: "Giraffe trona", coste_real_mes: 14.22, precio_individual: 50.55, description: "Trona evolutiva de diseño con ajuste en altura." },
             ],
           },
           {
-            category: "Parque de juegos",
+            category: "Alfombra de juegos",
+            type: "choice",
             options: [
-              { brand: "Stokke", model: "Flexi Bath Stand", description: "Soporte plegable multifunción. Ideal como base segura para el baño del bebé.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 15 },
-              { brand: "BabyDan", model: "Park-A-Kid", description: "Parque plegable y portátil con base acolchada. Fácil de montar y guardar.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 18 },
+              { brand: "Toddlekind", model: "Alfombra premium", coste_real_mes: 13.67, precio_individual: 49.17, description: "Alfombra de juegos de diseño, suave y fácil de limpiar." },
+              { brand: "Totter & Tumble", model: "Alfombra reversible", coste_real_mes: 12.50, precio_individual: 46.25, description: "Alfombra de juegos reversible con diseños elegantes." },
             ],
           },
         ],
@@ -170,7 +182,7 @@ export const packStages: Record<string, PackConfig> = {
   "total-peace": {
     id: "total-peace",
     name: "BEBLOO Total Peace",
-    price: 149,
+    price: 199,
     tagline: "Todo lo de Comfort + máxima delegación y personalización",
     stages: [
       {
@@ -180,24 +192,24 @@ export const packStages: Record<string, PackConfig> = {
         description: "Todo preparado antes de la llegada, con opciones premium y asesoramiento personal.",
         products: [
           {
-            category: "Cuna o minicuna",
+            category: "Cuna",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Sleepi", description: "Cuna evolutiva ovalada que se transforma en cama infantil. Hasta los 5 años.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 38 },
-              { brand: "Babyzen", model: "Yoyo Bassinet", description: "Capazo ligero compatible con el chasis Yoyo. Ventilación optimizada.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 30 },
-              { brand: "Cybex", model: "Lemo Cot", description: "Cuna de diseño minimalista con laterales de malla transpirable.", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=400&fit=crop", precio_individual: 32 },
+              { brand: "Stokke", model: "Sleepi Mini", coste_real_mes: 32.67, precio_individual: 96.68, description: "Minicuna ovalada que crece con el bebé. Diseño escandinavo en madera de haya." },
             ],
           },
           {
             category: "Cambiador",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Care", description: "Cambiador ergonómico a la altura perfecta. Madera maciza con múltiples alturas.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 20 },
+              { brand: "Leander", model: "Matty", coste_real_mes: 11.17, precio_individual: 42.92, description: "Cambiador ergonómico con diseño danés premium." },
             ],
           },
           {
-            category: "Monitor de bebé premium",
+            category: "Monitor",
+            type: "fixed",
             options: [
-              { brand: "Philips Avent", model: "SCD923", description: "Monitor con vídeo HD y conexión segura. Visión nocturna y canciones de cuna.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 18 },
-              { brand: "Eufy", model: "SpaceView Pro", description: "Pantalla grande de 5\", sin WiFi para máxima privacidad. Batería duradera.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 16 },
+              { brand: "Angelcare", model: "Monitor premium", coste_real_mes: 15.00, precio_individual: 52.50, description: "Monitor con sensor de movimiento y sonido. Máxima tranquilidad." },
             ],
           },
         ],
@@ -209,31 +221,25 @@ export const packStages: Record<string, PackConfig> = {
         description: "El equipamiento completo para paseos, descanso y porteo, con asesoramiento continuo.",
         products: [
           {
-            category: "Carrito completo (capazo + silla)",
+            category: "Carrito",
+            type: "choice",
             options: [
-              { brand: "Bugaboo", model: "Fox 5", description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 50 },
-              { brand: "Cybex", model: "Priam", description: "Elegancia y funcionalidad. Chasis ligero con amortiguación en todas las ruedas.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 48 },
-              { brand: "Stokke", model: "Xplory X", description: "Altura única que acerca al bebé. Diseño icónico escandinavo.", image: "https://images.unsplash.com/photo-1590086782957-93c06ef21604?w=400&h=400&fit=crop", precio_individual: 52 },
+              { brand: "Bugaboo", model: "Donkey 5", coste_real_mes: 30.00, precio_individual: 90.00, description: "Carrito gemelar/mono convertible. Máxima versatilidad." },
+              { brand: "Bugaboo", model: "Dragonfly", coste_real_mes: 26.50, precio_individual: 81.25, description: "Carrito ultraligero y compacto, ideal para ciudad." },
             ],
           },
           {
-            category: "Hamaca ergonómica",
+            category: "Hamaca",
+            type: "fixed",
             options: [
-              { brand: "BabyBjörn", model: "Bliss", description: "Hamaca con balanceo natural. Tejido suave y transpirable, sin baterías.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 22 },
-              { brand: "Stokke", model: "Steps Bouncer", description: "Hamaca que se acopla a la trona Steps. Movimiento suave y natural.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 24 },
+              { brand: "Nuna", model: "LEAF Grow", coste_real_mes: 25.67, precio_individual: 79.18, description: "Hamaca de balanceo silencioso que crece con el bebé." },
             ],
           },
           {
-            category: "Mochila portabebé",
+            category: "Porteo",
+            type: "fixed",
             options: [
-              { brand: "BabyBjörn", model: "Harmony", description: "Portabebé ergonómico con soporte lumbar acolchado. De 0 a 3 años.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 20 },
-              { brand: "Ergobaby", model: "Omni Breeze", description: "Malla transpirable SoftFlex. Todas las posiciones de porteo desde recién nacido.", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop", precio_individual: 22 },
-            ],
-          },
-          {
-            category: "Adaptación personalizada",
-            options: [
-              { brand: "Bebloo", model: "Selección personalizada", description: "Tu asesor personal adapta el equipamiento a medida que tu bebé crece y cambian tus necesidades.", precio_individual: 0 },
+              { brand: "BabyBjörn", model: "One Air", coste_real_mes: 11.44, precio_individual: 43.60, description: "Portabebé ergonómico con malla transpirable. De 0 a 3 años." },
             ],
           },
         ],
@@ -242,26 +248,20 @@ export const packStages: Record<string, PackConfig> = {
         id: "etapa-2",
         name: "Etapa 2 — Crecimiento",
         subtitle: "6–12 meses",
-        description: "Trona, parque y adaptaciones continuas con tu asesor personal.",
+        description: "Trona y alfombra de juegos para la nueva etapa de independencia.",
         products: [
           {
-            category: "Trona evolutiva",
+            category: "Trona",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Tripp Trapp", description: "La trona de referencia. Crece con el niño desde recién nacido hasta adulto.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 28 },
-              { brand: "Cybex", model: "Lemo 2", description: "Trona moderna con ajuste en altura y profundidad. Diseño elegante.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 25 },
+              { brand: "Stokke", model: "Tripp Trapp", coste_real_mes: 16.44, precio_individual: 56.10, description: "La trona de referencia. Crece con el niño hasta adulto." },
             ],
           },
           {
-            category: "Parque de juegos",
+            category: "Alfombra de juegos",
+            type: "fixed",
             options: [
-              { brand: "Stokke", model: "Flexi Bath Stand", description: "Soporte plegable multifunción. Ideal como base segura para el baño del bebé.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 18 },
-              { brand: "BabyDan", model: "Park-A-Kid", description: "Parque plegable y portátil con base acolchada. Fácil de montar y guardar.", image: "https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=400&fit=crop", precio_individual: 20 },
-            ],
-          },
-          {
-            category: "Adaptación personalizada",
-            options: [
-              { brand: "Bebloo", model: "Selección personalizada", description: "Tu asesor personal adapta el equipamiento según las nuevas necesidades de tu bebé.", precio_individual: 0 },
+              { brand: "Toddlekind", model: "Alfombra premium", coste_real_mes: 13.67, precio_individual: 49.17, description: "Alfombra de juegos de diseño, suave y fácil de limpiar." },
             ],
           },
         ],
@@ -280,7 +280,7 @@ export const getTotalProductCount = (packId: string): number => {
   const pack = packStages[packId];
   if (!pack) return 0;
   return pack.stages.reduce(
-    (sum, stage) => sum + stage.products.reduce((s, cat) => s + cat.options.length, 0),
+    (sum, stage) => sum + stage.products.length,
     0
   );
 };
