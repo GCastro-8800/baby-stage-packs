@@ -52,10 +52,12 @@ const DeselectionModal = ({
               €{priceWithout.toFixed(0)}/mes
             </span>
           </div>
-          <div className="border-t pt-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-destructive">Te costará más:</span>
-            <span className="font-bold text-destructive">+€{diff.toFixed(0)}/mes</span>
-          </div>
+          {diff > 0 && (
+            <div className="border-t pt-2 flex items-center justify-between">
+              <span className="text-sm font-medium text-destructive">Te costará más:</span>
+              <span className="font-bold text-destructive">+€{diff.toFixed(0)}/mes</span>
+            </div>
+          )}
         </div>
 
         <p className="text-xs text-muted-foreground">

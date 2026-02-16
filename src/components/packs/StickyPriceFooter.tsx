@@ -42,10 +42,15 @@ const StickyPriceFooter = ({
                   <CheckCircle className="h-3.5 w-3.5" />
                   Pack completo — Mejor oferta
                 </p>
-              ) : (
+              ) : diff > 0 ? (
                 <p className="text-xs font-medium text-orange-500 flex items-center gap-1">
                   <AlertTriangle className="h-3.5 w-3.5" />
                   +€{diff.toFixed(0)} más caro que pack completo
+                </p>
+              ) : (
+                <p className="text-xs font-medium text-orange-500 flex items-center gap-1">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Productos individuales — Pack completo desde €{packPrice}/mes
                 </p>
               )}
             </div>
