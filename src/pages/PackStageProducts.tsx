@@ -32,7 +32,10 @@ const PackStageProducts = () => {
     return { fixedCategories: fixed, choiceCategories: choice, fixedKeys: keys, totalCategoryCount: stage.products.length };
   }, [stage]);
 
+  const choiceKeys = useMemo(() => choiceCategories.map((c) => c.category), [choiceCategories]);
+
   const [selectedFixed, setSelectedFixed] = useState<Set<string>>(() => new Set(fixedKeys));
+  const [selectedChoice, setSelectedChoice] = useState<Set<string>>(() => new Set(choiceKeys));
   const [variantChoices, setVariantChoices] = useState<Record<string, number>>(() => {
     if (!stage) return {};
     const choices: Record<string, number> = {};
@@ -43,6 +46,7 @@ const PackStageProducts = () => {
   // Reset state when navigating between stages
   useEffect(() => {
     setSelectedFixed(new Set(fixedKeys));
+    setSelectedChoice(new Set(choiceKeys));
     const choices: Record<string, number> = {};
     if (stage) {
       stage.products.filter((c) => c.type === "choice").forEach((c) => { choices[c.category] = 0; });
@@ -50,10 +54,12 @@ const PackStageProducts = () => {
     setVariantChoices(choices);
   }, [stageId]);
 
-  const [pendingDeselect, setPendingDeselect] = useState<{ category: string; product: EquipmentOption } | null>(null);
+  const [pendingDeselect, setPendingDeselect] = useState<{ category: string; product: EquipmentOption; type: "fixed" | "choice" } | null>(null);
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
 
-  const isPackComplete = pack ? fixedKeys.every((k) => selectedFixed.has(k)) : false;
+  const isPackComplete = pack
+    ? fixedKeys.every((k) => selectedFixed.has(k)) && choiceCategories.every((c) => selectedChoice.has(c.category))
+    : false;
 
   const calculateIndividualTotal = useCallback((withoutCategory?: string) => {
     let total = 0;
@@ -64,14 +70,16 @@ const PackStageProducts = () => {
       }
     });
     choiceCategories.forEach((cat) => {
+      if (withoutCategory === cat.category) return;
+      if (!selectedChoice.has(cat.category)) return;
       const idx = variantChoices[cat.category] || 0;
       total += cat.options[idx]?.precio_individual || 0;
     });
     return total;
-  }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
+  }, [fixedCategories, choiceCategories, selectedFixed, selectedChoice, variantChoices]);
 
   const currentPrice = pack ? (isPackComplete ? pack.price : calculateIndividualTotal()) : 0;
-  const selectedCount = Array.from(selectedFixed).length + choiceCategories.length;
+  const selectedCount = selectedFixed.size + selectedChoice.size;
 
   const priceWithoutPending = useMemo(() => {
     if (!pendingDeselect) return 0;
@@ -98,32 +106,38 @@ const PackStageProducts = () => {
         name: `${opt.brand} ${opt.model}`,
         precio_en_pack: opt.precio_en_pack || 0,
         precio_individual: opt.precio_individual || 0,
-        included: true,
+        included: selectedChoice.has(cat.category),
       });
     });
     return items;
-  }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
+  }, [fixedCategories, choiceCategories, selectedFixed, selectedChoice, variantChoices]);
 
   if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/#precios"} replace />;
 
-  const handleFixedToggle = (category: string, product: EquipmentOption) => {
-    if (selectedFixed.has(category)) {
-      const totalAfterRemoval = (selectedFixed.size - 1) + choiceCategories.length;
+  const handleToggle = (category: string, product: EquipmentOption, type: "fixed" | "choice") => {
+    const isSelected = type === "fixed" ? selectedFixed.has(category) : selectedChoice.has(category);
+    if (isSelected) {
+      const totalAfterRemoval = selectedFixed.size + selectedChoice.size - 1;
       if (totalAfterRemoval < 1) {
         toast.error("Debes tener al menos un producto seleccionado");
         return;
       }
       track("product_deselect_attempt", { pack: pack.id, product: `${product.brand} ${product.model}` });
-      setPendingDeselect({ category, product });
+      setPendingDeselect({ category, product, type });
     } else {
-      setSelectedFixed((prev) => new Set([...prev, category]));
+      if (type === "fixed") {
+        setSelectedFixed((prev) => new Set([...prev, category]));
+      } else {
+        setSelectedChoice((prev) => new Set([...prev, category]));
+      }
     }
   };
 
   const handleConfirmDeselect = () => {
     if (!pendingDeselect) return;
     track("product_deselect_confirmed", { pack: pack.id, product: `${pendingDeselect.product.brand} ${pendingDeselect.product.model}` });
-    setSelectedFixed((prev) => {
+    const setter = pendingDeselect.type === "fixed" ? setSelectedFixed : setSelectedChoice;
+    setter((prev) => {
       const next = new Set(prev);
       next.delete(pendingDeselect.category);
       return next;
@@ -270,7 +284,7 @@ const PackStageProducts = () => {
                         className="flex items-center gap-2 cursor-pointer select-none"
                         onClick={(e) => {
                           e.preventDefault();
-                          handleFixedToggle(cat.category, opt);
+                          handleToggle(cat.category, opt, "fixed");
                         }}
                       >
                         <Checkbox checked={isSelected} onCheckedChange={() => {}} />
@@ -284,67 +298,88 @@ const PackStageProducts = () => {
           )}
 
           {/* Choice products */}
-          {choiceCategories.map((cat) => (
+          {choiceCategories.map((cat) => {
+            const isCatSelected = selectedChoice.has(cat.category);
+            const currentIdx = variantChoices[cat.category] || 0;
+            const currentOpt = cat.options[currentIdx];
+            return (
             <div key={cat.category} className="mb-8">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                Elige tu {cat.category.toLowerCase()}
-              </h3>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Elige tu {cat.category.toLowerCase()}
+                </h3>
+              </div>
               <p className="text-xs text-muted-foreground mb-4">Selecciona la opción que mejor se adapte a ti</p>
 
-              <RadioGroup
-                value={String(variantChoices[cat.category] || 0)}
-                onValueChange={(val) => {
-                  setVariantChoices((prev) => ({ ...prev, [cat.category]: Number(val) }));
-                }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-              >
-                {cat.options.map((opt, idx) => {
-                  const isChosen = (variantChoices[cat.category] || 0) === idx;
-                  return (
-                    <label
-                      key={idx}
-                      className={`rounded-xl border-2 bg-card p-5 cursor-pointer transition-all ${
-                        isChosen ? "border-primary/40 shadow-sm" : "border-border hover:border-primary/20"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <p className="text-sm">
-                            <span className="font-medium text-foreground">{opt.brand}</span>{" "}
-                            <span className="text-muted-foreground">{opt.model}</span>
-                          </p>
-                          {opt.description && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{opt.description}</p>
-                          )}
+              <div className={`transition-opacity ${!isCatSelected ? "opacity-50 pointer-events-none" : ""}`}>
+                <RadioGroup
+                  value={String(currentIdx)}
+                  onValueChange={(val) => {
+                    setVariantChoices((prev) => ({ ...prev, [cat.category]: Number(val) }));
+                  }}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
+                  {cat.options.map((opt, idx) => {
+                    const isChosen = currentIdx === idx;
+                    return (
+                      <label
+                        key={idx}
+                        className={`rounded-xl border-2 bg-card p-5 cursor-pointer transition-all ${
+                          isChosen ? "border-primary/40 shadow-sm" : "border-border hover:border-primary/20"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <p className="text-sm">
+                              <span className="font-medium text-foreground">{opt.brand}</span>{" "}
+                              <span className="text-muted-foreground">{opt.model}</span>
+                            </p>
+                            {opt.description && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{opt.description}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {(opt.image || opt.description) && (
+                              <button
+                                type="button"
+                                className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                aria-label={`Ver ${opt.brand} ${opt.model}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setPreviewProduct(opt);
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            )}
+                            <RadioGroupItem value={String(idx)} />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {(opt.image || opt.description) && (
-                            <button
-                              type="button"
-                              className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                              aria-label={`Ver ${opt.brand} ${opt.model}`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setPreviewProduct(opt);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                          )}
-                          <RadioGroupItem value={String(idx)} />
-                        </div>
-                      </div>
 
-                      <div>
-                        {renderPriceInfo(opt, isChosen)}
-                      </div>
-                    </label>
-                  );
-                })}
-              </RadioGroup>
+                        <div>
+                          {renderPriceInfo(opt, isChosen && isCatSelected)}
+                        </div>
+                      </label>
+                    );
+                  })}
+                </RadioGroup>
+              </div>
+
+              <label
+                className="flex items-center gap-2 cursor-pointer select-none mt-3"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentOpt) handleToggle(cat.category, currentOpt, "choice");
+                }}
+              >
+                <Checkbox checked={isCatSelected} onCheckedChange={() => {}} />
+                <span className="text-xs text-muted-foreground">Incluir en mi suscripción</span>
+              </label>
             </div>
-          ))}
+            );
+          })}
+          
 
           {/* Navigation */}
           <div className="flex flex-col items-center gap-3 mt-8">
