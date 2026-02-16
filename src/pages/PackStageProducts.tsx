@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
-import { ArrowRight, Eye, CheckCircle } from "lucide-react";
+import { ArrowRight, Eye, CheckCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -24,7 +24,6 @@ const PackStageProducts = () => {
   const pack = packId ? getPackConfig(packId) : undefined;
   const stage = packId && stageId ? getPackStage(packId, stageId) : undefined;
 
-  // Separate fixed and choice categories
   const { fixedCategories, choiceCategories, fixedKeys, totalCategoryCount } = useMemo(() => {
     if (!stage) return { fixedCategories: [] as EquipmentCategory[], choiceCategories: [] as EquipmentCategory[], fixedKeys: [] as string[], totalCategoryCount: 0 };
     const fixed = stage.products.filter((c) => c.type === "fixed");
@@ -33,10 +32,7 @@ const PackStageProducts = () => {
     return { fixedCategories: fixed, choiceCategories: choice, fixedKeys: keys, totalCategoryCount: stage.products.length };
   }, [stage]);
 
-  // State: selected fixed products (by category name)
   const [selectedFixed, setSelectedFixed] = useState<Set<string>>(() => new Set(fixedKeys));
-
-  // State: variant choices (category → index)
   const [variantChoices, setVariantChoices] = useState<Record<string, number>>(() => {
     if (!stage) return {};
     const choices: Record<string, number> = {};
@@ -44,26 +40,21 @@ const PackStageProducts = () => {
     return choices;
   });
 
-  // Modal state
   const [pendingDeselect, setPendingDeselect] = useState<{ category: string; product: EquipmentOption } | null>(null);
-
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
 
   if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/#precios"} replace />;
 
-  // Price calculation
   const isPackComplete = fixedKeys.every((k) => selectedFixed.has(k));
 
   const calculateIndividualTotal = useCallback((withoutCategory?: string) => {
     let total = 0;
-    // Fixed products that are selected
     fixedCategories.forEach((cat) => {
       if (withoutCategory === cat.category) return;
       if (selectedFixed.has(cat.category)) {
         total += cat.options[0]?.precio_individual || 0;
       }
     });
-    // Choice products (always selected)
     choiceCategories.forEach((cat) => {
       const idx = variantChoices[cat.category] || 0;
       total += cat.options[idx]?.precio_individual || 0;
@@ -72,15 +63,10 @@ const PackStageProducts = () => {
   }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
 
   const currentPrice = isPackComplete ? pack.price : calculateIndividualTotal();
-
-  // Count selected products (fixed selected + choice categories)
   const selectedCount = Array.from(selectedFixed).length + choiceCategories.length;
 
-  // Handle fixed checkbox toggle
   const handleFixedToggle = (category: string, product: EquipmentOption) => {
     if (selectedFixed.has(category)) {
-      // Trying to deselect
-      // Check if this is the last product
       if (selectedFixed.size === 1 && choiceCategories.length === 0) {
         toast.error("Debes tener al menos un producto seleccionado");
         return;
@@ -88,7 +74,6 @@ const PackStageProducts = () => {
       track("product_deselect_attempt", { pack: pack.id, product: `${product.brand} ${product.model}` });
       setPendingDeselect({ category, product });
     } else {
-      // Re-selecting
       setSelectedFixed((prev) => new Set([...prev, category]));
     }
   };
@@ -111,36 +96,22 @@ const PackStageProducts = () => {
     setPendingDeselect(null);
   };
 
-  // Price without the pending product (for modal)
   const priceWithoutPending = useMemo(() => {
     if (!pendingDeselect) return 0;
-    // Calculate as if this category was removed
-    let total = 0;
-    fixedCategories.forEach((cat) => {
-      if (cat.category === pendingDeselect.category) return;
-      if (selectedFixed.has(cat.category)) {
-        total += cat.options[0]?.precio_individual || 0;
-      }
-    });
-    choiceCategories.forEach((cat) => {
-      const idx = variantChoices[cat.category] || 0;
-      total += cat.options[idx]?.precio_individual || 0;
-    });
-    return total;
-  }, [pendingDeselect, fixedCategories, choiceCategories, selectedFixed, variantChoices]);
+    return calculateIndividualTotal(pendingDeselect.category);
+  }, [pendingDeselect, calculateIndividualTotal]);
 
   // Build breakdown for footer
   const productBreakdown = useMemo(() => {
-    const items: { name: string; precio_individual: number; included: boolean }[] = [];
+    const items: { name: string; precio_en_pack: number; precio_individual: number; included: boolean }[] = [];
     fixedCategories.forEach((cat) => {
       const opt = cat.options[0];
       if (!opt) return;
-      const isSelected = selectedFixed.has(cat.category);
-      if (!isSelected) return;
       items.push({
         name: `${opt.brand} ${opt.model}`,
+        precio_en_pack: opt.precio_en_pack || 0,
         precio_individual: opt.precio_individual || 0,
-        included: isPackComplete,
+        included: selectedFixed.has(cat.category),
       });
     });
     choiceCategories.forEach((cat) => {
@@ -149,12 +120,13 @@ const PackStageProducts = () => {
       if (!opt) return;
       items.push({
         name: `${opt.brand} ${opt.model}`,
+        precio_en_pack: opt.precio_en_pack || 0,
         precio_individual: opt.precio_individual || 0,
-        included: isPackComplete,
+        included: true,
       });
     });
     return items;
-  }, [fixedCategories, choiceCategories, selectedFixed, variantChoices, isPackComplete]);
+  }, [fixedCategories, choiceCategories, selectedFixed, variantChoices]);
 
   const currentStageIdx = pack.stages.findIndex((s) => s.id === stageId);
   const nextStage = pack.stages[currentStageIdx + 1];
@@ -172,6 +144,45 @@ const PackStageProducts = () => {
     } else {
       navigate("/#precios");
     }
+  };
+
+  // Helper to render price info for a product
+  const renderPriceInfo = (opt: EquipmentOption, isSelected: boolean) => {
+    const precioEnPack = opt.precio_en_pack || 0;
+    const precioIndividual = opt.precio_individual || 0;
+    const ahorro = precioIndividual - precioEnPack;
+
+    if (isPackComplete && isSelected) {
+      return (
+        <div className="space-y-0.5">
+          <p className="text-xs font-medium text-primary flex items-center gap-1">
+            <CheckCircle className="h-3 w-3" /> En pack: €{precioEnPack.toFixed(2)}/mes
+          </p>
+          <p className="text-xs text-muted-foreground">Sin pack: €{precioIndividual.toFixed(2)}/mes</p>
+          <p className="text-xs font-medium text-primary">Ahorro: €{ahorro.toFixed(2)}/mes</p>
+        </div>
+      );
+    }
+
+    if (!isPackComplete && isSelected) {
+      return (
+        <div className="space-y-0.5">
+          <p className="text-xs font-medium text-orange-500 flex items-center gap-1">
+            <AlertTriangle className="h-3 w-3" /> Precio: €{precioIndividual.toFixed(2)}/mes
+          </p>
+          <p className="text-xs text-muted-foreground">Con pack: €{precioEnPack.toFixed(2)}/mes</p>
+          <p className="text-xs font-medium text-orange-600">Pagas €{ahorro.toFixed(2)} más sin pack</p>
+        </div>
+      );
+    }
+
+    // Not selected
+    return (
+      <div className="space-y-0.5">
+        <p className="text-xs text-muted-foreground">Si lo añades: €{precioIndividual.toFixed(2)}/mes</p>
+        <p className="text-xs text-muted-foreground">Con pack completo: €{precioEnPack.toFixed(2)}/mes</p>
+      </div>
+    );
   };
 
   return (
@@ -196,7 +207,6 @@ const PackStageProducts = () => {
             )}
           </div>
 
-          {/* Low product warning */}
           <LowProductWarning
             selectedCount={selectedCount}
             totalCount={totalCategoryCount}
@@ -242,20 +252,10 @@ const PackStageProducts = () => {
                         )}
                       </div>
 
-                      {/* Price label */}
-                      {isSelected && isPackComplete ? (
-                        <p className="text-xs font-medium text-primary flex items-center gap-1 mb-3">
-                          <CheckCircle className="h-3 w-3" /> Incluido en pack
-                        </p>
-                      ) : isSelected ? (
-                        <p className="text-xs font-medium text-orange-500 mb-3">
-                          €{(opt.precio_individual || 0).toFixed(2)}/mes <span className="text-muted-foreground">(Precio individual)</span>
-                        </p>
-                      ) : (
-                        <p className="text-xs text-muted-foreground mb-3">No incluido</p>
-                      )}
+                      <div className="mb-3">
+                        {renderPriceInfo(opt, isSelected)}
+                      </div>
 
-                      {/* Checkbox */}
                       <label
                         className="flex items-center gap-2 cursor-pointer select-none"
                         onClick={(e) => {
@@ -263,10 +263,7 @@ const PackStageProducts = () => {
                           handleFixedToggle(cat.category, opt);
                         }}
                       >
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => {}}
-                        />
+                        <Checkbox checked={isSelected} onCheckedChange={() => {}} />
                         <span className="text-xs text-muted-foreground">Incluir en mi suscripción</span>
                       </label>
                     </div>
@@ -276,7 +273,7 @@ const PackStageProducts = () => {
             </div>
           )}
 
-          {/* Choice products (variants) */}
+          {/* Choice products */}
           {choiceCategories.map((cat) => (
             <div key={cat.category} className="mb-8">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">
@@ -329,16 +326,9 @@ const PackStageProducts = () => {
                         </div>
                       </div>
 
-                      {/* Price label */}
-                      {isPackComplete ? (
-                        <p className="text-xs font-medium text-primary flex items-center gap-1">
-                          <CheckCircle className="h-3 w-3" /> Incluido sin coste
-                        </p>
-                      ) : (
-                        <p className="text-xs font-medium text-orange-500">
-                          €{(opt.precio_individual || 0).toFixed(2)}/mes <span className="text-muted-foreground">(Precio individual)</span>
-                        </p>
-                      )}
+                      <div>
+                        {renderPriceInfo(opt, isChosen)}
+                      </div>
                     </label>
                   );
                 })}
@@ -346,7 +336,7 @@ const PackStageProducts = () => {
             </div>
           ))}
 
-          {/* Navigation buttons */}
+          {/* Navigation */}
           <div className="flex flex-col items-center gap-3 mt-8">
             {nextStage && (
               <Button
@@ -373,11 +363,12 @@ const PackStageProducts = () => {
         </div>
       </section>
 
-      {/* Deselection modal */}
       {pendingDeselect && (
         <DeselectionModal
           open={!!pendingDeselect}
           productName={`${pendingDeselect.product.brand} ${pendingDeselect.product.model}`}
+          precioEnPack={pendingDeselect.product.precio_en_pack || 0}
+          precioIndividual={pendingDeselect.product.precio_individual || 0}
           packPrice={pack.price}
           priceWithout={priceWithoutPending}
           onKeep={handleCancelDeselect}
@@ -385,18 +376,18 @@ const PackStageProducts = () => {
         />
       )}
 
-      {/* Product preview */}
       <ProductPreviewDialog
         product={previewProduct}
         open={!!previewProduct}
         onOpenChange={(open) => { if (!open) setPreviewProduct(null); }}
       />
 
-      {/* Sticky price footer */}
       <StickyPriceFooter
         currentPrice={currentPrice}
         packPrice={pack.price}
         isPackComplete={isPackComplete}
+        selectedCount={selectedCount}
+        totalCount={totalCategoryCount}
         products={productBreakdown}
         onContinue={handleContinue}
       />
