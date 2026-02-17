@@ -438,6 +438,7 @@ const PackStageProducts = () => {
         selectedCount={globalCounts.selectedCount}
         totalCount={globalCounts.totalCount}
         products={productBreakdown}
+        serviceFee={pack.serviceFee}
         onContinue={handleContinue}
       />
 
