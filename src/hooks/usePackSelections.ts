@@ -190,6 +190,25 @@ export function usePackSelections(packId: string) {
     [packId]
   );
 
+  const calculatePackCompletePrice = useCallback(
+    (pack: PackConfig): number => {
+      let total = 0;
+      pack.stages.forEach((stage) => {
+        const sel = store[packId]?.[stage.id];
+        stage.products.forEach((cat) => {
+          const isFixed = cat.type === "fixed";
+          const idx = !isFixed && sel ? sel.variantChoices[cat.category] || 0 : 0;
+          const opt = cat.options[idx];
+          if (opt) {
+            total += opt.precio_en_pack || 0;
+          }
+        });
+      });
+      return total + pack.serviceFee;
+    },
+    [packId]
+  );
+
   return {
     packState,
     initStageIfNeeded,
@@ -197,6 +216,7 @@ export function usePackSelections(packId: string) {
     updateStageSelections,
     isPackComplete,
     calculateTotalPrice,
+    calculatePackCompletePrice,
     getGlobalCounts,
     getGlobalProductBreakdown,
     getSelectedItemsMap,
