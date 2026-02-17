@@ -31,6 +31,7 @@ const PackStageProducts = () => {
     updateStageSelections,
     isPackComplete: checkPackComplete,
     calculateTotalPrice,
+    calculatePackCompletePrice,
     getGlobalCounts,
     getGlobalProductBreakdown,
     getSelectedItemsMap,
@@ -66,6 +67,9 @@ const PackStageProducts = () => {
 
   // Global price
   const currentPrice = pack ? calculateTotalPrice(pack) : 0;
+
+  // Dynamic pack complete price (all products selected with current variants + serviceFee)
+  const packCompletePrice = pack ? calculatePackCompletePrice(pack) : 0;
 
   // Global counts
   const globalCounts = pack ? getGlobalCounts(pack) : { selectedCount: 0, totalCount: 0 };
@@ -241,7 +245,7 @@ const PackStageProducts = () => {
             selectedCount={globalCounts.selectedCount}
             totalCount={globalCounts.totalCount}
             currentPrice={currentPrice}
-            packPrice={pack.price}
+            packPrice={packCompletePrice}
           />
 
           {/* Fixed products */}
@@ -418,7 +422,7 @@ const PackStageProducts = () => {
           productName={`${pendingDeselect.product.brand} ${pendingDeselect.product.model}`}
           precioEnPack={pendingDeselect.product.precio_en_pack || 0}
           precioIndividual={pendingDeselect.product.precio_individual || 0}
-          packPrice={pack.price}
+          packPrice={packCompletePrice}
           priceWithout={priceWithoutPending}
           onKeep={handleCancelDeselect}
           onRemove={handleConfirmDeselect}
@@ -433,7 +437,7 @@ const PackStageProducts = () => {
 
       <StickyPriceFooter
         currentPrice={currentPrice}
-        packPrice={pack.price}
+        packPrice={packCompletePrice}
         isPackComplete={isPackComplete}
         selectedCount={globalCounts.selectedCount}
         totalCount={globalCounts.totalCount}
