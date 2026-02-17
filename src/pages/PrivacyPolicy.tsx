@@ -34,7 +34,7 @@ export default function PrivacyPolicy() {
             <p className="leading-relaxed">
               El responsable del tratamiento de tus datos personales es <strong>bebloo</strong>, con domicilio social en España. 
               Puedes contactarnos en cualquier momento a través de{" "}
-              <a href="mailto:hola@bebloo.es" className="text-primary hover:underline">hola@bebloo.es</a>.
+              <a href="mailto:info@bebloo.es" className="text-primary hover:underline">info@bebloo.es</a>.
             </p>
           </section>
 
@@ -103,7 +103,7 @@ export default function PrivacyPolicy() {
             </ul>
             <p className="leading-relaxed mt-3">
               Para ejercer cualquiera de estos derechos, escríbenos a{" "}
-              <a href="mailto:hola@bebloo.es" className="text-primary hover:underline">hola@bebloo.es</a>. 
+              <a href="mailto:info@bebloo.es" className="text-primary hover:underline">info@bebloo.es</a>. 
               Responderemos en un plazo máximo de 30 días.
             </p>
           </section>
@@ -139,7 +139,7 @@ export default function PrivacyPolicy() {
             <h2 className="text-xl font-semibold text-foreground mb-3">11. Contacto</h2>
             <p className="leading-relaxed">
               Si tienes preguntas sobre esta política o sobre el tratamiento de tus datos, contáctanos en:{" "}
-              <a href="mailto:hola@bebloo.es" className="text-primary hover:underline">hola@bebloo.es</a>.
+              <a href="mailto:info@bebloo.es" className="text-primary hover:underline">info@bebloo.es</a>.
             </p>
           </section>
         </div>

@@ -17,6 +17,7 @@ interface StickyPriceFooterProps {
   selectedCount: number;
   totalCount: number;
   products: ProductBreakdown[];
+  serviceFee?: number;
   onContinue: () => void;
 }
 
@@ -27,6 +28,7 @@ const StickyPriceFooter = ({
   selectedCount,
   totalCount,
   products,
+  serviceFee = 0,
   onContinue,
 }: StickyPriceFooterProps) => {
   const [open, setOpen] = useState(false);
@@ -41,7 +43,7 @@ const StickyPriceFooter = ({
               {isPackComplete ? (
                 <>
                   <p className="font-bold text-lg text-foreground">
-                    Pack Completo: €{packPrice}/mes
+                    Pack Completo: €{Math.round(currentPrice)}/mes
                   </p>
                   <p className="text-xs font-medium text-primary flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
@@ -100,6 +102,14 @@ const StickyPriceFooter = ({
                   )}
                 </div>
               ))}
+              {serviceFee > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-foreground">Servicios premium</span>
+                  <span className="text-primary text-xs font-medium">
+                    €{serviceFee.toFixed(2)}/mes
+                  </span>
+                </div>
+              )}
               <div className="border-t pt-1.5 flex items-center justify-between text-sm font-bold">
                 <span>Total</span>
                 <span className={isPackComplete ? "text-primary" : "text-orange-500"}>

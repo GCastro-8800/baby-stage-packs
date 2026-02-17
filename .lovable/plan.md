@@ -1,57 +1,57 @@
 
-# Simplificar modelo de precios: precio individual = precio en pack x 3
 
-## Resumen
+# Fix: Precios de referencia estaticos en multiples componentes
 
-Eliminar el campo `coste_real_mes` de todos los productos y cambiar la formula de `precio_individual` a simplemente `precio_en_pack * 3`. Esto aplica a los packs Start, Comfort y Total Peace.
+## Problema
 
-## Que cambia para el usuario
+Cuando el pack esta incompleto, varios componentes muestran el precio de referencia estatico (`pack.price`: 79/169/199) como lo que costaria el "pack completo". Pero ahora el precio real del pack completo es dinamico (depende de las marcas elegidas + serviceFee). Esto hace que los mensajes de comparacion sean incorrectos.
 
-Nada visual cambia en la interfaz. El usuario sigue viendo:
-- Precio en pack (lo que paga si tiene el pack completo)
-- Precio sin pack (ahora siempre es exactamente el triple)
-- La logica de deseleccion sigue igual
+Componentes afectados:
+- **StickyPriceFooter**: "Con pack completo: euros X/mes" muestra precio estatico
+- **DeselectionModal**: "Tu total pasaria de euros X/mes (pack completo)..." muestra precio estatico
+- **LowProductWarning**: Calcula coste por producto usando precio estatico
 
-## Cambios tecnicos
+## Solucion
 
-### 1. Datos: `src/data/packStages.ts`
+Anadir una funcion `calculatePackCompletePrice` al hook `usePackSelections` que calcule el precio que tendria el pack si todos los productos estuvieran seleccionados (con las marcas/variantes actuales + serviceFee). Usar este valor en lugar de `pack.price` en los componentes.
 
-Eliminar `coste_real_mes` de todos los productos y actualizar `precio_individual` para que sea `precio_en_pack * 3`.
+### Cambios tecnicos
 
-**Pack Start (4 productos):**
+**1. `src/hooks/usePackSelections.ts`** -- Nueva funcion `calculatePackCompletePrice`
 
-| Producto | precio_en_pack | precio_individual (nuevo) |
-|----------|---------------|--------------------------|
-| Chicco Next2Me | 31.58 | 94.74 |
-| Cambiador portatil | 16.38 | 49.14 |
-| Monitor audio | 15.51 | 46.53 |
-| Chicco Lite Way | 15.63 | 46.89 |
+Calcular la suma de `precio_en_pack` de todos los productos (no solo los seleccionados) usando las variantes actuales, mas `serviceFee`. Esto da el precio real del pack completo con las marcas que el usuario ha elegido.
 
-**Pack Comfort (8 productos):**
+```text
+const calculatePackCompletePrice = (pack) => {
+  let total = 0;
+  pack.stages.forEach(stage => {
+    stage.products.forEach(cat => {
+      const idx = variantChoices[cat.category] || 0;
+      total += cat.options[idx].precio_en_pack;
+    });
+  });
+  return total + pack.serviceFee;
+};
+```
 
-| Producto | precio_en_pack | precio_individual (nuevo) |
-|----------|---------------|--------------------------|
-| Cuna (3 opciones) | 50.70 | 152.10 |
-| Monitor | 13.70 | 41.10 |
-| Cambiador (3 opciones) | 11.32 | 33.96 |
-| Carrito (5 opciones) | 29.49 | 88.47 |
-| Hamaca (4 opciones) | 14.83 | 44.49 |
-| Mochila (4 opciones) | 15.34 | 46.02 |
-| Trona (2 opciones) | 17.12 | 51.36 |
-| Alfombra (3 opciones) | 16.51 | 49.53 |
+Exportar esta funcion junto con las demas.
 
-**Pack Total Peace (8 productos):** Se actualizan con la misma formula (x3). Los valores de precio_en_pack se mantienen.
+**2. `src/pages/PackStageProducts.tsx`** -- Usar precio dinamico
 
-### 2. Tipo: `src/data/planEquipment.ts`
+- Llamar a `calculatePackCompletePrice(pack)` para obtener el precio real del pack completo
+- Pasar este valor como `packPrice` a StickyPriceFooter, DeselectionModal y LowProductWarning en lugar de `pack.price`
 
-Eliminar `coste_real_mes` de la interfaz `EquipmentOption` (ya es opcional, pero lo quitamos para limpiar).
+**3. `src/pages/PackDetail.tsx`** -- Sin cambios
 
-### 3. Sin cambios en UI
+La pagina de detalle del pack muestra "Desde X euros/mes" que es correcto como precio de marketing/referencia.
 
-Los componentes `PackStageProducts.tsx`, `DeselectionModal.tsx`, `StickyPriceFooter.tsx` y `PriceSummary.tsx` ya usan solo `precio_en_pack` y `precio_individual`, por lo que no necesitan modificaciones.
+**4. `src/components/PricingSection.tsx`** -- Sin cambios
 
-## Verificacion
+La seccion de precios en la landing muestra precios de marketing, lo cual es correcto.
 
-- Start: 31.58 + 16.38 + 15.51 + 15.63 = 79.10 (pack) vs 94.74 + 49.14 + 46.53 + 46.89 = 237.30 (individual)
-- Comfort: suma precio_en_pack = 169.01 vs suma individual = 507.03
-- Ratio siempre exacto: x3
+## Resultado esperado
+
+- Cuando el usuario deselecciona un producto, los mensajes de comparacion reflejan el precio real del pack completo segun las marcas elegidas
+- Start: precio completo ~79 euros/mes
+- Comfort: precio completo ~171 euros/mes (varia segun marcas)
+- Total Peace: precio completo ~201 euros/mes (varia segun marcas + 30 euros servicio)

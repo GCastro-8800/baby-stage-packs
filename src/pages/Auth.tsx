@@ -49,7 +49,7 @@ export default function Auth() {
     ? locationState.from
     : locationState?.from?.pathname || "/app";
 
-  const isPlanFlow = fromPath.startsWith("/plan/");
+  const isPlanFlow = fromPath.startsWith("/packs/") && fromPath.includes("/checkout");
 
   // Redirect if already logged in
   useEffect(() => {

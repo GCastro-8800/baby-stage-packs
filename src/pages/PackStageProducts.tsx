@@ -10,9 +10,10 @@ import PackBreadcrumbs from "@/components/packs/PackBreadcrumbs";
 import DeselectionModal from "@/components/packs/DeselectionModal";
 import StickyPriceFooter from "@/components/packs/StickyPriceFooter";
 import LowProductWarning from "@/components/packs/LowProductWarning";
-import ProductPreviewDialog from "@/components/plan/ProductPreviewDialog";
+import ProductPreviewDialog from "@/components/packs/ProductPreviewDialog";
 import { getPackConfig, getPackStage } from "@/data/packStages";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { usePackSelections } from "@/hooks/usePackSelections";
 import type { EquipmentOption, EquipmentCategory } from "@/data/planEquipment";
 import { toast } from "sonner";
 
@@ -24,123 +25,125 @@ const PackStageProducts = () => {
   const pack = packId ? getPackConfig(packId) : undefined;
   const stage = packId && stageId ? getPackStage(packId, stageId) : undefined;
 
-  const { fixedCategories, choiceCategories, fixedKeys, totalCategoryCount } = useMemo(() => {
-    if (!stage) return { fixedCategories: [] as EquipmentCategory[], choiceCategories: [] as EquipmentCategory[], fixedKeys: [] as string[], totalCategoryCount: 0 };
+  const {
+    initStageIfNeeded,
+    getStageSelections,
+    updateStageSelections,
+    isPackComplete: checkPackComplete,
+    calculateTotalPrice,
+    calculatePackCompletePrice,
+    getGlobalCounts,
+    getGlobalProductBreakdown,
+    getSelectedItemsMap,
+  } = usePackSelections(packId || "");
+
+  const { fixedCategories, choiceCategories, fixedKeys, choiceKeys, totalCategoryCount } = useMemo(() => {
+    if (!stage) return { fixedCategories: [] as EquipmentCategory[], choiceCategories: [] as EquipmentCategory[], fixedKeys: [] as string[], choiceKeys: [] as string[], totalCategoryCount: 0 };
     const fixed = stage.products.filter((c) => c.type === "fixed");
     const choice = stage.products.filter((c) => c.type === "choice");
-    const keys = fixed.map((c) => c.category);
-    return { fixedCategories: fixed, choiceCategories: choice, fixedKeys: keys, totalCategoryCount: stage.products.length };
+    const fKeys = fixed.map((c) => c.category);
+    const cKeys = choice.map((c) => c.category);
+    return { fixedCategories: fixed, choiceCategories: choice, fixedKeys: fKeys, choiceKeys: cKeys, totalCategoryCount: stage.products.length };
   }, [stage]);
 
-  const choiceKeys = useMemo(() => choiceCategories.map((c) => c.category), [choiceCategories]);
-
-  const [selectedFixed, setSelectedFixed] = useState<Set<string>>(() => new Set(fixedKeys));
-  const [selectedChoice, setSelectedChoice] = useState<Set<string>>(() => new Set(choiceKeys));
-  const [variantChoices, setVariantChoices] = useState<Record<string, number>>(() => {
-    if (!stage) return {};
-    const choices: Record<string, number> = {};
-    stage.products.filter((c) => c.type === "choice").forEach((c) => { choices[c.category] = 0; });
-    return choices;
-  });
-
-  // Reset state when navigating between stages
+  // Initialize stage selections on first visit (all selected by default)
   useEffect(() => {
-    setSelectedFixed(new Set(fixedKeys));
-    setSelectedChoice(new Set(choiceKeys));
-    const choices: Record<string, number> = {};
-    if (stage) {
-      stage.products.filter((c) => c.type === "choice").forEach((c) => { choices[c.category] = 0; });
+    if (stageId && stage) {
+      initStageIfNeeded(stageId, fixedKeys, choiceKeys, stage.products);
     }
-    setVariantChoices(choices);
-  }, [stageId]);
+  }, [stageId, stage, fixedKeys, choiceKeys, initStageIfNeeded]);
+
+  // Read selections from global store
+  const stageSelections = stageId ? getStageSelections(stageId) : undefined;
+  const selectedFixed = stageSelections?.selectedFixed || new Set(fixedKeys);
+  const selectedChoice = stageSelections?.selectedChoice || new Set(choiceKeys);
+  const variantChoices = stageSelections?.variantChoices || {};
 
   const [pendingDeselect, setPendingDeselect] = useState<{ category: string; product: EquipmentOption; type: "fixed" | "choice" } | null>(null);
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);
 
-  const isPackComplete = pack
-    ? fixedKeys.every((k) => selectedFixed.has(k)) && choiceCategories.every((c) => selectedChoice.has(c.category))
-    : false;
+  // Global pack complete check
+  const isPackComplete = pack ? checkPackComplete(pack) : false;
 
-  const calculateIndividualTotal = useCallback((withoutCategory?: string) => {
+  // Global price
+  const currentPrice = pack ? calculateTotalPrice(pack) : 0;
+
+  // Dynamic pack complete price (all products selected with current variants + serviceFee)
+  const packCompletePrice = pack ? calculatePackCompletePrice(pack) : 0;
+
+  // Global counts
+  const globalCounts = pack ? getGlobalCounts(pack) : { selectedCount: 0, totalCount: 0 };
+
+  const calculateIndividualTotalWithout = useCallback((withoutCategory: string) => {
+    // Calculate what the global price would be if we removed this category
+    if (!pack) return 0;
     let total = 0;
-    fixedCategories.forEach((cat) => {
-      if (withoutCategory === cat.category) return;
-      if (selectedFixed.has(cat.category)) {
-        total += cat.options[0]?.precio_individual || 0;
-      }
-    });
-    choiceCategories.forEach((cat) => {
-      if (withoutCategory === cat.category) return;
-      if (!selectedChoice.has(cat.category)) return;
-      const idx = variantChoices[cat.category] || 0;
-      total += cat.options[idx]?.precio_individual || 0;
+    pack.stages.forEach((s) => {
+      const sel = s.id === stageId ? { selectedFixed, selectedChoice, variantChoices } : getStageSelections(s.id);
+      s.products.forEach((cat) => {
+        if (s.id === stageId && cat.category === withoutCategory) return;
+        const isFixed = cat.type === "fixed";
+        const isSelected = sel
+          ? isFixed
+            ? sel.selectedFixed.has(cat.category)
+            : sel.selectedChoice.has(cat.category)
+          : true;
+        if (!isSelected) return;
+        const idx = !isFixed && sel ? (sel.variantChoices[cat.category] || 0) : 0;
+        total += cat.options[idx]?.precio_individual || 0;
+      });
     });
     return total;
-  }, [fixedCategories, choiceCategories, selectedFixed, selectedChoice, variantChoices]);
-
-  const currentPrice = pack ? (isPackComplete ? pack.price : calculateIndividualTotal()) : 0;
-  const selectedCount = selectedFixed.size + selectedChoice.size;
+  }, [pack, stageId, selectedFixed, selectedChoice, variantChoices, getStageSelections]);
 
   const priceWithoutPending = useMemo(() => {
     if (!pendingDeselect) return 0;
-    return calculateIndividualTotal(pendingDeselect.category);
-  }, [pendingDeselect, calculateIndividualTotal]);
+    return calculateIndividualTotalWithout(pendingDeselect.category);
+  }, [pendingDeselect, calculateIndividualTotalWithout]);
 
-  const productBreakdown = useMemo(() => {
-    const items: { name: string; precio_en_pack: number; precio_individual: number; included: boolean }[] = [];
-    fixedCategories.forEach((cat) => {
-      const opt = cat.options[0];
-      if (!opt) return;
-      items.push({
-        name: `${opt.brand} ${opt.model}`,
-        precio_en_pack: opt.precio_en_pack || 0,
-        precio_individual: opt.precio_individual || 0,
-        included: selectedFixed.has(cat.category),
-      });
-    });
-    choiceCategories.forEach((cat) => {
-      const idx = variantChoices[cat.category] || 0;
-      const opt = cat.options[idx];
-      if (!opt) return;
-      items.push({
-        name: `${opt.brand} ${opt.model}`,
-        precio_en_pack: opt.precio_en_pack || 0,
-        precio_individual: opt.precio_individual || 0,
-        included: selectedChoice.has(cat.category),
-      });
-    });
-    return items;
-  }, [fixedCategories, choiceCategories, selectedFixed, selectedChoice, variantChoices]);
+  // Global product breakdown for footer
+  const productBreakdown = pack ? getGlobalProductBreakdown(pack) : [];
 
   if (!pack || !stage) return <Navigate to={packId ? `/packs/${packId}` : "/#precios"} replace />;
 
   const handleToggle = (category: string, product: EquipmentOption, type: "fixed" | "choice") => {
     const isSelected = type === "fixed" ? selectedFixed.has(category) : selectedChoice.has(category);
     if (isSelected) {
-      const totalAfterRemoval = selectedFixed.size + selectedChoice.size - 1;
-      if (totalAfterRemoval < 1) {
+      if (globalCounts.selectedCount <= 1) {
         toast.error("Debes tener al menos un producto seleccionado");
         return;
       }
       track("product_deselect_attempt", { pack: pack.id, product: `${product.brand} ${product.model}` });
       setPendingDeselect({ category, product, type });
     } else {
-      if (type === "fixed") {
-        setSelectedFixed((prev) => new Set([...prev, category]));
-      } else {
-        setSelectedChoice((prev) => new Set([...prev, category]));
-      }
+      if (!stageId) return;
+      updateStageSelections(stageId, (prev) => {
+        if (type === "fixed") {
+          const next = new Set(prev.selectedFixed);
+          next.add(category);
+          return { ...prev, selectedFixed: next };
+        } else {
+          const next = new Set(prev.selectedChoice);
+          next.add(category);
+          return { ...prev, selectedChoice: next };
+        }
+      });
     }
   };
 
   const handleConfirmDeselect = () => {
-    if (!pendingDeselect) return;
+    if (!pendingDeselect || !stageId) return;
     track("product_deselect_confirmed", { pack: pack.id, product: `${pendingDeselect.product.brand} ${pendingDeselect.product.model}` });
-    const setter = pendingDeselect.type === "fixed" ? setSelectedFixed : setSelectedChoice;
-    setter((prev) => {
-      const next = new Set(prev);
-      next.delete(pendingDeselect.category);
-      return next;
+    updateStageSelections(stageId, (prev) => {
+      if (pendingDeselect.type === "fixed") {
+        const next = new Set(prev.selectedFixed);
+        next.delete(pendingDeselect.category);
+        return { ...prev, selectedFixed: next };
+      } else {
+        const next = new Set(prev.selectedChoice);
+        next.delete(pendingDeselect.category);
+        return { ...prev, selectedChoice: next };
+      }
     });
     setPendingDeselect(null);
   };
@@ -152,6 +155,14 @@ const PackStageProducts = () => {
     setPendingDeselect(null);
   };
 
+  const handleVariantChange = (category: string, idx: number) => {
+    if (!stageId) return;
+    updateStageSelections(stageId, (prev) => ({
+      ...prev,
+      variantChoices: { ...prev.variantChoices, [category]: idx },
+    }));
+  };
+
   const currentStageIdx = pack.stages.findIndex((s) => s.id === stageId);
   const nextStage = pack.stages[currentStageIdx + 1];
 
@@ -161,16 +172,16 @@ const PackStageProducts = () => {
       stage: stageId,
       is_pack_complete: isPackComplete,
       price: currentPrice,
-      selected_count: selectedCount,
+      selected_count: globalCounts.selectedCount,
     });
     if (nextStage) {
       navigate(`/packs/${pack.id}/etapa/${nextStage.id}`);
     } else {
-      navigate(`/plan/${pack.id}`);
+      const selections = getSelectedItemsMap(pack);
+      navigate(`/packs/${pack.id}/checkout`, { state: { selections } });
     }
   };
 
-  // Helper to render price info for a product
   const renderPriceInfo = (opt: EquipmentOption, isSelected: boolean) => {
     const precioEnPack = opt.precio_en_pack || 0;
     const precioIndividual = opt.precio_individual || 0;
@@ -200,7 +211,6 @@ const PackStageProducts = () => {
       );
     }
 
-    // Not selected
     return (
       <div className="space-y-0.5">
         <p className="text-xs text-muted-foreground">Si lo añades: €{precioIndividual.toFixed(2)}/mes</p>
@@ -232,10 +242,10 @@ const PackStageProducts = () => {
           </div>
 
           <LowProductWarning
-            selectedCount={selectedCount}
-            totalCount={totalCategoryCount}
+            selectedCount={globalCounts.selectedCount}
+            totalCount={globalCounts.totalCount}
             currentPrice={currentPrice}
-            packPrice={pack.price}
+            packPrice={packCompletePrice}
           />
 
           {/* Fixed products */}
@@ -314,9 +324,7 @@ const PackStageProducts = () => {
               <div className={`transition-opacity ${!isCatSelected ? "opacity-50 pointer-events-none" : ""}`}>
                 <RadioGroup
                   value={String(currentIdx)}
-                  onValueChange={(val) => {
-                    setVariantChoices((prev) => ({ ...prev, [cat.category]: Number(val) }));
-                  }}
+                  onValueChange={(val) => handleVariantChange(cat.category, Number(val))}
                   className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                 >
                   {cat.options.map((opt, idx) => {
@@ -414,7 +422,7 @@ const PackStageProducts = () => {
           productName={`${pendingDeselect.product.brand} ${pendingDeselect.product.model}`}
           precioEnPack={pendingDeselect.product.precio_en_pack || 0}
           precioIndividual={pendingDeselect.product.precio_individual || 0}
-          packPrice={pack.price}
+          packPrice={packCompletePrice}
           priceWithout={priceWithoutPending}
           onKeep={handleCancelDeselect}
           onRemove={handleConfirmDeselect}
@@ -429,11 +437,12 @@ const PackStageProducts = () => {
 
       <StickyPriceFooter
         currentPrice={currentPrice}
-        packPrice={pack.price}
+        packPrice={packCompletePrice}
         isPackComplete={isPackComplete}
-        selectedCount={selectedCount}
-        totalCount={totalCategoryCount}
+        selectedCount={globalCounts.selectedCount}
+        totalCount={globalCounts.totalCount}
         products={productBreakdown}
+        serviceFee={pack.serviceFee}
         onContinue={handleContinue}
       />
 
