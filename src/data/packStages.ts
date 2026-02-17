@@ -12,6 +12,7 @@ export interface PackConfig {
   id: string;
   name: string;
   price: number; // Reference/marketing price — actual total varies by brand selection
+  serviceFee: number; // Monthly service fee for the tier (premium services, personal manager, etc.)
   tagline: string;
   stages: PackStage[];
 }
@@ -115,6 +116,7 @@ export const packStages: Record<string, PackConfig> = {
     id: "start",
     name: "BEBLOO Start",
     price: 79,
+    serviceFee: 0,
     tagline: "Lo esencial para empezar con tranquilidad",
     stages: [
       {
@@ -168,6 +170,7 @@ export const packStages: Record<string, PackConfig> = {
     id: "comfort",
     name: "BEBLOO Comfort",
     price: 169,
+    serviceFee: 0,
     tagline: "Todo el equipamiento esencial, entregado por etapas",
     stages: [
       {
@@ -209,6 +212,7 @@ export const packStages: Record<string, PackConfig> = {
     id: "total-peace",
     name: "BEBLOO Total Peace",
     price: 199,
+    serviceFee: 30,
     tagline: "Todo lo de Comfort + máxima delegación y personalización",
     stages: [
       {

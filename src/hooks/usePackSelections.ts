@@ -110,7 +110,7 @@ export function usePackSelections(packId: string) {
           total += complete ? (opt.precio_en_pack || 0) : (opt.precio_individual || 0);
         });
       });
-      return total;
+      return total + pack.serviceFee;
     },
     [packId, isPackComplete]
   );
