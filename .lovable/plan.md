@@ -1,63 +1,57 @@
 
 
-# Fix: Precio identico entre packs Comfort y Total Peace
+# Fix: Precios de referencia estaticos en multiples componentes
 
 ## Problema
 
-Comfort y Total Peace comparten las mismas opciones base (comfortCunas, comfortCarritos, etc.) con los mismos valores de `precio_en_pack`. Cuando el usuario entra en cualquiera de los dos packs con las selecciones por defecto (indice 0), ambos calculan exactamente 171 euros/mes.
+Cuando el pack esta incompleto, varios componentes muestran el precio de referencia estatico (`pack.price`: 79/169/199) como lo que costaria el "pack completo". Pero ahora el precio real del pack completo es dinamico (depende de las marcas elegidas + serviceFee). Esto hace que los mensajes de comparacion sean incorrectos.
 
-Start no tiene este problema (calcula ~79 euros/mes correctamente).
+Componentes afectados:
+- **StickyPriceFooter**: "Con pack completo: euros X/mes" muestra precio estatico
+- **DeselectionModal**: "Tu total pasaria de euros X/mes (pack completo)..." muestra precio estatico
+- **LowProductWarning**: Calcula coste por producto usando precio estatico
 
 ## Solucion
 
-Anadir un **margen de servicio por tier** al modelo de datos de cada pack, que se suma al total de equipamiento. Esto refleja que Total Peace incluye servicios premium (gestor personal, cambios ilimitados, etc.) que justifican el precio superior.
+Anadir una funcion `calculatePackCompletePrice` al hook `usePackSelections` que calcule el precio que tendria el pack si todos los productos estuvieran seleccionados (con las marcas/variantes actuales + serviceFee). Usar este valor en lugar de `pack.price` en los componentes.
 
 ### Cambios tecnicos
 
-**1. `src/data/packStages.ts`** — Anadir campo `serviceFee` a `PackConfig`
+**1. `src/hooks/usePackSelections.ts`** -- Nueva funcion `calculatePackCompletePrice`
+
+Calcular la suma de `precio_en_pack` de todos los productos (no solo los seleccionados) usando las variantes actuales, mas `serviceFee`. Esto da el precio real del pack completo con las marcas que el usuario ha elegido.
 
 ```text
-export interface PackConfig {
-  id: string;
-  name: string;
-  price: number;       // Precio de referencia/marketing
-  serviceFee: number;  // Cuota mensual de servicio del tier
-  tagline: string;
-  stages: PackStage[];
-}
+const calculatePackCompletePrice = (pack) => {
+  let total = 0;
+  pack.stages.forEach(stage => {
+    stage.products.forEach(cat => {
+      const idx = variantChoices[cat.category] || 0;
+      total += cat.options[idx].precio_en_pack;
+    });
+  });
+  return total + pack.serviceFee;
+};
 ```
 
-Valores:
-- Start: serviceFee = 0 (el precio ya refleja el tier basico)
-- Comfort: serviceFee = 0 (el precio de equipamiento ya cubre el servicio)
-- Total Peace: serviceFee = 30 (refleja gestor personal, cambios ilimitados, prioridad)
+Exportar esta funcion junto con las demas.
 
-Con esto, Total Peace con las selecciones por defecto daria: 171 + 30 = 201 euros/mes (cercano al precio de referencia de 199).
+**2. `src/pages/PackStageProducts.tsx`** -- Usar precio dinamico
 
-**2. `src/hooks/usePackSelections.ts`** — Sumar `serviceFee` al total
+- Llamar a `calculatePackCompletePrice(pack)` para obtener el precio real del pack completo
+- Pasar este valor como `packPrice` a StickyPriceFooter, DeselectionModal y LowProductWarning en lugar de `pack.price`
 
-En `calculateTotalPrice`, despues de sumar los precios de equipamiento, anadir `pack.serviceFee`:
+**3. `src/pages/PackDetail.tsx`** -- Sin cambios
 
-```text
-return equipmentTotal + pack.serviceFee;
-```
+La pagina de detalle del pack muestra "Desde X euros/mes" que es correcto como precio de marketing/referencia.
 
-**3. `src/components/packs/StickyPriceFooter.tsx`** — Mostrar desglose del servicio
+**4. `src/components/PricingSection.tsx`** -- Sin cambios
 
-En el desglose colapsable, anadir una linea para la cuota de servicio si es mayor que 0:
-
-```text
-Servicios premium: 30.00 euros/mes
-```
-
-**4. `src/components/packs/PriceSummary.tsx`** — Sin cambios necesarios (ya usa el total calculado)
-
-**5. `src/pages/PackStageProducts.tsx`** — Sin cambios necesarios (ya usa calculateTotalPrice)
+La seccion de precios en la landing muestra precios de marketing, lo cual es correcto.
 
 ## Resultado esperado
 
-- Start: ~79 euros/mes (solo equipamiento)
-- Comfort: ~171 euros/mes (equipamiento, serviceFee = 0)
-- Total Peace: ~201 euros/mes (equipamiento 171 + servicio 30)
-
-Cada pack tendra un precio total diferente incluso con las mismas marcas seleccionadas.
+- Cuando el usuario deselecciona un producto, los mensajes de comparacion reflejan el precio real del pack completo segun las marcas elegidas
+- Start: precio completo ~79 euros/mes
+- Comfort: precio completo ~171 euros/mes (varia segun marcas)
+- Total Peace: precio completo ~201 euros/mes (varia segun marcas + 30 euros servicio)
