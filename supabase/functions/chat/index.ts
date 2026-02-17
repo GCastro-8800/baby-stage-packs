@@ -52,7 +52,34 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    const { messages } = body;
+
+    // Validate messages array
+    if (!messages || !Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+      return new Response(
+        JSON.stringify({ error: "Formato de mensajes inválido" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate each message
+    for (const msg of messages) {
+      if (
+        !msg ||
+        typeof msg.role !== "string" ||
+        !["user", "assistant"].includes(msg.role) ||
+        typeof msg.content !== "string" ||
+        msg.content.length === 0 ||
+        msg.content.length > 4000
+      ) {
+        return new Response(
+          JSON.stringify({ error: "Formato de mensaje inválido" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) {
       return new Response(
