@@ -20,7 +20,7 @@ const Footer = () => {
             <h4 className="font-semibold text-background mb-4">Servicio</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#pricing" className="text-background/70 hover:text-background transition-colors">
+                <a href="#precios" className="text-background/70 hover:text-background transition-colors">
                   Precios
                 </a>
               </li>
@@ -30,7 +30,7 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#how-it-works" className="text-background/70 hover:text-background transition-colors">
+                <a href="#como-funciona" className="text-background/70 hover:text-background transition-colors">
                   Cómo funciona
                 </a>
               </li>
