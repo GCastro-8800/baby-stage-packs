@@ -17,7 +17,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PackDetail from "./pages/PackDetail";
 import PackStageProducts from "./pages/PackStageProducts";
 import PlanDetail from "./pages/PlanDetail";
-import CheckoutSuccess from "./pages/CheckoutSuccess";
+import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
