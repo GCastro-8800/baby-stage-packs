@@ -16,7 +16,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import PackDetail from "./pages/PackDetail";
 import PackStageProducts from "./pages/PackStageProducts";
-import PlanDetail from "./pages/PlanDetail";
+import PackCheckout from "./pages/PackCheckout";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
@@ -57,7 +57,7 @@ const App = () => (
                 </AdminRoute>
               }
             />
-            <Route path="/plan/:planId" element={<PlanDetail />} />
+            <Route path="/packs/:packId/checkout" element={<PackCheckout />} />
             <Route path="/packs/:packId" element={<PackDetail />} />
             <Route path="/packs/:packId/etapa/:stageId" element={<PackStageProducts />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />

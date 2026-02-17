@@ -253,7 +253,7 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                       variant="outline"
                       onClick={() => {
                         handleOpenChange(false);
-                        navigate(`/plan/${planData.slug}`);
+                        navigate(`/packs/${planData.slug}`);
                       }}
                     >
                       Ver detalles de {planData.name}
@@ -264,7 +264,7 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                     <Button
                       onClick={() => {
                         handleOpenChange(false);
-                        navigate(`/plan/${planData.slug}`);
+                        navigate(`/packs/${planData.slug}`);
                       }}
                     >
                       Ver detalles de {planData.name}
