@@ -32,7 +32,7 @@ export function useLeadCapture(options?: UseLeadCaptureOptions) {
   const submitLead = async (
     insertData: LeadInsertData,
     emailPayload?: EmailPayload,
-    trackData?: Record<string, unknown>,
+    trackData?: Record<string, string | number | boolean>,
   ) => {
     setIsLoading(true);
 
