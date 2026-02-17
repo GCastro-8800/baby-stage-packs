@@ -10,7 +10,7 @@ import PackBreadcrumbs from "@/components/packs/PackBreadcrumbs";
 import DeselectionModal from "@/components/packs/DeselectionModal";
 import StickyPriceFooter from "@/components/packs/StickyPriceFooter";
 import LowProductWarning from "@/components/packs/LowProductWarning";
-import ProductPreviewDialog from "@/components/plan/ProductPreviewDialog";
+import ProductPreviewDialog from "@/components/packs/ProductPreviewDialog";
 import { getPackConfig, getPackStage } from "@/data/packStages";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { usePackSelections } from "@/hooks/usePackSelections";
@@ -174,7 +174,7 @@ const PackStageProducts = () => {
       navigate(`/packs/${pack.id}/etapa/${nextStage.id}`);
     } else {
       const selections = getSelectedItemsMap(pack);
-      navigate(`/plan/${pack.id}`, { state: { selections } });
+      navigate(`/packs/${pack.id}/checkout`, { state: { selections } });
     }
   };
 

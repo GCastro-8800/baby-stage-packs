@@ -5,7 +5,7 @@ import type { StageData } from "@/data/packsByStage";
 import type { EquipmentOption } from "@/data/planEquipment";
 import { Button } from "@/components/ui/button";
 import PackProductCard from "./PackProductCard";
-import ProductPreviewDialog from "@/components/plan/ProductPreviewDialog";
+import ProductPreviewDialog from "@/components/packs/ProductPreviewDialog";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface StageTabProps {
