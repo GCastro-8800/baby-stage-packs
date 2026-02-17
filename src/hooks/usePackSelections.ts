@@ -92,8 +92,6 @@ export function usePackSelections(packId: string) {
   const calculateTotalPrice = useCallback(
     (pack: PackConfig): number => {
       const complete = isPackComplete(pack);
-      if (complete) return pack.price;
-
       let total = 0;
       pack.stages.forEach((stage) => {
         const sel = store[packId]?.[stage.id];
@@ -106,7 +104,10 @@ export function usePackSelections(packId: string) {
             : true; // Not visited = selected by default
           if (!isSelected) return;
           const idx = !isFixed && sel ? sel.variantChoices[cat.category] || 0 : 0;
-          total += cat.options[idx]?.precio_individual || 0;
+          const opt = cat.options[idx];
+          if (!opt) return;
+          // Pack complete → use pack price; incomplete → individual price
+          total += complete ? (opt.precio_en_pack || 0) : (opt.precio_individual || 0);
         });
       });
       return total;

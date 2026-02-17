@@ -6,9 +6,10 @@ interface PriceSummaryProps {
   allProducts: EquipmentOption[];
   selectedKeys: Set<string>;
   allKeys: string[];
+  calculatedPackTotal?: number; // Dynamic total based on selected brands
 }
 
-const PriceSummary = ({ packPrice, allProducts, selectedKeys, allKeys }: PriceSummaryProps) => {
+const PriceSummary = ({ packPrice, allProducts, selectedKeys, allKeys, calculatedPackTotal }: PriceSummaryProps) => {
   const allSelected = allKeys.length > 0 && allKeys.every((k) => selectedKeys.has(k));
   const noneSelected = selectedKeys.size === 0;
 
@@ -16,7 +17,8 @@ const PriceSummary = ({ packPrice, allProducts, selectedKeys, allKeys }: PriceSu
     .filter((_, i) => selectedKeys.has(allKeys[i]))
     .reduce((sum, p) => sum + (p.precio_individual || 0), 0);
 
-  const diff = individualTotal - packPrice;
+  const displayPackTotal = calculatedPackTotal ?? packPrice;
+  const diff = individualTotal - displayPackTotal;
 
   if (noneSelected) {
     return (
@@ -32,7 +34,7 @@ const PriceSummary = ({ packPrice, allProducts, selectedKeys, allKeys }: PriceSu
         <CheckCircle className="h-5 w-5 text-primary shrink-0" />
         <div>
           <p className="font-semibold text-foreground text-lg">
-            Pack completo {packPrice}&nbsp;€/mes
+            Pack completo {Math.round(displayPackTotal)}&nbsp;€/mes
           </p>
           <p className="text-xs text-muted-foreground">El mejor precio — todo incluido</p>
         </div>
@@ -48,7 +50,7 @@ const PriceSummary = ({ packPrice, allProducts, selectedKeys, allKeys }: PriceSu
           Productos sueltos {individualTotal}&nbsp;€/mes
         </p>
         <p className="text-xs text-destructive">
-          +{diff}&nbsp;€ más caro que el pack completo ({packPrice}&nbsp;€/mes)
+          +{diff}&nbsp;€ más caro que el pack completo ({Math.round(displayPackTotal)}&nbsp;€/mes)
         </p>
       </div>
     </div>

@@ -41,7 +41,7 @@ const StickyPriceFooter = ({
               {isPackComplete ? (
                 <>
                   <p className="font-bold text-lg text-foreground">
-                    Pack Completo: €{packPrice}/mes
+                    Pack Completo: €{Math.round(currentPrice)}/mes
                   </p>
                   <p className="text-xs font-medium text-primary flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
