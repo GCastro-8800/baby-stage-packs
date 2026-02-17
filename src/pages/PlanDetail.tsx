@@ -7,6 +7,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
 import EquipmentSection from "@/components/plan/EquipmentSection";
 import ContactSection from "@/components/plan/ContactSection";
+import CheckoutStep from "@/components/plan/CheckoutStep";
 
 interface PlanLocationState {
   selections?: Record<string, boolean>;
@@ -32,15 +33,12 @@ const PlanDetail = () => {
   useEffect(() => {
     if (plan) {
       track("plan_detail_view", { plan: plan.name });
-      // Only reset selections if not coming from auth flow
       if (!locationState?.fromAuth) {
-        // Don't reset if we have restored selections from state
         if (!locationState?.selections) {
           setSelections({});
         }
       }
     }
-    // Clear location state to prevent stale data on refresh
     if (locationState) {
       window.history.replaceState({}, "");
     }
@@ -61,7 +59,6 @@ const PlanDetail = () => {
 
   const handleContinue = () => {
     if (!user) {
-      // Redirect to auth, passing selections and return path
       navigate("/auth", {
         state: {
           from: location.pathname,
@@ -109,7 +106,7 @@ const PlanDetail = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <span className="font-serif font-semibold text-foreground">
-            {step === 2 ? "Contacto" : plan.name}
+            {step === 2 ? "Suscripción" : plan.name}
           </span>
           {step === 2 && (
             <span className="ml-auto text-sm text-muted-foreground">
@@ -144,8 +141,15 @@ const PlanDetail = () => {
           />
         </div>
       ) : (
-        <div className="container max-w-3xl px-4 py-10 md:py-16">
-          <ContactSection plan={plan} selectedItems={selectedItems} />
+        <div className="container max-w-3xl px-4 py-10 md:py-16 space-y-16">
+          <CheckoutStep plan={plan} selectedItems={selectedItems} />
+          
+          <div className="border-t border-border pt-10">
+            <p className="text-center text-sm text-muted-foreground mb-6">
+              ¿Prefieres hablar primero?
+            </p>
+            <ContactSection plan={plan} selectedItems={selectedItems} />
+          </div>
         </div>
       )}
     </div>

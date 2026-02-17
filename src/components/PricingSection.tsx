@@ -37,7 +37,7 @@ const plans: Plan[] = [
   {
     id: "start",
     name: "BEBLOO Start",
-    price: 59,
+    price: 79,
     duration: "30 días",
     description: "Una opción básica para probar el servicio durante el inicio.",
     equipment: [
@@ -64,7 +64,7 @@ const plans: Plan[] = [
   {
     id: "comfort",
     name: "BEBLOO Comfort",
-    price: 129,
+    price: 169,
     duration: "Sin permanencia",
     description: "Todo el equipamiento esencial, entregado y cambiado por etapas según su crecimiento.",
     equipment: [
@@ -96,7 +96,7 @@ const plans: Plan[] = [
   {
     id: "total-peace",
     name: "BEBLOO Total Peace",
-    price: 149,
+    price: 199,
     duration: "Sin permanencia",
     description: "Todo lo de Comfort más un nivel máximo de delegación y personalización.",
     equipment: [
@@ -157,7 +157,7 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
 
   const handleSelectPlan = (plan: Plan) => {
     track("pricing_click", { plan: plan.name });
-    navigate(`/plan/${plan.id}`);
+    navigate(`/packs/${plan.id}`);
   };
 
   const renderCardContent = (plan: Plan) => (

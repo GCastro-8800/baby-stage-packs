@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -5,6 +7,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import type { EquipmentOption } from "@/data/planEquipment";
 
 interface ProductPreviewDialogProps {
@@ -14,7 +18,16 @@ interface ProductPreviewDialogProps {
 }
 
 const ProductPreviewDialog = ({ product, open, onOpenChange }: ProductPreviewDialogProps) => {
+  const navigate = useNavigate();
+  const { track } = useAnalytics();
+
   if (!product) return null;
+
+  const handleCTA = () => {
+    track("cta_click", { location: "packs_product_dialog", action: "scroll_to_pricing", product: `${product.brand} ${product.model}` });
+    onOpenChange(false);
+    navigate("/#precios");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,6 +52,15 @@ const ProductPreviewDialog = ({ product, open, onOpenChange }: ProductPreviewDia
             />
           </div>
         )}
+        <div className="space-y-2">
+          <Button size="sm" className="gap-2 w-full" onClick={handleCTA}>
+            Ver planes desde 59&nbsp;€/mes
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            Incluido en todos nuestros planes. Sin comprar, sin acumular.
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );

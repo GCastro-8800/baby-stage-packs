@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_credentials: {
+        Row: {
+          created_at: string
+          id: string
+          password_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string | null
@@ -123,6 +144,7 @@ export type Database = {
           is_first_child: boolean | null
           onboarding_completed: boolean | null
           parent_situation: string | null
+          stripe_customer_id: string | null
           updated_at: string
         }
         Insert: {
@@ -135,6 +157,7 @@ export type Database = {
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          stripe_customer_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -147,6 +170,7 @@ export type Database = {
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          stripe_customer_id?: string | null
           updated_at?: string
         }
         Relationships: []
