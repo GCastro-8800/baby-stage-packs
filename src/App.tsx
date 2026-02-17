@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
@@ -16,13 +16,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import PackDetail from "./pages/PackDetail";
 import PackStageProducts from "./pages/PackStageProducts";
+import PlanDetail from "./pages/PlanDetail";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
-
-const PlanRedirect = () => {
-  const { planId } = useParams();
-  return <Navigate to={`/packs/${planId}`} replace />;
-};
 
 const queryClient = new QueryClient();
 
@@ -61,7 +57,7 @@ const App = () => (
                 </AdminRoute>
               }
             />
-            <Route path="/plan/:planId" element={<PlanRedirect />} />
+            <Route path="/plan/:planId" element={<PlanDetail />} />
             <Route path="/packs/:packId" element={<PackDetail />} />
             <Route path="/packs/:packId/etapa/:stageId" element={<PackStageProducts />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
