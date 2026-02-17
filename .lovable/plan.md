@@ -1,55 +1,63 @@
 
 
-# Precios diferenciados por marca en los tres packs + Total Peace como superconjunto de Comfort
+# Fix: Precio identico entre packs Comfort y Total Peace
 
-## Resumen
+## Problema
 
-Dos cambios principales:
-1. **Precios diferenciados**: En los tres packs (Start, Comfort, Total Peace), cada marca tendra su propio `precio_en_pack` y `precio_individual`. El total mensual variara segun las marcas que elija el usuario.
-2. **Total Peace = superconjunto**: Total Peace incluira todas las opciones de marca que tiene Comfort, mas sus opciones premium propias (cuando las haya).
+Comfort y Total Peace comparten las mismas opciones base (comfortCunas, comfortCarritos, etc.) con los mismos valores de `precio_en_pack`. Cuando el usuario entra en cualquiera de los dos packs con las selecciones por defecto (indice 0), ambos calculan exactamente 171 euros/mes.
 
-## Cambios tecnicos
+Start no tiene este problema (calcula ~79 euros/mes correctamente).
 
-### 1. `src/data/packStages.ts` - Datos de precios y opciones
+## Solucion
 
-**Comfort**: Cambiar los precios iguales por precios diferenciados. Se usaran como referencia los precios que ya existen en `planEquipment.ts` (que ya tiene precios diferenciados por marca), adaptados a la estructura por etapas:
+Anadir un **margen de servicio por tier** al modelo de datos de cada pack, que se suma al total de equipamiento. Esto refleja que Total Peace incluye servicios premium (gestor personal, cambios ilimitados, etc.) que justifican el precio superior.
 
-- Cuna: Chicco Next2Me, Stokke Sleepi V3, Artesanal Moises -- cada uno con su precio propio
-- Carrito: Bugaboo Fox 5, Donkey 5, Dragonfly, Joolz Aer 2, Babyzen YOYO 3 -- precios distintos
-- Hamaca: BabyBjorn Bliss, Balance Soft, Bugaboo Giraffe, Nuna LEAF -- precios distintos
-- Etc.
+### Cambios tecnicos
 
-**Total Peace**: Convertir categorias de "fixed" a "choice" e incluir todas las opciones de Comfort mas las propias premium:
-
-- Cuna: las 3 de Comfort + Stokke Sleepi Mini (premium propia)
-- Cambiador: los 3 de Comfort + Leander Matty (premium propia)
-- Monitor: Monitor con camara de Comfort + Angelcare premium
-- Carrito: los 5 de Comfort + Bugaboo Donkey 5 con precio premium propio
-- Hamaca: las 4 de Comfort + Nuna LEAF Grow con precio premium
-- Porteo: las 4 de Comfort + BabyBjorn One Air premium
-- Trona: las 2 de Comfort + Stokke Tripp Trapp premium
-- Alfombra: las 3 de Comfort + Toddlekind premium
-
-**Start**: Mantener como esta (productos fijos con una sola opcion por categoria, asi que "diferenciado" no aplica porque no hay alternativas).
-
-### 2. `src/hooks/usePackSelections.ts` - Calculo de precio total
-
-Modificar `calculateTotalPrice`: en vez de devolver `pack.price` cuando todo esta seleccionado, siempre calcular la suma de `precio_en_pack` de los productos seleccionados (segun la variante elegida). El campo `pack.price` pasa a ser un precio de referencia/marketing, no el precio real calculado.
+**1. `src/data/packStages.ts`** — Anadir campo `serviceFee` a `PackConfig`
 
 ```text
-Antes:  if (complete) return pack.price;   // siempre 169
-Ahora:  siempre sumar precio_en_pack       // varia segun marcas
+export interface PackConfig {
+  id: string;
+  name: string;
+  price: number;       // Precio de referencia/marketing
+  serviceFee: number;  // Cuota mensual de servicio del tier
+  tagline: string;
+  stages: PackStage[];
+}
 ```
 
-### 3. `src/components/packs/PriceSummary.tsx` y `StickyPriceFooter.tsx`
+Valores:
+- Start: serviceFee = 0 (el precio ya refleja el tier basico)
+- Comfort: serviceFee = 0 (el precio de equipamiento ya cubre el servicio)
+- Total Peace: serviceFee = 30 (refleja gestor personal, cambios ilimitados, prioridad)
 
-Adaptar la logica visual: cuando todos los productos estan seleccionados, mostrar el precio calculado (suma de precio_en_pack) en vez del precio fijo del pack. El indicador de "pack completo" sigue apareciendo pero con el precio real segun las marcas elegidas.
+Con esto, Total Peace con las selecciones por defecto daria: 171 + 30 = 201 euros/mes (cercano al precio de referencia de 199).
 
-### 4. `src/data/planEquipment.ts`
+**2. `src/hooks/usePackSelections.ts`** — Sumar `serviceFee` al total
 
-Sincronizar los datos de Total Peace para que tambien incluya las opciones de Comfort, manteniendo coherencia con packStages.ts.
+En `calculateTotalPrice`, despues de sumar los precios de equipamiento, anadir `pack.serviceFee`:
 
-## Nota sobre precios
+```text
+return equipmentTotal + pack.serviceFee;
+```
 
-Para los productos de Comfort que actualmente tienen precio identico (ej. todos los carritos a 29.49), se asignaran precios diferenciados tomando como referencia los valores de `planEquipment.ts`. Si algun producto no tiene referencia alli, se estimara proporcionalmente.
+**3. `src/components/packs/StickyPriceFooter.tsx`** — Mostrar desglose del servicio
 
+En el desglose colapsable, anadir una linea para la cuota de servicio si es mayor que 0:
+
+```text
+Servicios premium: 30.00 euros/mes
+```
+
+**4. `src/components/packs/PriceSummary.tsx`** — Sin cambios necesarios (ya usa el total calculado)
+
+**5. `src/pages/PackStageProducts.tsx`** — Sin cambios necesarios (ya usa calculateTotalPrice)
+
+## Resultado esperado
+
+- Start: ~79 euros/mes (solo equipamiento)
+- Comfort: ~171 euros/mes (equipamiento, serviceFee = 0)
+- Total Peace: ~201 euros/mes (equipamiento 171 + servicio 30)
+
+Cada pack tendra un precio total diferente incluso con las mismas marcas seleccionadas.
