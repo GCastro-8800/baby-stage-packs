@@ -33,6 +33,7 @@ const PackStageProducts = () => {
     calculateTotalPrice,
     getGlobalCounts,
     getGlobalProductBreakdown,
+    getSelectedItemsMap,
   } = usePackSelections(packId || "");
 
   const { fixedCategories, choiceCategories, fixedKeys, choiceKeys, totalCategoryCount } = useMemo(() => {
@@ -172,7 +173,8 @@ const PackStageProducts = () => {
     if (nextStage) {
       navigate(`/packs/${pack.id}/etapa/${nextStage.id}`);
     } else {
-      navigate(`/plan/${pack.id}`);
+      const selections = getSelectedItemsMap(pack);
+      navigate(`/plan/${pack.id}`, { state: { selections } });
     }
   };
 

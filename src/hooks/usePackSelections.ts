@@ -164,6 +164,31 @@ export function usePackSelections(packId: string) {
     [packId]
   );
 
+  const getSelectedItemsMap = useCallback(
+    (pack: PackConfig): Record<string, boolean> => {
+      const map: Record<string, boolean> = {};
+      pack.stages.forEach((stage) => {
+        const sel = store[packId]?.[stage.id];
+        stage.products.forEach((cat) => {
+          const isFixed = cat.type === "fixed";
+          const isSelected = sel
+            ? isFixed
+              ? sel.selectedFixed.has(cat.category)
+              : sel.selectedChoice.has(cat.category)
+            : true;
+          const idx = !isFixed && sel ? sel.variantChoices[cat.category] || 0 : 0;
+          const opt = cat.options[idx];
+          if (opt) {
+            const key = `${cat.category}::${opt.model}`;
+            map[key] = isSelected;
+          }
+        });
+      });
+      return map;
+    },
+    [packId]
+  );
+
   return {
     packState,
     initStageIfNeeded,
@@ -173,5 +198,6 @@ export function usePackSelections(packId: string) {
     calculateTotalPrice,
     getGlobalCounts,
     getGlobalProductBreakdown,
+    getSelectedItemsMap,
   };
 }
