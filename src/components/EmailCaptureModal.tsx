@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { X, Mail, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useLeadCapture } from "@/hooks/useLeadCapture";
 
 interface EmailCaptureModalProps {
   isOpen: boolean;
@@ -15,62 +14,28 @@ interface EmailCaptureModalProps {
 const EmailCaptureModal = ({ isOpen, selectedPlan, onClose }: EmailCaptureModalProps) => {
   const [email, setEmail] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const { track } = useAnalytics();
+  const { submitLead, isLoading, isSubmitted, reset } = useLeadCapture();
 
   // Reset state and track when modal opens
   useEffect(() => {
     if (isOpen) {
       setEmail("");
       setPostalCode("");
-      setIsSubmitted(false);
+      reset();
       track("modal_open", { plan: selectedPlan });
     }
-  }, [isOpen, selectedPlan, track]);
+  }, [isOpen, selectedPlan, track, reset]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
 
-    setIsLoading(true);
-    
-    const { error } = await supabase
-      .from('leads')
-      .insert({ email, plan: selectedPlan, postal_code: postalCode || null });
-
-    if (error) {
-      setIsLoading(false);
-      if (error.code === '23505') {
-        // Email duplicado
-        toast({
-          title: "Ya te habías registrado",
-          description: "Este email ya está en nuestra lista. Te avisaremos pronto.",
-        });
-        setIsSubmitted(true);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Algo salió mal",
-          description: "No pudimos guardar tu email. Inténtalo de nuevo.",
-        });
-      }
-      return;
-    }
-
-    // Send confirmation email (don't block on failure)
-    try {
-      await supabase.functions.invoke('send-confirmation-email', {
-        body: { email, plan: selectedPlan, postalCode: postalCode || undefined }
-      });
-    } catch (emailError) {
-      console.error("Error sending confirmation email:", emailError);
-    }
-
-    setIsLoading(false);
-    setIsSubmitted(true);
-    track("lead_captured", { plan: selectedPlan, has_postal_code: !!postalCode });
+    await submitLead(
+      { email, plan: selectedPlan, postal_code: postalCode || null },
+      { email, plan: selectedPlan, postalCode: postalCode || undefined },
+      { plan: selectedPlan, has_postal_code: !!postalCode },
+    );
   };
 
   if (!isOpen) return null;
