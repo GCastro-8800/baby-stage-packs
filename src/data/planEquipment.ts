@@ -158,22 +158,25 @@ export const plansEquipment: PlanData[] = [
     equipment: [
       {
         category: "Cuna",
-        type: "fixed",
+        type: "choice",
         options: [
-          { brand: "Stokke", model: "Sleepi Mini", precio_en_pack: 39.09, precio_individual: 117.27, description: "Minicuna ovalada que crece con el bebé. Diseño escandinavo en madera de haya." },
+          { brand: "Stokke", model: "Sleepi Mini", precio_en_pack: 43.56, precio_individual: 130.68, description: "Minicuna ovalada que crece con el bebé. Diseño escandinavo en madera de haya." },
+          { brand: "Stokke", model: "Sleepi Mini Premium", precio_en_pack: 60.00, precio_individual: 180.00, description: "Minicuna ovalada premium. Diseño escandinavo en madera de haya con acabados superiores." },
         ],
       },
       {
         category: "Cambiador",
-        type: "fixed",
+        type: "choice",
         options: [
-          { brand: "Leander", model: "Matty", precio_en_pack: 13.36, precio_individual: 40.08, description: "Cambiador ergonómico con diseño danés premium." },
+          { brand: "Leander", model: "Matty", precio_en_pack: 14.88, precio_individual: 44.64, description: "Cambiador ergonómico con diseño danés premium." },
+          { brand: "Leander", model: "Matty Premium", precio_en_pack: 16.50, precio_individual: 49.50, description: "Cambiador ergonómico premium con diseño danés y acabados superiores." },
         ],
       },
       {
         category: "Monitor",
-        type: "fixed",
+        type: "choice",
         options: [
+          { brand: "Premium", model: "Monitor con cámara", precio_en_pack: 13.70, precio_individual: 41.10, description: "Monitor con cámara HD para vigilar al bebé día y noche." },
           { brand: "Angelcare", model: "Monitor premium", precio_en_pack: 17.95, precio_individual: 53.85, description: "Monitor con sensor de movimiento y sonido. Máxima tranquilidad." },
         ],
       },
@@ -181,36 +184,48 @@ export const plansEquipment: PlanData[] = [
         category: "Carrito",
         type: "choice",
         options: [
-          { brand: "Bugaboo", model: "Donkey 5", precio_en_pack: 35.90, precio_individual: 107.70, description: "Carrito gemelar/mono convertible. Máxima versatilidad." },
-          { brand: "Bugaboo", model: "Dragonfly", precio_en_pack: 31.70, precio_individual: 95.10, description: "Carrito ultraligero y compacto, ideal para ciudad." },
+          { brand: "Bugaboo", model: "Fox 5", precio_en_pack: 37.68, precio_individual: 113.04, description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable." },
+          { brand: "Bugaboo", model: "Donkey 5", precio_en_pack: 40.50, precio_individual: 121.50, description: "Carrito gemelar/mono convertible. Máxima versatilidad." },
+          { brand: "Bugaboo", model: "Dragonfly", precio_en_pack: 35.31, precio_individual: 105.93, description: "Carrito ultraligero y compacto, ideal para ciudad." },
+          { brand: "Bugaboo", model: "Donkey 5 Duo", precio_en_pack: 45.90, precio_individual: 137.70, description: "Configuración Duo completa del Donkey 5. Máximo espacio y versatilidad." },
         ],
       },
       {
         category: "Hamaca",
-        type: "fixed",
+        type: "choice",
         options: [
-          { brand: "Nuna", model: "LEAF Grow", precio_en_pack: 30.71, precio_individual: 92.13, description: "Hamaca de balanceo silencioso que crece con el bebé." },
+          { brand: "BabyBjörn", model: "Bliss", precio_en_pack: 17.56, precio_individual: 52.68, description: "Hamaca con balanceo natural. Tejido suave y transpirable." },
+          { brand: "Bugaboo", model: "Giraffe hamaca", precio_en_pack: 18.96, precio_individual: 56.88, description: "Hamaca ergonómica compatible con trona Giraffe." },
+          { brand: "Nuna", model: "LEAF Grow", precio_en_pack: 20.50, precio_individual: 61.50, description: "Hamaca de balanceo silencioso que crece con el bebé." },
+          { brand: "Nuna", model: "LEAF Curv", precio_en_pack: 25.50, precio_individual: 76.50, description: "Hamaca de balanceo silencioso premium con diseño curvo único." },
         ],
       },
       {
         category: "Porteo",
-        type: "fixed",
+        type: "choice",
         options: [
-          { brand: "BabyBjörn", model: "One Air", precio_en_pack: 13.69, precio_individual: 41.07, description: "Portabebé ergonómico con malla transpirable. De 0 a 3 años." },
+          { brand: "Ergobaby", model: "Omni Breeze", precio_en_pack: 15.25, precio_individual: 45.75, description: "Malla transpirable SoftFlex. Todas las posiciones desde recién nacido." },
+          { brand: "Boba", model: "Wrap", precio_en_pack: 12.33, precio_individual: 36.99, description: "Fular portabebé elástico, ideal para recién nacidos." },
+          { brand: "BabyBjörn", model: "One Air", precio_en_pack: 16.80, precio_individual: 50.40, description: "Portabebé ergonómico con malla transpirable. De 0 a 3 años." },
+          { brand: "BabyBjörn", model: "Harmony", precio_en_pack: 19.80, precio_individual: 59.40, description: "Portabebé premium con malla 3D ultrasuave y soporte lumbar reforzado." },
         ],
       },
       {
         category: "Trona",
-        type: "fixed",
+        type: "choice",
         options: [
-          { brand: "Stokke", model: "Tripp Trapp", precio_en_pack: 19.67, precio_individual: 59.01, description: "La trona de referencia. Crece con el niño hasta adulto." },
+          { brand: "Stokke", model: "Tripp Trapp", precio_en_pack: 21.91, precio_individual: 65.73, description: "La trona de referencia. Crece con el niño hasta adulto." },
+          { brand: "Bugaboo", model: "Giraffe trona", precio_en_pack: 18.96, precio_individual: 56.88, description: "Trona evolutiva de diseño con ajuste en altura." },
+          { brand: "Stokke", model: "Tripp Trapp Oak", precio_en_pack: 25.50, precio_individual: 76.50, description: "Trona Tripp Trapp en madera de roble premium. Edición exclusiva." },
         ],
       },
       {
         category: "Alfombra de juegos",
-        type: "fixed",
+        type: "choice",
         options: [
-          { brand: "Toddlekind", model: "Alfombra premium", precio_en_pack: 16.36, precio_individual: 49.08, description: "Alfombra de juegos de diseño, suave y fácil de limpiar." },
+          { brand: "Toddlekind", model: "Alfombra premium", precio_en_pack: 18.21, precio_individual: 54.63, description: "Alfombra de juegos de diseño, suave y fácil de limpiar." },
+          { brand: "Totter & Tumble", model: "Alfombra reversible", precio_en_pack: 16.65, precio_individual: 49.95, description: "Alfombra de juegos reversible con diseños elegantes." },
+          { brand: "Toddlekind", model: "Persian Collection", precio_en_pack: 22.50, precio_individual: 67.50, description: "Alfombra de juegos colección Persian. Diseño exclusivo premium." },
         ],
       },
     ],
