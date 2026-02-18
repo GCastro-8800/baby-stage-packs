@@ -65,6 +65,42 @@ export type Database = {
         }
         Relationships: []
       }
+      children: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          is_active: boolean
+          name: string | null
+          situation: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          situation: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          situation?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           comment: string | null
