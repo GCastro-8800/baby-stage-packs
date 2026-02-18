@@ -58,7 +58,7 @@ const discoveries = [
   {
     icon: RefreshCw,
     number: "01",
-    text: "30-40% de los padres que venden su equipamiento terminan recomprándolo meses después",
+    text: "La mayor parte de los padres que adquieren su equipo lo vuelven a vender después de algunos meses.",
   },
   {
     icon: TrendingDown,
