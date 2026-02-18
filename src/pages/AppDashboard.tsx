@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
+import { useChildren } from "@/hooks/useChildren";
 import { useBabyStage } from "@/hooks/useBabyStage";
 import { useSubscription } from "@/hooks/useSubscription";
 import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
@@ -18,7 +20,8 @@ import { openExternal } from "@/lib/openExternal";
 export default function AppDashboard() {
   const navigate = useNavigate();
   const { user, profile, signOut } = useAuth();
-  const babyStage = useBabyStage(profile);
+  const { children, activeChild, setActiveChild } = useChildren();
+  const babyStage = useBabyStage(activeChild);
   const { subscription, shipments, nextShipment, lastDelivered, feedback, submitFeedback } = useSubscription();
 
   const handleSignOut = async () => {
@@ -62,6 +65,28 @@ export default function AppDashboard() {
             avatarUrl={profile?.avatar_url}
           />
 
+          {/* Child selector (only if >1 child) */}
+          {children.length > 1 && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-muted-foreground">Viendo a:</span>
+              <Select
+                value={activeChild?.id ?? ""}
+                onValueChange={(id) => setActiveChild.mutate(id)}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {children.map((child) => (
+                    <SelectItem key={child.id} value={child.id}>
+                      {child.name || (child.situation === "expecting" ? "En espera" : "Bebé")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Cards grid */}
           <div className="grid gap-6 md:grid-cols-2">
             <BabyAgeCard
@@ -84,7 +109,7 @@ export default function AppDashboard() {
           {/* Emotional tip */}
           <EmotionalTip
             stage={babyStage.stage}
-            isFirstChild={babyStage.isFirstChild}
+            isFirstChild={children.length <= 1}
           />
 
           {/* Subscription section */}

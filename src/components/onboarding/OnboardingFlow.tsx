@@ -67,27 +67,29 @@ export function OnboardingFlow() {
 
     setIsLoading(true);
     try {
-      const updateData: Record<string, unknown> = {
-        parent_situation: data.situation,
-        is_first_child: data.isFirstChild,
-        onboarding_completed: true,
-      };
-
-      // Set the appropriate date field based on situation
-      if (data.date) {
+      // Create child record
+      if (data.situation && data.date) {
         const dateStr = format(data.date, "yyyy-MM-dd");
-        if (data.situation === "expecting") {
-          updateData.baby_due_date = dateStr;
-          updateData.baby_birth_date = null;
-        } else {
-          updateData.baby_birth_date = dateStr;
-          updateData.baby_due_date = null;
-        }
+        const { error: childError } = await supabase
+          .from("children")
+          .insert({
+            user_id: user.id,
+            situation: data.situation,
+            due_date: data.situation === "expecting" ? dateStr : null,
+            birth_date: data.situation === "born" ? dateStr : null,
+            is_active: true,
+          });
+        if (childError) throw childError;
       }
 
+      // Mark onboarding as completed
       const { error } = await supabase
         .from("profiles")
-        .update(updateData)
+        .update({
+          onboarding_completed: true,
+          parent_situation: data.situation,
+          is_first_child: data.isFirstChild,
+        })
         .eq("id", user.id);
 
       if (error) throw error;

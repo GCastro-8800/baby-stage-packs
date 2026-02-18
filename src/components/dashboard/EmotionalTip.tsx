@@ -4,7 +4,7 @@ import type { Stage } from "@/types/baby";
 
 interface EmotionalTipProps {
   stage: Stage | null;
-  isFirstChild: boolean | null;
+  isFirstChild: boolean | null | undefined;
 }
 
 const TIPS: Record<Stage, { firstTime: string; experienced: string }> = {

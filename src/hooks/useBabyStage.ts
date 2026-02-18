@@ -1,12 +1,10 @@
 import { useMemo } from "react";
 import { differenceInDays, differenceInMonths, format } from "date-fns";
 import { es } from "date-fns/locale";
-import type { Stage, Situation, Profile } from "@/types/baby";
+import type { Stage, Situation, Child } from "@/types/baby";
 
 interface BabyStageResult {
-  // Estado
   situation: Situation | null;
-  isFirstChild: boolean | null;
 
   // Para bebés nacidos
   ageInDays: number | null;
@@ -74,11 +72,10 @@ const calculateAgeText = (ageInDays: number, ageInMonths: number): string => {
   return `${ageInDays} ${ageInDays === 1 ? "día" : "días"}`;
 };
 
-export function useBabyStage(profile: Profile | null): BabyStageResult {
+export function useBabyStage(child: Child | null): BabyStageResult {
   return useMemo(() => {
     const defaultResult: BabyStageResult = {
       situation: null,
-      isFirstChild: null,
       ageInDays: null,
       ageInMonths: null,
       ageText: null,
@@ -94,21 +91,19 @@ export function useBabyStage(profile: Profile | null): BabyStageResult {
       totalDaysInStage: 0,
     };
 
-    if (!profile) return defaultResult;
+    if (!child) return defaultResult;
 
     const today = new Date();
-    const situation = profile.parent_situation as Situation | null;
-    const isFirstChild = profile.is_first_child;
+    const situation = child.situation;
 
     // Para embarazadas
-    if (situation === "expecting" && profile.baby_due_date) {
-      const dueDate = new Date(profile.baby_due_date);
+    if (situation === "expecting" && child.due_date) {
+      const dueDate = new Date(child.due_date);
       const daysUntilBirth = differenceInDays(dueDate, today);
 
       return {
         ...defaultResult,
         situation,
-        isFirstChild,
         daysUntilBirth: Math.max(0, daysUntilBirth),
         dueDate,
         dueDateFormatted: format(dueDate, "d 'de' MMMM yyyy", { locale: es }),
@@ -121,13 +116,12 @@ export function useBabyStage(profile: Profile | null): BabyStageResult {
     }
 
     // Para bebés nacidos
-    if (situation === "born" && profile.baby_birth_date) {
-      const birthDate = new Date(profile.baby_birth_date);
+    if (situation === "born" && child.birth_date) {
+      const birthDate = new Date(child.birth_date);
       const ageInDays = differenceInDays(today, birthDate);
       const ageInMonths = differenceInMonths(today, birthDate);
       const stage = getStage(ageInDays);
 
-      // Calculate progress within stage
       let stageProgress = 0;
       let daysInStage = 0;
       let totalDaysInStage = 0;
@@ -146,7 +140,6 @@ export function useBabyStage(profile: Profile | null): BabyStageResult {
       return {
         ...defaultResult,
         situation,
-        isFirstChild,
         ageInDays,
         ageInMonths,
         ageText: calculateAgeText(ageInDays, ageInMonths),
@@ -161,5 +154,5 @@ export function useBabyStage(profile: Profile | null): BabyStageResult {
     }
 
     return defaultResult;
-  }, [profile]);
+  }, [child]);
 }
