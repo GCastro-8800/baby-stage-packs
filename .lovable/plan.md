@@ -1,82 +1,45 @@
 
 
-# Rediseno de la pagina Quienes Somos - Estilo zigzag editorial
+# Diferenciar la pagina Quienes Somos de la landing
 
-## Inspiracion
+## Problema
 
-Del ejemplo de StrollMe tomamos:
-- Layout en **zigzag**: secciones alternas imagen-izquierda/texto-derecha y viceversa
-- Imagenes grandes y prominentes con bordes redondeados
-- Tipografia serif para titulos de seccion, con un separador decorativo debajo
-- Fondo calido uniforme (beige/cream) como base
-- Texto narrativo personal y cercano, sin tarjetas ni iconos excesivos
+La pagina AboutUs reutiliza las mismas imagenes que la landing principal:
+- `mother-stroller.png` se usa en el Hero de la landing Y en el Hero de AboutUs
+- `mother-carrier.png` se usa en la MissionSection de la landing Y en la seccion "La Idea" de AboutUs
 
-De lo que ya tenemos conservamos:
-- El contenido narrativo (historia de Paola y Gabriel, descubrimientos, principios)
-- Las estadisticas destacadas (+400 carritos, +4 anos, 100s familias)
-- Los principios como seccion de tarjetas (simplificada)
-- El CTA final con compromiso Madrid
-- Las animaciones de scroll reveal
-- El SEO meta y la estructura Header/Footer/WhatsApp
+Esto hace que al navegar entre paginas se sienta repetitivo y poco profesional.
 
-## Nueva estructura de secciones
+## Solucion
 
-```text
-1. Hero (compacto)
-   Badge "Nuestra mision" + H1 serif grande + subtitulo + imagen derecha
-   Layout: 2 columnas zigzag (texto izq, imagen der)
-   Imagen: mother-stroller.png
+Reorganizar las imagenes para que cada pagina tenga su identidad visual propia, usando las imagenes disponibles que NO aparecen en la landing.
 
-2. Somos Bebloo (quienes somos)
-   Layout: imagen izq, texto der
-   Imagen: twins-happy.jpg
-   Contenido: Historia personal de Paola y Gabriel resumida
+### Cambios de imagenes en AboutUs
 
-3. La Idea (lo que descubrimos -> la solucion)
-   Layout: texto izq, imagen der
-   Imagen: mother-carrier.png
-   Contenido: El patron descubierto + como nacio bebloo
+| Seccion | Antes | Despues |
+|---------|-------|---------|
+| Hero (seccion 1) | `mother-stroller.png` (duplicada del Hero landing) | `hero-family-stroller.jpg` (imagen disponible, no usada en ningun lado) |
+| Somos Bebloo (seccion 2) | `twins-happy.jpg` (ok, unica) | Sin cambio |
+| La Idea (seccion 3) | `mother-carrier.png` (duplicada de MissionSection landing) | `mission-family.jpg` (mover aqui) |
+| Nuestra Vision (seccion 4) | `mission-family.jpg` | `twins-happy.jpg` (intercambiar con seccion 2) |
 
-4. Nuestra Vision (principios resumidos)
-   Layout: imagen izq, texto der
-   Imagen: mission-family.jpg
-   Contenido: Compromiso con calidad, Madrid, y sostenibilidad
+Resultado final:
+- **Seccion 1 Hero**: `hero-family-stroller.jpg` (imagen fresca, nunca usada)
+- **Seccion 2 Somos Bebloo**: `mission-family.jpg` (familia, encaja con la historia personal)
+- **Seccion 3 La Idea**: `mother-carrier.png` se mantiene aqui ya que es la unica seccion donde encaja tematicamente, y al estar mas abajo en la pagina no se siente tan repetitiva respecto a la landing
+- **Seccion 4 Nuestra Vision**: `twins-happy.jpg` (gemelos felices, encaja con vision de futuro)
 
-5. Estadisticas (banda horizontal)
-   3 numeros grandes en fila
+## Detalles tecnicos
 
-6. Principios (4 tarjetas, conservadas)
+### Archivo: `src/pages/AboutUs.tsx`
 
-7. CTA Final
-   Compromiso Madrid + botones
-```
+Cambios en las importaciones (lineas 19-22):
+- Reemplazar `heroImg` de `mother-stroller.png` por `hero-family-stroller.jpg`
+- Intercambiar las asignaciones de `twinsImg` y `missionImg` en las secciones
 
-## Cambios tecnicos
+Cambios en las secciones:
+- Seccion 1 (Hero, linea 133): usar la nueva imagen `hero-family-stroller.jpg`
+- Seccion 2 (Somos Bebloo, linea 148): usar `mission-family.jpg` en vez de `twins-happy.jpg`
+- Seccion 4 (Nuestra Vision, linea 188): usar `twins-happy.jpg` en vez de `mission-family.jpg`
 
-### Archivo: `src/pages/AboutUs.tsx` (reescritura completa)
-
-- Eliminar las secciones actuales (hero centrado, discoveries cards, historia con stats sidebar, diferenciadores, equipo cards, madrid+cta)
-- Reemplazar con secciones zigzag que alternan `grid-cols-2` con imagen y texto
-- Cada seccion zigzag usa:
-  - En desktop: `grid grid-cols-1 lg:grid-cols-2 gap-12 items-center`
-  - Orden alterno via `order-1/order-2` en las columnas
-  - Imagen con `aspect-[4/5] rounded-2xl overflow-hidden shadow-lg` y `object-cover`
-  - Titulo con `font-serif text-2xl md:text-4xl` + separador coral debajo (`h-1 w-12 bg-accent`)
-  - Texto narrativo con `text-muted-foreground leading-relaxed`
-- Conservar `RevealSection` y `useScrollReveal` para animaciones
-- Conservar las 4 tarjetas de principios (simplificadas, sin numeros)
-- Conservar la banda de estadisticas
-- Conservar el CTA final con Madrid
-- Conservar SEO meta tags
-
-### Imagenes utilizadas (ya disponibles en `src/assets/`)
-- `mother-stroller.png` - Hero / mision
-- `twins-happy.jpg` - Somos Bebloo
-- `mother-carrier.png` - La idea
-- `mission-family.jpg` - Nuestra vision
-
-### Sin cambios en otros archivos
-- No hay dependencias nuevas
-- No hay cambios en la base de datos
-- El routing ya existe (`/quienes-somos`)
-
+No hay cambios en otros archivos ni dependencias nuevas.
