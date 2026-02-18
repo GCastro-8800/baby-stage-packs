@@ -157,8 +157,8 @@ const AboutUs = () => {
               4 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-              Hemos visto de cerca cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar.
-              Bebloo existe para romper ese ciclo.
+              Hemos acompañado a cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar. Bebloo
+              existe para romper ese ciclo.
             </p>
             <div className="flex items-center justify-center gap-3">
               <div className="h-px w-12 bg-accent/40" />
