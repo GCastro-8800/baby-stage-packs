@@ -1,50 +1,25 @@
 
+# Dos mejoras en la pagina de packs
 
-# Boton flotante de WhatsApp sin solapamiento con el chatbot
+## 1. Eliminar el boton "Ver planes desde X euros/mes" del fondo de PackDetail
 
-## Distribucion visual
+En la pagina `/packs/comfort` hay un bloque CTA al final con el texto "Ya lo tienes claro? Contrata el pack completo y ahorra." y un boton grande. Se eliminara todo ese bloque (lineas 71-87 de `src/pages/PackDetail.tsx`).
 
-```text
-Desktop:
-+----------------------------------+
-|                                  |
-|                                  |
-|  [WA]                    [Chat]  |
-|  bottom-6 left-6   bottom-6 right-6
-+----------------------------------+
+## 2. Corregir la interaccion hover entre el icono de vista previa (ojo) y el radio button
 
-Movil:
-+------------------+
-|                  |
-|  [WA]     [Chat] |
-|  left-4   right-4|
-|  bottom-20       |
-| [===CTA flotante===] |
-|  bottom-0            |
-+------------------+
-```
+En `src/pages/PackStageProducts.tsx`, el boton del ojo y el RadioGroupItem estan muy juntos dentro de un `<label>`, lo que provoca que al pasar el raton entre ambos, a veces el clic en el ojo activa el radio (porque el `<label>` propaga el evento), o el hover se "pierde" visualmente.
 
-- **WhatsApp**: esquina inferior **izquierda**
-- **Chatbot**: esquina inferior **derecha**
-- **CTA movil**: barra completa abajo del todo
-- No hay solapamiento en ningun caso
+### Solucion
+- Aumentar el area tactil del boton del ojo (de `p-1` a `p-2`) para que sea mas facil de pulsar sin tocar el radio
+- Aumentar la separacion entre ambos elementos (de `gap-2` a `gap-3`)
+- Aplicar la misma mejora en la seccion de productos fijos (fixed), donde el boton del ojo tambien esta cerca del checkbox
 
-## Archivo nuevo: `src/components/WhatsAppButton.tsx`
+### Detalles tecnicos
 
-- Boton circular verde WhatsApp (#25D366) con icono SVG blanco
-- Desktop: `fixed bottom-6 left-6 z-50`
-- Movil: `fixed bottom-20 left-4 z-50` (sube por encima del CTA flotante)
-- Tooltip en hover (desktop) con texto "WhatsApp"
-- Abre `https://wa.me/34638706467?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20bebloo`
-- Registra clic con `useAnalytics` como evento `contact_click` con `{ channel: "whatsapp", location: "floating_button" }`
-- Animacion de entrada `animate-scale-in` (ya existe en el proyecto)
-- Tamano 56px (igual al chatbot, coherencia visual)
+**Archivo `src/pages/PackDetail.tsx`**:
+- Eliminar las lineas 71-87 (el bloque `{/* CTA */}` con el boton "Ver planes desde...")
 
-## Archivos modificados
-
-- **`src/pages/Index.tsx`**: importar y renderizar `<WhatsAppButton />`
-- **`src/pages/AboutUs.tsx`**: importar y renderizar `<WhatsAppButton />`
-- **`src/hooks/useAnalytics.ts`**: anadir `"whatsapp_click"` al tipo `EventType` (o reusar `contact_click` que ya existe)
-
-Sin dependencias nuevas ni cambios en base de datos.
-
+**Archivo `src/pages/PackStageProducts.tsx`**:
+- En la seccion de productos "choice" (linea 349): cambiar `gap-2` a `gap-3`
+- En el boton del ojo de "choice" (linea 353): cambiar `p-1` a `p-2`
+- En el boton del ojo de "fixed" (linea 280): cambiar `p-1` a `p-2`
