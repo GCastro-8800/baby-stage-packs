@@ -40,7 +40,7 @@ export default function AppDashboard() {
               <img src={logo} alt="bebloo" className="h-10 md:h-12" />
             </a>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => {}}>
+              <Button variant="ghost" size="icon" onClick={() => navigate("/app/settings")}>
                 <Settings className="h-5 w-5" />
               </Button>
               <Button variant="outline" onClick={handleSignOut} className="gap-2">
