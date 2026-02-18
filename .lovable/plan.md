@@ -1,35 +1,50 @@
 
 
-# Fix: Header navigation broken on non-landing pages
+# Boton flotante de WhatsApp sin solapamiento con el chatbot
 
-## Problem
-When you're on any page other than the landing (`/`), clicking the header links ("Como funciona", "Precios", "FAQ") and the "Empezar" button does nothing. This happens because they use `document.getElementById()` to scroll to sections that only exist on the Index page. The logo also just scrolls to top instead of navigating back to home.
+## Distribucion visual
 
-## Pages affected
-- `/quienes-somos` (AboutUs)
-- `/packs/:packId` (PackDetail)
-- `/packs/:packId/etapa/:stageId` (PackStageProducts)
-- Any future page that uses the Header
+```text
+Desktop:
++----------------------------------+
+|                                  |
+|                                  |
+|  [WA]                    [Chat]  |
+|  bottom-6 left-6   bottom-6 right-6
++----------------------------------+
 
-## Solution
+Movil:
++------------------+
+|                  |
+|  [WA]     [Chat] |
+|  left-4   right-4|
+|  bottom-20       |
+| [===CTA flotante===] |
+|  bottom-0            |
++------------------+
+```
 
-### File: `src/components/Header.tsx`
+- **WhatsApp**: esquina inferior **izquierda**
+- **Chatbot**: esquina inferior **derecha**
+- **CTA movil**: barra completa abajo del todo
+- No hay solapamiento en ningun caso
 
-**1. Fix hash-based nav links**: When not on the landing page, navigate to `/#section` instead of just trying to scroll. This will take the user to the home page and then scroll to the correct section.
+## Archivo nuevo: `src/components/WhatsAppButton.tsx`
 
-- In `handleNavClick`: check if we're on `/`. If not, use `navigate("/" + link.href)` (e.g. `navigate("/#precios")`) so the user is taken to the landing page with the hash anchor.
-- If already on `/`, keep the current smooth scroll behavior.
+- Boton circular verde WhatsApp (#25D366) con icono SVG blanco
+- Desktop: `fixed bottom-6 left-6 z-50`
+- Movil: `fixed bottom-20 left-4 z-50` (sube por encima del CTA flotante)
+- Tooltip en hover (desktop) con texto "WhatsApp"
+- Abre `https://wa.me/34638706467?text=Hola%2C%20me%20interesa%20saber%20m%C3%A1s%20sobre%20bebloo`
+- Registra clic con `useAnalytics` como evento `contact_click` con `{ channel: "whatsapp", location: "floating_button" }`
+- Animacion de entrada `animate-scale-in` (ya existe en el proyecto)
+- Tamano 56px (igual al chatbot, coherencia visual)
 
-**2. Fix "Empezar" button**: Same logic in `handleCtaClick` — if not on `/`, navigate to `/#precios` instead of silently failing.
+## Archivos modificados
 
-**3. Fix logo click**: Change from `window.scrollTo` to `navigate("/")` when not on the home page. If already on `/`, scroll to top as before.
+- **`src/pages/Index.tsx`**: importar y renderizar `<WhatsAppButton />`
+- **`src/pages/AboutUs.tsx`**: importar y renderizar `<WhatsAppButton />`
+- **`src/hooks/useAnalytics.ts`**: anadir `"whatsapp_click"` al tipo `EventType` (o reusar `contact_click` que ya existe)
 
-All three fixes use `useLocation()` from react-router to detect the current path. No new files or dependencies needed.
+Sin dependencias nuevas ni cambios en base de datos.
 
-## Technical details
-
-- Import `useLocation` from `react-router-dom`
-- Get `const location = useLocation()`
-- In `handleNavClick` for hash links: if `location.pathname !== "/"`, call `navigate("/" + link.href)`; else do the existing scroll
-- In `handleCtaClick`: if `location.pathname !== "/"`, call `navigate("/#precios")`; else do the existing scroll
-- Logo `<a>`: replace with an onClick that checks pathname — if `/`, scroll to top; else `navigate("/")`
