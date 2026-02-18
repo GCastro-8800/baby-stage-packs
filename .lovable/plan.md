@@ -1,24 +1,35 @@
 
+# Pagina de Configuracion (Settings)
 
-# Fix: Enlaces rotos en Footer y warnings de refs
+## Resumen
+Crear una pagina `/app/settings` donde el usuario pueda ver y editar su perfil: nombre, situacion (esperando/nacido), fecha del bebe, y si es su primer hijo. El boton de Settings del dashboard navegara a esta nueva pagina.
 
-## 1. Footer - Enlaces con IDs incorrectos
+## Que vera el usuario
+- Al pulsar el icono de engranaje en el dashboard, se abre una pagina de configuracion
+- Formulario con campos editables: nombre completo, situacion del bebe, fecha (nacimiento o fecha esperada), primer hijo
+- Boton "Guardar cambios" que actualiza el perfil en la base de datos
+- Boton para volver al dashboard
+- Misma cabecera que el dashboard (logo + cerrar sesion)
 
-Los IDs reales de las secciones son:
-- Precios: `id="precios"` (en PricingSection.tsx)
-- Como funciona: `id="como-funciona"` (en HowItWorksSection.tsx)
-- FAQ: `id="faq"` (ya correcto)
+## Cambios tecnicos
 
-**Cambio en `src/components/Footer.tsx`** (lineas 23 y 33):
-- `href="#pricing"` cambia a `href="#precios"`
-- `href="#how-it-works"` cambia a `href="#como-funciona"`
-- `href="#faq"` se mantiene igual (ya funciona)
+### 1. Nueva pagina: `src/pages/Settings.tsx`
+- Ruta protegida en `/app/settings`
+- Formulario con los campos del perfil:
+  - **Nombre completo** (input de texto)
+  - **Situacion** (selector: "Estoy esperando" / "Ya nacio")
+  - **Fecha** (calendario, cambia entre fecha esperada y fecha de nacimiento segun la situacion)
+  - **Primer hijo** (switch si/no)
+- Al guardar, actualiza la tabla `profiles` via Supabase y llama a `refreshProfile()` del hook `useAuth`
+- Toast de confirmacion al guardar exitosamente
 
-## 2. Warnings de refs en consola
+### 2. Modificar `src/pages/AppDashboard.tsx`
+- Cambiar el `onClick={() => {}}` del boton Settings por `onClick={() => navigate("/app/settings")}`
 
-Revisados los tres componentes (FloatingCTA, ChatBot, EmailCaptureModal): ninguno recibe refs ni usa forwardRef. Estos componentes se renderizan directamente en Index.tsx sin asignarles refs.
+### 3. Modificar `src/App.tsx`
+- Agregar ruta `/app/settings` envuelta en `ProtectedRoute`
+- Importar el nuevo componente Settings
 
-Los warnings, si aparecen, provienen de librerias internas (Radix UI en Drawer/Dialog) y no del codigo del proyecto. No requieren cambios en el codigo de la aplicacion; no afectan funcionalidad.
-
-**Resultado**: Solo se modifica Footer.tsx para corregir los dos enlaces rotos.
-
+### 4. Sin cambios en base de datos
+- La tabla `profiles` ya tiene todos los campos necesarios (full_name, parent_situation, baby_due_date, baby_birth_date, is_first_child)
+- Las politicas RLS existentes ya permiten al usuario actualizar su propio perfil
