@@ -20,6 +20,7 @@ import PackStageProducts from "./pages/PackStageProducts";
 import PackCheckout from "./pages/PackCheckout";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import Settings from "./pages/Settings";
+import AboutUs from "./pages/AboutUs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/packs/:packId/etapa/:stageId" element={<PackStageProducts />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
+            <Route path="/quienes-somos" element={<AboutUs />} />
             <Route path="/condiciones" element={<TermsOfService />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
