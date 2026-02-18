@@ -19,6 +19,7 @@ import PackDetail from "./pages/PackDetail";
 import PackStageProducts from "./pages/PackStageProducts";
 import PackCheckout from "./pages/PackCheckout";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AppDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/app/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
