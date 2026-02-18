@@ -1,45 +1,62 @@
 
 
-# Diferenciar la pagina Quienes Somos de la landing
+# Diferenciar visualmente la pagina Quienes Somos de la landing
 
 ## Problema
 
-La pagina AboutUs reutiliza las mismas imagenes que la landing principal:
-- `mother-stroller.png` se usa en el Hero de la landing Y en el Hero de AboutUs
-- `mother-carrier.png` se usa en la MissionSection de la landing Y en la seccion "La Idea" de AboutUs
+Ambas paginas usan el mismo patron visual exacto:
+- Grid 2 columnas con imagen `aspect-[4/5]` redondeada
+- Misma tipografia serif para titulos
+- Mismo espaciado y separador coral
+- El usuario siente que no cambio de pagina
 
-Esto hace que al navegar entre paginas se sienta repetitivo y poco profesional.
+## Solucion: Estilo editorial diferenciado para AboutUs
 
-## Solucion
+Mientras la landing usa un estilo "comercial" (badges, checkmarks, CTAs, floating cards), la pagina de Quienes Somos adoptara un estilo mas **editorial/revista** con estos cambios:
 
-Reorganizar las imagenes para que cada pagina tenga su identidad visual propia, usando las imagenes disponibles que NO aparecen en la landing.
+### Cambios visuales clave
 
-### Cambios de imagenes en AboutUs
+1. **Hero full-width** en vez de zigzag
+   - Imagen de fondo a pantalla completa con overlay oscuro
+   - Texto centrado encima de la imagen (estilo editorial/magazine)
+   - Esto rompe inmediatamente la sensacion de "misma pagina"
 
-| Seccion | Antes | Despues |
-|---------|-------|---------|
-| Hero (seccion 1) | `mother-stroller.png` (duplicada del Hero landing) | `hero-family-stroller.jpg` (imagen disponible, no usada en ningun lado) |
-| Somos Bebloo (seccion 2) | `twins-happy.jpg` (ok, unica) | Sin cambio |
-| La Idea (seccion 3) | `mother-carrier.png` (duplicada de MissionSection landing) | `mission-family.jpg` (mover aqui) |
-| Nuestra Vision (seccion 4) | `mission-family.jpg` | `twins-happy.jpg` (intercambiar con seccion 2) |
+2. **Imagenes con aspect-ratio diferente**
+   - Cambiar de `aspect-[4/5]` (vertical, igual que landing) a `aspect-[3/4]` con `rounded-3xl` mas pronunciado
+   - Anadir un borde sutil decorativo alrededor de las imagenes
 
-Resultado final:
-- **Seccion 1 Hero**: `hero-family-stroller.jpg` (imagen fresca, nunca usada)
-- **Seccion 2 Somos Bebloo**: `mission-family.jpg` (familia, encaja con la historia personal)
-- **Seccion 3 La Idea**: `mother-carrier.png` se mantiene aqui ya que es la unica seccion donde encaja tematicamente, y al estar mas abajo en la pagina no se siente tan repetitiva respecto a la landing
-- **Seccion 4 Nuestra Vision**: `twins-happy.jpg` (gemelos felices, encaja con vision de futuro)
+3. **Titulos con numeracion editorial**
+   - En vez del separador coral generico, anadir numeros grandes decorativos (01, 02, 03) al lado de cada titulo de seccion
+   - Tipografia mas ligera (font-light en vez de font-semibold para subtitulos)
+
+4. **Fondo general diferente**
+   - La landing alterna entre blanco y warm beige
+   - AboutUs usara un fondo base ligeramente diferente: todas las secciones en blanco, con las estadisticas y CTA como unicas secciones con fondo
+
+5. **Blockquotes mas prominentes**
+   - Las citas existentes tendran un estilo pull-quote mas grande y centrado
 
 ## Detalles tecnicos
 
-### Archivo: `src/pages/AboutUs.tsx`
+### Archivo: `src/pages/AboutUs.tsx` (reescritura)
 
-Cambios en las importaciones (lineas 19-22):
-- Reemplazar `heroImg` de `mother-stroller.png` por `hero-family-stroller.jpg`
-- Intercambiar las asignaciones de `twinsImg` y `missionImg` en las secciones
+**Hero (seccion 1)**: Reemplazar el ZigzagSection por una seccion full-width:
+- Imagen de fondo con `bg-cover bg-center` y overlay gradient
+- Texto centrado con `text-white` sobre la imagen
+- Altura `min-h-[70vh]` para impacto visual
+- Badge y H1 centrados
 
-Cambios en las secciones:
-- Seccion 1 (Hero, linea 133): usar la nueva imagen `hero-family-stroller.jpg`
-- Seccion 2 (Somos Bebloo, linea 148): usar `mission-family.jpg` en vez de `twins-happy.jpg`
-- Seccion 4 (Nuestra Vision, linea 188): usar `twins-happy.jpg` en vez de `mission-family.jpg`
+**Secciones zigzag (2, 3, 4)**: Modificar el componente ZigzagSection:
+- Imagenes: `aspect-[3/4] rounded-3xl` con `ring-1 ring-border/20 ring-offset-4 ring-offset-background`
+- Eliminar el fondo alterno `bg="hsl(var(--section-warm))"` de las secciones intermedias (dejar fondo blanco)
+- Anadir numero decorativo grande (01, 02, 03) antes de cada titulo:
+  - `text-6xl font-serif text-accent/20 font-bold` como numero de fondo
+- Aumentar gap entre secciones
 
-No hay cambios en otros archivos ni dependencias nuevas.
+**Estadisticas (seccion 5)**: Sin cambios grandes, mantener
+
+**Principios (seccion 6)**: Cambiar de tarjetas verticales a un layout horizontal:
+- En vez de 4 cards en grid, usar una lista horizontal con iconos inline
+- Estilo mas limpio, menos "landing page"
+
+**CTA Final (seccion 7)**: Mantener similar pero sin el fondo warm
