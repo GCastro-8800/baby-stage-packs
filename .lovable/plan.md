@@ -1,25 +1,82 @@
 
-# Dos mejoras en la pagina de packs
 
-## 1. Eliminar el boton "Ver planes desde X euros/mes" del fondo de PackDetail
+# Rediseno de la pagina Quienes Somos - Estilo zigzag editorial
 
-En la pagina `/packs/comfort` hay un bloque CTA al final con el texto "Ya lo tienes claro? Contrata el pack completo y ahorra." y un boton grande. Se eliminara todo ese bloque (lineas 71-87 de `src/pages/PackDetail.tsx`).
+## Inspiracion
 
-## 2. Corregir la interaccion hover entre el icono de vista previa (ojo) y el radio button
+Del ejemplo de StrollMe tomamos:
+- Layout en **zigzag**: secciones alternas imagen-izquierda/texto-derecha y viceversa
+- Imagenes grandes y prominentes con bordes redondeados
+- Tipografia serif para titulos de seccion, con un separador decorativo debajo
+- Fondo calido uniforme (beige/cream) como base
+- Texto narrativo personal y cercano, sin tarjetas ni iconos excesivos
 
-En `src/pages/PackStageProducts.tsx`, el boton del ojo y el RadioGroupItem estan muy juntos dentro de un `<label>`, lo que provoca que al pasar el raton entre ambos, a veces el clic en el ojo activa el radio (porque el `<label>` propaga el evento), o el hover se "pierde" visualmente.
+De lo que ya tenemos conservamos:
+- El contenido narrativo (historia de Paola y Gabriel, descubrimientos, principios)
+- Las estadisticas destacadas (+400 carritos, +4 anos, 100s familias)
+- Los principios como seccion de tarjetas (simplificada)
+- El CTA final con compromiso Madrid
+- Las animaciones de scroll reveal
+- El SEO meta y la estructura Header/Footer/WhatsApp
 
-### Solucion
-- Aumentar el area tactil del boton del ojo (de `p-1` a `p-2`) para que sea mas facil de pulsar sin tocar el radio
-- Aumentar la separacion entre ambos elementos (de `gap-2` a `gap-3`)
-- Aplicar la misma mejora en la seccion de productos fijos (fixed), donde el boton del ojo tambien esta cerca del checkbox
+## Nueva estructura de secciones
 
-### Detalles tecnicos
+```text
+1. Hero (compacto)
+   Badge "Nuestra mision" + H1 serif grande + subtitulo + imagen derecha
+   Layout: 2 columnas zigzag (texto izq, imagen der)
+   Imagen: mother-stroller.png
 
-**Archivo `src/pages/PackDetail.tsx`**:
-- Eliminar las lineas 71-87 (el bloque `{/* CTA */}` con el boton "Ver planes desde...")
+2. Somos Bebloo (quienes somos)
+   Layout: imagen izq, texto der
+   Imagen: twins-happy.jpg
+   Contenido: Historia personal de Paola y Gabriel resumida
 
-**Archivo `src/pages/PackStageProducts.tsx`**:
-- En la seccion de productos "choice" (linea 349): cambiar `gap-2` a `gap-3`
-- En el boton del ojo de "choice" (linea 353): cambiar `p-1` a `p-2`
-- En el boton del ojo de "fixed" (linea 280): cambiar `p-1` a `p-2`
+3. La Idea (lo que descubrimos -> la solucion)
+   Layout: texto izq, imagen der
+   Imagen: mother-carrier.png
+   Contenido: El patron descubierto + como nacio bebloo
+
+4. Nuestra Vision (principios resumidos)
+   Layout: imagen izq, texto der
+   Imagen: mission-family.jpg
+   Contenido: Compromiso con calidad, Madrid, y sostenibilidad
+
+5. Estadisticas (banda horizontal)
+   3 numeros grandes en fila
+
+6. Principios (4 tarjetas, conservadas)
+
+7. CTA Final
+   Compromiso Madrid + botones
+```
+
+## Cambios tecnicos
+
+### Archivo: `src/pages/AboutUs.tsx` (reescritura completa)
+
+- Eliminar las secciones actuales (hero centrado, discoveries cards, historia con stats sidebar, diferenciadores, equipo cards, madrid+cta)
+- Reemplazar con secciones zigzag que alternan `grid-cols-2` con imagen y texto
+- Cada seccion zigzag usa:
+  - En desktop: `grid grid-cols-1 lg:grid-cols-2 gap-12 items-center`
+  - Orden alterno via `order-1/order-2` en las columnas
+  - Imagen con `aspect-[4/5] rounded-2xl overflow-hidden shadow-lg` y `object-cover`
+  - Titulo con `font-serif text-2xl md:text-4xl` + separador coral debajo (`h-1 w-12 bg-accent`)
+  - Texto narrativo con `text-muted-foreground leading-relaxed`
+- Conservar `RevealSection` y `useScrollReveal` para animaciones
+- Conservar las 4 tarjetas de principios (simplificadas, sin numeros)
+- Conservar la banda de estadisticas
+- Conservar el CTA final con Madrid
+- Conservar SEO meta tags
+
+### Imagenes utilizadas (ya disponibles en `src/assets/`)
+- `mother-stroller.png` - Hero / mision
+- `twins-happy.jpg` - Somos Bebloo
+- `mother-carrier.png` - La idea
+- `mission-family.jpg` - Nuestra vision
+
+### Sin cambios en otros archivos
+- No hay dependencias nuevas
+- No hay cambios en la base de datos
+- El routing ya existe (`/quienes-somos`)
+
