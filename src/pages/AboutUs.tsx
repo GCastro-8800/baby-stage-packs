@@ -35,7 +35,7 @@ const useScrollReveal = () => {
           observer.unobserve(el);
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(el);
@@ -45,19 +45,10 @@ const useScrollReveal = () => {
   return ref;
 };
 
-const RevealSection = ({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
+const RevealSection = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
   const ref = useScrollReveal();
   return (
-    <div
-      ref={ref}
-      className={`opacity-0 translate-y-6 transition-all duration-700 ease-out ${className}`}
-    >
+    <div ref={ref} className={`opacity-0 translate-y-6 transition-all duration-700 ease-out ${className}`}>
       {children}
     </div>
   );
@@ -86,8 +77,7 @@ const principles = [
     icon: CheckCircle,
     index: "01",
     title: "Cero Decisiones",
-    description:
-      "Seleccionamos por ti. Marcas premium validadas tras cientos de restauraciones. Sabemos qué funciona.",
+    description: "Seleccionamos por ti. Marcas premium validadas tras cientos de restauraciones. Sabemos qué funciona.",
   },
   {
     icon: Sparkles,
@@ -137,8 +127,7 @@ const stats = [
 
 const AboutUs = () => {
   useEffect(() => {
-    document.title =
-      "Quiénes Somos | Bebloo - Equipamiento Premium por Suscripción para Bebés en Madrid";
+    document.title = "Quiénes Somos | Bebloo - Equipamiento Premium por Suscripción para Bebés en Madrid";
     const meta = document.querySelector('meta[name="description"]');
     const content =
       "Conoce a Bebloo: fundado por expertos con +4 años en el mercado de equipamiento infantil. Sabemos qué funciona porque lo hemos visto cientos de veces.";
@@ -168,8 +157,8 @@ const AboutUs = () => {
               4 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-              No somos padres todavía. Pero hemos visto de cerca cientos de familias comprando,
-              vendiendo, arrepintiéndose y volviendo a comprar. Bebloo existe para romper ese ciclo.
+              Hemos visto de cerca cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar.
+              Bebloo existe para romper ese ciclo.
             </p>
             <div className="flex items-center justify-center gap-3">
               <div className="h-px w-12 bg-accent/40" />
@@ -184,9 +173,7 @@ const AboutUs = () => {
       <section className="py-16 md:py-24 px-4">
         <div className="container max-w-6xl">
           <RevealSection>
-            <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center mb-12">
-              Lo que descubrimos
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center mb-12">Lo que descubrimos</h2>
           </RevealSection>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {discoveries.map((item, i) => (
@@ -211,22 +198,18 @@ const AboutUs = () => {
         <div className="container max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
             <RevealSection className="md:col-span-3 text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-8">
-                Nuestra historia
-              </h2>
+              <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-8">Nuestra historia</h2>
               <div className="space-y-5 text-foreground/80 leading-relaxed">
-                <p className="text-lg font-medium text-foreground">
-                  Bebloo nació de una obsesión.
+                <p className="text-lg font-medium text-foreground">Bebloo nació de una obsesión.</p>
+                <p>
+                  Paola lleva desde niña fascinada con el mundo de los bebés. Su sueño siempre ha sido ser madre, y esa
+                  pasión la llevó hace más de 4 años a dedicarse a restaurar y vender carritos de bebé en Wallapop y
+                  Vinted.
                 </p>
                 <p>
-                  Paola lleva desde niña fascinada con el mundo de los bebés. Su sueño siempre ha
-                  sido ser madre, y esa pasión la llevó hace más de 4 años a dedicarse a restaurar y
-                  vender carritos de bebé en Wallapop y Vinted.
-                </p>
-                <p>
-                  Cientos de transacciones después, el patrón era innegable: padres que compraban
-                  con ilusión, usaban el producto 3-4 meses, vendían con prisa... y meses después
-                  volvían a buscar lo mismo porque lo necesitaban de nuevo.
+                  Cientos de transacciones después, el patrón era innegable: padres que compraban con ilusión, usaban el
+                  producto 3-4 meses, vendían con prisa... y meses después volvían a buscar lo mismo porque lo
+                  necesitaban de nuevo.
                 </p>
 
                 {/* Pull-quote */}
@@ -237,23 +220,24 @@ const AboutUs = () => {
                 </blockquote>
 
                 <p>
-                  Cuando su hermano tuvo una hija, Paola vivió de cerca toda la logística del primer
-                  año desde dentro de una familia. Ahí se consolidó la idea.
+                  Cuando su hermano tuvo una hija, Paola vivió de cerca toda la logística del primer año desde dentro de
+                  una familia. Ahí se consolidó la idea.
                 </p>
                 <p>
-                  Gabriel, su pareja, llevaba dos años ayudándola con las restauraciones y ventas.
-                  Juntos transformaron esa experiencia de mercado en Bebloo: un servicio diseñado
-                  para que ningún padre tenga que pasar por ese ciclo otra vez.
+                  Gabriel, su pareja, llevaba dos años ayudándola con las restauraciones y ventas. Juntos transformaron
+                  esa experiencia de mercado en Bebloo: un servicio diseñado para que ningún padre tenga que pasar por
+                  ese ciclo otra vez.
                 </p>
               </div>
             </RevealSection>
             <RevealSection className="md:col-span-2 flex items-center justify-center">
               <div className="w-full max-w-xs rounded-2xl bg-card border border-border/50 shadow-sm p-8 space-y-6">
                 {stats.map((stat, i) => (
-                  <div key={i} className={`text-center ${i < stats.length - 1 ? "pb-6 border-b border-border/30" : ""}`}>
-                    <span className="text-4xl md:text-5xl font-semibold text-accent font-serif">
-                      {stat.value}
-                    </span>
+                  <div
+                    key={i}
+                    className={`text-center ${i < stats.length - 1 ? "pb-6 border-b border-border/30" : ""}`}
+                  >
+                    <span className="text-4xl md:text-5xl font-semibold text-accent font-serif">{stat.value}</span>
                     <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
                   </div>
                 ))}
@@ -272,14 +256,12 @@ const AboutUs = () => {
             </h2>
             <div className="space-y-5 text-foreground/80 leading-relaxed text-center">
               <p>
-                No venimos del mundo startup ni de consultorías de innovación. Venimos de Wallapop,
-                de limpiar carritos a mano, de responder mensajes a las 11 de la noche preguntando
-                si el Bugaboo tiene algún arañazo.
+                No venimos del mundo startup ni de consultorías de innovación. Venimos de Wallapop, de limpiar carritos
+                a mano, de responder mensajes a las 11 de la noche preguntando si el Bugaboo tiene algún arañazo.
               </p>
               <p>
-                Conocemos el mercado de equipamiento infantil desde las trincheras. Sabemos qué
-                productos duran, cuáles decepcionan, qué buscan realmente los padres y qué terminan
-                vendiendo al mes.
+                Conocemos el mercado de equipamiento infantil desde las trincheras. Sabemos qué productos duran, cuáles
+                decepcionan, qué buscan realmente los padres y qué terminan vendiendo al mes.
               </p>
             </div>
 
@@ -314,14 +296,10 @@ const AboutUs = () => {
                       <div className="w-14 h-14 rounded-xl bg-accent/15 flex items-center justify-center transition-colors duration-300 group-hover:bg-accent/25">
                         <p.icon className="h-7 w-7 text-accent" />
                       </div>
-                      <span className="text-xs font-mono text-muted-foreground/40 mt-1">
-                        {p.index}
-                      </span>
+                      <span className="text-xs font-mono text-muted-foreground/40 mt-1">{p.index}</span>
                     </div>
                     <h3 className="font-semibold text-foreground text-lg">{p.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {p.description}
-                    </p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{p.description}</p>
                   </CardContent>
                 </Card>
               </RevealSection>
@@ -334,9 +312,7 @@ const AboutUs = () => {
       <section className="py-16 md:py-24 px-4" style={{ background: "hsl(var(--section-warm))" }}>
         <div className="container max-w-4xl">
           <RevealSection>
-            <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center mb-12">
-              El equipo
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground text-center mb-12">El equipo</h2>
           </RevealSection>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {team.map((member, i) => (
@@ -344,23 +320,17 @@ const AboutUs = () => {
                 <Card className="border-border/50 bg-card">
                   <CardContent className="p-8 space-y-4">
                     <div className="w-20 h-20 rounded-full bg-accent/15 flex items-center justify-center mb-2">
-                      <span className="text-2xl font-semibold text-accent font-serif">
-                        {member.name.charAt(0)}
-                      </span>
+                      <span className="text-2xl font-semibold text-accent font-serif">{member.name.charAt(0)}</span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground text-xl">{member.name}</h3>
                       <p className="text-sm text-accent font-medium">{member.role}</p>
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {member.description}
-                    </p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{member.description}</p>
                     <div className="pt-3 border-t border-border/30">
                       <div className="flex gap-2 items-start">
                         <Quote className="h-4 w-4 text-accent/40 mt-0.5 shrink-0" />
-                        <p className="text-sm text-foreground/70 italic leading-relaxed">
-                          {member.quote}
-                        </p>
+                        <p className="text-sm text-foreground/70 italic leading-relaxed">{member.quote}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -372,27 +342,21 @@ const AboutUs = () => {
       </section>
 
       {/* 7+8. Compromiso con Madrid + CTA Final (fusionados) */}
-      <section
-        className="py-16 md:py-24 px-4"
-        style={{ background: "hsl(var(--section-warm))" }}
-      >
+      <section className="py-16 md:py-24 px-4" style={{ background: "hsl(var(--section-warm))" }}>
         <div className="container max-w-3xl text-center">
           <RevealSection>
             <div className="w-14 h-14 rounded-full bg-accent/15 flex items-center justify-center mx-auto mb-6">
               <MapPin className="h-7 w-7 text-accent" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-6">
-              Nuestro compromiso con Madrid
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-6">Nuestro compromiso con Madrid</h2>
             <div className="space-y-4 text-foreground/80 leading-relaxed max-w-2xl mx-auto mb-10">
               <p>
-                Empezamos hiperlocal por una razón: control absoluto de la experiencia. Conocemos
-                cada producto que sale de nuestro almacén. Controlamos cada limpieza. Gestionamos
-                cada entrega personalmente.
+                Empezamos hiperlocal por una razón: control absoluto de la experiencia. Conocemos cada producto que sale
+                de nuestro almacén. Controlamos cada limpieza. Gestionamos cada entrega personalmente.
               </p>
               <p>
-                No somos una plataforma. Somos un equipo dedicado exclusivamente a que tu primer
-                año como padre sea más simple.
+                No somos una plataforma. Somos un equipo dedicado exclusivamente a que tu primer año como padre sea más
+                simple.
               </p>
             </div>
 
@@ -403,9 +367,7 @@ const AboutUs = () => {
               <div className="h-px w-16 bg-accent/30" />
             </div>
 
-            <h2 className="text-2xl md:text-4xl font-semibold text-foreground mb-4">
-              ¿Listo para dejar de decidir?
-            </h2>
+            <h2 className="text-2xl md:text-4xl font-semibold text-foreground mb-4">¿Listo para dejar de decidir?</h2>
             <p className="text-muted-foreground mb-8 text-lg">
               Solo necesitas dar el primer paso. Nosotros nos encargamos del resto.
             </p>
