@@ -34,6 +34,11 @@ const Footer = () => {
                   Cómo funciona
                 </a>
               </li>
+              <li>
+                <Link to="/quienes-somos" className="text-background/70 hover:text-background transition-colors">
+                  Quiénes somos
+                </Link>
+              </li>
             </ul>
           </div>
 
