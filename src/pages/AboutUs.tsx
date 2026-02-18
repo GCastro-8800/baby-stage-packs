@@ -16,10 +16,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
-import heroImg from "@/assets/mother-stroller.png";
-import twinsImg from "@/assets/twins-happy.jpg";
-import carrierImg from "@/assets/mother-carrier.png";
+import heroImg from "@/assets/hero-family-stroller.jpg";
 import missionImg from "@/assets/mission-family.jpg";
+import carrierImg from "@/assets/mother-carrier.png";
+import twinsImg from "@/assets/twins-happy.jpg";
 
 /* ── scroll-reveal ────────────────────────────────────────── */
 
@@ -145,7 +145,7 @@ const AboutUs = () => {
       </ZigzagSection>
 
       {/* ─── 2. Somos Bebloo ─────────────────────────────── */}
-      <ZigzagSection image={twinsImg} imageAlt="Familia feliz con gemelos" imageFirst>
+      <ZigzagSection image={missionImg} imageAlt="Familia disfrutando juntos" imageFirst>
         <SectionTitle>Somos Bebloo</SectionTitle>
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
@@ -185,7 +185,7 @@ const AboutUs = () => {
       </ZigzagSection>
 
       {/* ─── 4. Nuestra Visión ───────────────────────────── */}
-      <ZigzagSection image={missionImg} imageAlt="Familia disfrutando" imageFirst>
+      <ZigzagSection image={twinsImg} imageAlt="Gemelos felices" imageFirst>
         <SectionTitle>Nuestra visión</SectionTitle>
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
