@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, ArrowRight, LogIn, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ const Header = () => {
   const { track } = useAnalytics();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +42,8 @@ const Header = () => {
   const handleNavClick = (link: typeof navLinks[number]) => {
     if ((link as any).isRoute) {
       navigate(link.href);
+    } else if (!isHome) {
+      navigate("/" + link.href);
     } else {
       const id = link.href.replace("#", "");
       const element = document.getElementById(id);
@@ -52,9 +56,13 @@ const Header = () => {
   };
 
   const handleCtaClick = () => {
-    const element = document.getElementById("precios");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    if (!isHome) {
+      navigate("/#precios");
+    } else {
+      const element = document.getElementById("precios");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
     setIsOpen(false);
     track("cta_click", { source: "header", action: "empezar" });
@@ -80,11 +88,13 @@ const Header = () => {
       <div className="container max-w-6xl px-4 md:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
+          <button
+            onClick={() => {
+              if (isHome) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                navigate("/");
+              }
             }}
             className="flex-shrink-0"
           >
@@ -93,7 +103,7 @@ const Header = () => {
               alt="bebloo"
               className="h-10 md:h-12"
             />
-          </a>
+          </button>
 
           {/* Desktop Navigation */}
           {!isMobile && (
