@@ -13,6 +13,7 @@ import EmailCaptureModal from "@/components/EmailCaptureModal";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import ChatBot from "@/components/ChatBot";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Index = () => {
@@ -51,6 +52,7 @@ const Index = () => {
       <Footer />
       <FloatingCTA />
       <ChatBot />
+      <WhatsAppButton />
 
       <EmailCaptureModal
         isOpen={isModalOpen}

@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const useScrollReveal = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -427,6 +428,7 @@ const AboutUs = () => {
       </section>
 
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };
