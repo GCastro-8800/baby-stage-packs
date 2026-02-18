@@ -10,7 +10,6 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -32,7 +31,7 @@ const useScrollReveal = () => {
       ([e]) => {
         if (e.isIntersecting) {
           el.classList.add("opacity-100", "translate-y-0");
-          el.classList.remove("opacity-0", "translate-y-6");
+          el.classList.remove("opacity-0", "translate-y-8");
           obs.unobserve(el);
         }
       },
@@ -47,57 +46,19 @@ const useScrollReveal = () => {
 const Reveal = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
   const ref = useScrollReveal();
   return (
-    <div ref={ref} className={`opacity-0 translate-y-6 transition-all duration-700 ease-out ${className}`}>
+    <div ref={ref} className={`opacity-0 translate-y-8 transition-all duration-700 ease-out ${className}`}>
       {children}
     </div>
   );
 };
 
-/* ── zigzag section helper ────────────────────────────────── */
-
-interface ZigzagProps {
-  image: string;
-  imageAlt: string;
-  imageFirst?: boolean;
-  children: React.ReactNode;
-  bg?: string;
-}
-
-const ZigzagSection = ({ image, imageAlt, imageFirst = false, children, bg }: ZigzagProps) => (
-  <section className="py-16 md:py-24 px-4" style={bg ? { background: bg } : undefined}>
-    <div className="container max-w-6xl">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-        {/* Image */}
-        <Reveal className={imageFirst ? "lg:order-1" : "lg:order-2"}>
-          <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-lg">
-            <img src={image} alt={imageAlt} className="w-full h-full object-cover object-top" />
-          </div>
-        </Reveal>
-        {/* Text */}
-        <Reveal className={imageFirst ? "lg:order-2" : "lg:order-1"}>
-          {children}
-        </Reveal>
-      </div>
-    </div>
-  </section>
-);
-
-/* ── section title helper ─────────────────────────────────── */
-
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <div className="mb-6">
-    <h2 className="font-serif text-2xl md:text-4xl font-semibold text-foreground leading-tight">{children}</h2>
-    <div className="h-1 w-12 bg-accent rounded-full mt-4" />
-  </div>
-);
-
 /* ── data ─────────────────────────────────────────────────── */
 
 const principles = [
   { icon: CheckCircle, title: "Cero Decisiones", description: "Seleccionamos por ti. Marcas premium validadas tras cientos de restauraciones." },
-  { icon: Sparkles, title: "Higiene sin Compromiso", description: "Protocolos de limpieza grado hospitalario con tecnología UV-C. Cada producto llega impecable." },
-  { icon: Truck, title: "Logística Invisible", description: "Entregamos, recogemos, rotamos. Sin cajas en tu portal, sin citas imposibles." },
-  { icon: Shield, title: "Confianza Total", description: "Cobertura completa ante daños accidentales. Sin letra pequeña, sin sorpresas." },
+  { icon: Sparkles, title: "Higiene sin Compromiso", description: "Protocolos de limpieza grado hospitalario con tecnología UV-C." },
+  { icon: Truck, title: "Logística Invisible", description: "Entregamos, recogemos, rotamos. Sin cajas en tu portal." },
+  { icon: Shield, title: "Confianza Total", description: "Cobertura completa ante daños accidentales. Sin letra pequeña." },
 ];
 
 const stats = [
@@ -105,6 +66,46 @@ const stats = [
   { value: "+4", label: "años de experiencia" },
   { value: "100s", label: "de familias atendidas" },
 ];
+
+/* ── editorial section ────────────────────────────────────── */
+
+interface EditorialSectionProps {
+  number: string;
+  image: string;
+  imageAlt: string;
+  imageFirst?: boolean;
+  title: string;
+  children: React.ReactNode;
+}
+
+const EditorialSection = ({ number, image, imageAlt, imageFirst = false, title, children }: EditorialSectionProps) => (
+  <section className="py-20 md:py-28 px-4">
+    <div className="container max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        {/* Image */}
+        <Reveal className={imageFirst ? "lg:order-1" : "lg:order-2"}>
+          <div className="aspect-[3/4] rounded-3xl overflow-hidden ring-1 ring-border/20 ring-offset-4 ring-offset-background">
+            <img src={image} alt={imageAlt} className="w-full h-full object-cover object-top" />
+          </div>
+        </Reveal>
+        {/* Text */}
+        <Reveal className={imageFirst ? "lg:order-2" : "lg:order-1"}>
+          <div className="relative">
+            <span className="block font-serif text-7xl md:text-8xl font-bold text-accent/15 leading-none mb-2 select-none">
+              {number}
+            </span>
+            <h2 className="font-serif text-2xl md:text-4xl font-semibold text-foreground leading-tight -mt-4 md:-mt-6 relative z-10">
+              {title}
+            </h2>
+          </div>
+          <div className="mt-6">
+            {children}
+          </div>
+        </Reveal>
+      </div>
+    </div>
+  </section>
+);
 
 /* ── page ─────────────────────────────────────────────────── */
 
@@ -129,24 +130,31 @@ const AboutUs = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* ─── 1. Hero ─────────────────────────────────────── */}
-      <ZigzagSection image={heroImg} imageAlt="Madre con carrito de bebé" bg="hsl(var(--section-warm))">
-        <div className="pt-24 md:pt-32">
-          <Badge variant="secondary" className="mb-5 text-sm font-medium px-4 py-1.5">
-            Nuestra misión
-          </Badge>
-          <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground leading-tight mb-6">
-            4 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
-          </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
-            Hemos acompañado a cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar. Bebloo existe para romper ese ciclo.
-          </p>
+      {/* ─── 1. Hero Full-Width ──────────────────────────── */}
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
+        <img
+          src={heroImg}
+          alt="Familia con carrito de bebé"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20" />
+        <div className="relative z-10 text-center px-4 py-32 max-w-3xl mx-auto">
+          <Reveal>
+            <Badge className="mb-6 text-sm font-medium px-4 py-1.5 bg-white/15 text-white border-white/25 backdrop-blur-sm">
+              Nuestra historia
+            </Badge>
+            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-tight mb-6">
+              4 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
+            </h1>
+            <p className="text-lg text-white/80 leading-relaxed max-w-xl mx-auto">
+              Hemos acompañado a cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar. Bebloo existe para romper ese ciclo.
+            </p>
+          </Reveal>
         </div>
-      </ZigzagSection>
+      </section>
 
       {/* ─── 2. Somos Bebloo ─────────────────────────────── */}
-      <ZigzagSection image={missionImg} imageAlt="Familia disfrutando juntos" imageFirst>
-        <SectionTitle>Somos Bebloo</SectionTitle>
+      <EditorialSection number="01" image={missionImg} imageAlt="Familia disfrutando juntos" imageFirst title="Somos Bebloo">
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
             Paola lleva desde niña fascinada con el mundo de los bebés. Esa pasión la llevó hace más de 4 años a dedicarse a restaurar y vender carritos de bebé.
@@ -154,8 +162,8 @@ const AboutUs = () => {
           <p>
             Cientos de transacciones después, el patrón era innegable: padres que compraban con ilusión, usaban el producto 3-4 meses, vendían con prisa… y meses después volvían a buscar lo mismo.
           </p>
-          <blockquote className="border-l-4 border-accent pl-5 py-2 my-2">
-            <p className="text-lg font-serif font-medium text-foreground italic">
+          <blockquote className="border-none pl-0 py-6 my-4">
+            <p className="text-2xl md:text-3xl font-serif font-medium text-foreground italic text-center">
               "Un ciclo absurdo, costoso y agotador."
             </p>
           </blockquote>
@@ -163,11 +171,10 @@ const AboutUs = () => {
             Gabriel, su pareja, llevaba dos años ayudándola con las restauraciones. Juntos transformaron esa experiencia en Bebloo: un servicio diseñado para que ningún padre tenga que pasar por ese ciclo otra vez.
           </p>
         </div>
-      </ZigzagSection>
+      </EditorialSection>
 
       {/* ─── 3. La Idea ──────────────────────────────────── */}
-      <ZigzagSection image={carrierImg} imageAlt="Madre con portabebés" bg="hsl(var(--section-warm))">
-        <SectionTitle>Lo que descubrimos</SectionTitle>
+      <EditorialSection number="02" image={carrierImg} imageAlt="Madre con portabebés" title="Lo que descubrimos">
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
             La mayor parte de los padres que adquieren su equipo lo vuelven a vender después de algunos meses. Compra apresurada, uso corto, venta con pérdida.
@@ -178,15 +185,14 @@ const AboutUs = () => {
           <p>
             No venimos del mundo startup ni de consultorías. Venimos de Wallapop, de limpiar carritos a mano, de responder mensajes a las 11 de la noche. Conocemos el mercado desde las trincheras.
           </p>
-          <p className="text-lg font-serif font-semibold text-foreground">
+          <p className="text-xl font-serif font-semibold text-foreground">
             Esa experiencia es nuestra ventaja.
           </p>
         </div>
-      </ZigzagSection>
+      </EditorialSection>
 
       {/* ─── 4. Nuestra Visión ───────────────────────────── */}
-      <ZigzagSection image={twinsImg} imageAlt="Gemelos felices" imageFirst>
-        <SectionTitle>Nuestra visión</SectionTitle>
+      <EditorialSection number="03" image={twinsImg} imageAlt="Gemelos felices" imageFirst title="Nuestra visión">
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
             Creemos que ser padre primerizo no debería venir con una lista interminable de decisiones de compra. Queremos que cada familia reciba exactamente lo que necesita, cuando lo necesita.
@@ -198,7 +204,7 @@ const AboutUs = () => {
             Empezamos en Madrid por una razón: control absoluto de la experiencia. Conocemos cada producto que sale de nuestro almacén.
           </p>
         </div>
-      </ZigzagSection>
+      </EditorialSection>
 
       {/* ─── 5. Estadísticas ─────────────────────────────── */}
       <section className="py-14 md:py-20 px-4" style={{ background: "hsl(var(--step-bg))" }}>
@@ -216,25 +222,26 @@ const AboutUs = () => {
         </div>
       </section>
 
-      {/* ─── 6. Principios ───────────────────────────────── */}
+      {/* ─── 6. Principios (horizontal) ──────────────────── */}
       <section className="py-16 md:py-24 px-4">
-        <div className="container max-w-6xl">
+        <div className="container max-w-5xl">
           <Reveal>
-            <h2 className="font-serif text-2xl md:text-4xl font-semibold text-foreground text-center mb-4">Nuestros principios</h2>
-            <div className="h-1 w-12 bg-accent rounded-full mx-auto mb-12" />
+            <h2 className="font-serif text-2xl md:text-4xl font-semibold text-foreground text-center mb-14">
+              Nuestros principios
+            </h2>
           </Reveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-8">
             {principles.map((p, i) => (
               <Reveal key={i}>
-                <Card className="group h-full border-border/50 bg-card transition-all duration-300 hover:shadow-md hover:-translate-y-1">
-                  <CardContent className="p-6 space-y-3">
-                    <div className="w-14 h-14 rounded-xl bg-accent/15 flex items-center justify-center transition-colors duration-300 group-hover:bg-accent/25">
-                      <p.icon className="h-7 w-7 text-accent" />
-                    </div>
+                <div className="flex items-start gap-5 group">
+                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0 transition-colors group-hover:bg-accent/20">
+                    <p.icon className="h-6 w-6 text-accent" />
+                  </div>
+                  <div>
                     <h3 className="font-semibold text-foreground text-lg">{p.title}</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{p.description}</p>
-                  </CardContent>
-                </Card>
+                    <p className="text-muted-foreground text-sm leading-relaxed mt-1">{p.description}</p>
+                  </div>
+                </div>
               </Reveal>
             ))}
           </div>
@@ -242,7 +249,7 @@ const AboutUs = () => {
       </section>
 
       {/* ─── 7. CTA Final ────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4" style={{ background: "hsl(var(--section-warm))" }}>
+      <section className="py-16 md:py-24 px-4">
         <div className="container max-w-3xl text-center">
           <Reveal>
             <div className="w-14 h-14 rounded-full bg-accent/15 flex items-center justify-center mx-auto mb-6">
@@ -251,7 +258,6 @@ const AboutUs = () => {
             <h2 className="font-serif text-2xl md:text-4xl font-semibold text-foreground mb-4">
               Nuestro compromiso con Madrid
             </h2>
-            <div className="h-1 w-12 bg-accent rounded-full mx-auto mb-8" />
             <div className="space-y-4 text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10">
               <p>
                 Empezamos hiperlocal por una razón: control absoluto de la experiencia. Conocemos cada producto que sale de nuestro almacén. Controlamos cada limpieza. Gestionamos cada entrega personalmente.
