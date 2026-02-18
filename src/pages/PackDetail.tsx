@@ -68,23 +68,6 @@ const PackDetail = () => {
             })}
           </div>
 
-          {/* CTA */}
-          <div className="text-center mt-14 space-y-3">
-            <p className="text-muted-foreground text-sm">
-              ¿Ya lo tienes claro? Contrata el pack completo y ahorra.
-            </p>
-            <Button
-              size="lg"
-              className="gap-2"
-              onClick={() => {
-                track("cta_click", { location: "pack_detail_bottom", pack: pack.id });
-                navigate("/#precios");
-              }}
-            >
-              Ver planes desde {pack.price}&nbsp;€/mes
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </section>
 

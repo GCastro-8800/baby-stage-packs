@@ -277,7 +277,7 @@ const PackStageProducts = () => {
                         {(opt.image || opt.description) && (
                           <button
                             type="button"
-                            className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                            className="shrink-0 p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                             aria-label={`Ver ${opt.brand} ${opt.model}`}
                             onClick={() => setPreviewProduct(opt)}
                           >
@@ -346,11 +346,11 @@ const PackStageProducts = () => {
                               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{opt.description}</p>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
                             {(opt.image || opt.description) && (
                               <button
                                 type="button"
-                                className="shrink-0 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                                className="shrink-0 p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                                 aria-label={`Ver ${opt.brand} ${opt.model}`}
                                 onClick={(e) => {
                                   e.preventDefault();
