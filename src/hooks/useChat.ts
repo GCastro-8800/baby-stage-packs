@@ -46,6 +46,12 @@ export function useChat() {
 
         if (!resp.ok) {
           const err = await resp.json().catch(() => ({}));
+          if (resp.status === 429) {
+            throw new Error("Demasiadas solicitudes. Intenta de nuevo en unos segundos.");
+          }
+          if (resp.status === 402) {
+            throw new Error("El asistente no está disponible temporalmente.");
+          }
           throw new Error(err.error || "Error al conectar con el asistente");
         }
 
