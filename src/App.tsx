@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -16,7 +16,7 @@ import AppDashboard from "./pages/AppDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import PackDetail from "./pages/PackDetail";
-import PackStageProducts from "./pages/PackStageProducts";
+import PackStageRedirect from "./pages/PackStageRedirect";
 import PackCheckout from "./pages/PackCheckout";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import Settings from "./pages/Settings";
@@ -71,7 +71,7 @@ const App = () => (
             />
             <Route path="/packs/:packId/checkout" element={<PackCheckout />} />
             <Route path="/packs/:packId" element={<PackDetail />} />
-            <Route path="/packs/:packId/etapa/:stageId" element={<PackStageProducts />} />
+            <Route path="/packs/:packId/etapa/:stageId" element={<PackStageRedirect />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/quienes-somos" element={<AboutUs />} />
