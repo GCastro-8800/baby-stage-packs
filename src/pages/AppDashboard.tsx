@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { EmotionalTip } from "@/components/dashboard/EmotionalTip";
 import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
 import { ShipmentCard } from "@/components/dashboard/ShipmentCard";
 import { NoSubscriptionCard } from "@/components/dashboard/NoSubscriptionCard";
+import { WelcomeTutorial } from "@/components/dashboard/WelcomeTutorial";
 import logo from "@/assets/logo-bebloo.png";
 import { openExternal } from "@/lib/openExternal";
 
@@ -23,7 +25,8 @@ export default function AppDashboard() {
   const { children, activeChild, setActiveChild } = useChildren();
   const babyStage = useBabyStage(activeChild);
   const { subscription, shipments, nextShipment, lastDelivered, feedback, submitFeedback } = useSubscription();
-
+  const [tutorialDismissed, setTutorialDismissed] = useState(false);
+  const showTutorial = !!user && !!profile && !(profile as any).has_seen_tutorial && !tutorialDismissed;
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
@@ -35,6 +38,13 @@ export default function AppDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {showTutorial && (
+        <WelcomeTutorial
+          open={showTutorial}
+          userId={user!.id}
+          onComplete={() => setTutorialDismissed(true)}
+        />
+      )}
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container max-w-6xl px-4 md:px-6">

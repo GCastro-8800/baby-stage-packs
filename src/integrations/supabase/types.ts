@@ -176,6 +176,7 @@ export type Database = {
           baby_due_date: string | null
           created_at: string
           full_name: string | null
+          has_seen_tutorial: boolean
           id: string
           is_first_child: boolean | null
           onboarding_completed: boolean | null
@@ -189,6 +190,7 @@ export type Database = {
           baby_due_date?: string | null
           created_at?: string
           full_name?: string | null
+          has_seen_tutorial?: boolean
           id: string
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
@@ -202,6 +204,7 @@ export type Database = {
           baby_due_date?: string | null
           created_at?: string
           full_name?: string | null
+          has_seen_tutorial?: boolean
           id?: string
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
