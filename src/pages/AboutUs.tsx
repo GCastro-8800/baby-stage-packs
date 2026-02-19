@@ -17,7 +17,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 
 import heroImg from "@/assets/about-hero-family.jpg";
 import missionImg from "@/assets/mission-family.jpg";
-import carrierImg from "@/assets/mother-carrier.png";
+import carrierImg from "@/assets/baby-playing.jpg";
 import twinsImg from "@/assets/twins-happy.jpg";
 
 /* ── scroll-reveal ────────────────────────────────────────── */
@@ -174,7 +174,7 @@ const AboutUs = () => {
       </EditorialSection>
 
       {/* ─── 3. La Idea ──────────────────────────────────── */}
-      <EditorialSection number="02" image={carrierImg} imageAlt="Madre con portabebés" title="Lo que descubrimos">
+      <EditorialSection number="02" image={carrierImg} imageAlt="Bebé jugando con juguetes" title="Lo que descubrimos">
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
             La mayor parte de los padres que adquieren su equipo lo vuelven a vender después de algunos meses. Compra apresurada, uso corto, venta con pérdida.
