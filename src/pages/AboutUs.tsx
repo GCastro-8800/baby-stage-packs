@@ -15,7 +15,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
-import heroImg from "@/assets/hero-family-stroller.jpg";
+import heroImg from "@/assets/about-hero-family.jpg";
 import missionImg from "@/assets/mission-family.jpg";
 import carrierImg from "@/assets/mother-carrier.png";
 import twinsImg from "@/assets/twins-happy.jpg";
