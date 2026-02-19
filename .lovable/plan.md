@@ -1,30 +1,27 @@
 
 
-# Proximos pasos sugeridos para Bebloo
+# Cambiar orden de planes en movil
 
-Basado en el estado actual del proyecto y el masterplan, estas son las areas donde mas impacto tendrias ahora:
+## Cambio
 
-## 1. Optimizar la experiencia movil
+Actualmente en movil se muestra primero el plan Comfort (169 euro) porque tiene el flag `highlighted`. El usuario quiere que en movil se muestren en orden natural: Start (79 euro) primero, luego Comfort (169 euro, con la etiqueta "Mas elegido"), y despues Total Peace (199 euro).
 
-La mayoria de padres primerizos navegan desde el movil. Conviene revisar que todas las paginas (landing, packs, checkout, dashboard) se ven y funcionan bien en pantallas pequenas: textos legibles, botones accesibles, imagenes bien escaladas, footer sticky sin tapar contenido.
+## Paso
 
-## 2. Mejorar el flujo de checkout y pagos
+1. **Editar `src/components/PricingSection.tsx`** (linea ~122): cambiar la variable `mobilePlans` para que use el mismo orden que `desktopPlans` (es decir, el orden original del array `plans`: start, comfort, total-peace), eliminando el sort que pone el highlighted primero.
 
-Actualmente existe la integracion con Stripe pero conviene verificar que el flujo completo funciona: seleccionar pack, ir a checkout, pagar, recibir confirmacion y ver la suscripcion activa en el dashboard. Tambien anadir mensajes de error claros si algo falla.
+Cambiar:
+```ts
+const mobilePlans = [...plans].sort((a, b) => {
+  if (a.highlighted) return -1;
+  if (b.highlighted) return 1;
+  return 0;
+});
+```
 
-## 3. Contenido emocional contextual en el dashboard
+Por:
+```ts
+const mobilePlans = plans;
+```
 
-Segun el masterplan (V2), anadir tips emocionales, mensajes de animo y contenido personalizado segun la etapa del bebe en el dashboard. Esto refuerza la propuesta de valor de "acompanamiento" vs simple e-commerce.
-
-## 4. Notificaciones y comunicacion proactiva
-
-Implementar un sistema de notificaciones dentro de la app: aviso de proximo envio, recordatorio de feedback pendiente, tips segun la edad del bebe. Esto mantiene al usuario enganchado sin necesidad de email.
-
-## 5. Feedback de productos
-
-Permitir a los usuarios valorar y comentar los productos que reciben en cada pack. Esto alimenta testimonios reales y ayuda a mejorar la seleccion de productos.
-
----
-
-Cada punto es independiente, asi que puedes elegir el que mas te interese o el que consideres mas urgente para tu lanzamiento.
-
+Esto hara que en movil se vean en orden: Start (79), Comfort (169, "Mas elegido"), Total Peace (199). No se modifica nada en desktop.
