@@ -1,114 +1,91 @@
 
 
-# Simplificacion del flujo de compra + Tutorial de bienvenida
+# Explicaciones de precio + Guia de funcionamiento de packs
 
-## Problema actual
+## Como funciona la logica de precios actualmente
 
-El flujo de compra tiene **4 paginas** con muchas decisiones complicadas:
+El sistema tiene **dos modos de precio** segun si el pack esta completo o no:
 
-1. **Landing** (elige plan) -> **PackDetail** (elige etapa) -> **PackStageProducts** (configura productos por etapa, repitiendo para cada etapa) -> **PackCheckout** (paga)
+- **Pack completo** (todos los productos seleccionados): cada producto usa su `precio_en_pack` (precio con descuento por suscripcion). Este es el precio mas bajo.
+- **Pack incompleto** (el usuario quita algun producto): cada producto restante pasa a usar `precio_individual`, que es **3x** el precio en pack. Esto significa que quitar un producto no solo no reduce el total, sino que puede **aumentarlo** considerablemente.
 
-Problemas especificos:
-- La pagina PackDetail (etapas) es un paso intermedio que no aporta valor al usuario: solo muestra 2-3 botones para ir a otra pagina
-- PackStageProducts obliga al usuario a entender conceptos como "fixed vs choice", "precio en pack vs individual", "pack completo vs incompleto"
-- Los modales de deseleccion con comparativas de precios generan ansiedad
-- El usuario debe navegar entre etapas manualmente, recordando lo que selecciono en cada una
-- Demasiada informacion de precios (3 precios distintos por producto)
+Esta logica existe en `usePackSelections.ts` linea 110: si `isPackComplete` es true usa `precio_en_pack`, si no usa `precio_individual`.
 
-## Solucion: Flujo simplificado en 2 pasos
+**Ejemplo con Comfort:**
+- Pack completo con opciones por defecto: ~169 euros/mes (precio en pack de cada producto sumado)
+- Si quitas 1 producto: los 7 restantes pasan a precio individual (3x), y el total sube a ~400+ euros/mes
 
-### Paso 1: Eliminar la pagina PackDetail (etapas)
+La cuota de servicio (`serviceFee`) se suma siempre al final (solo Total Peace tiene 30 euros/mes; los demas tienen 0).
 
-En vez de mostrar las etapas como paginas separadas, **fusionar todo en una sola pagina con tabs/accordion**. El usuario ve todos los productos de todas las etapas en una sola vista.
+## Que falta: el usuario no entiende por que cambia el precio
 
-### Paso 2: Simplificar la seleccion de productos
+Actualmente no hay ninguna explicacion visible de:
+1. Por que el precio sube al quitar un producto
+2. Que es un "pack" vs productos sueltos
+3. Como funcionan las etapas
+4. Que pasa con el equipamiento cuando el bebe crece
 
-- **Por defecto, todo viene seleccionado** (ya funciona asi)
-- En vez de checkboxes + modales de deseleccion + warnings complejos, mostrar los productos como una **lista limpia con la opcion de cambiar variante** (cuando hay opciones)
-- Eliminar la logica de "pack completo vs incompleto" de la UI visible — el precio siempre sera el del pack
-- Si el usuario quiere quitar algo, simplemente lo desmarca sin modal de confirmacion
-- Simplificar la informacion de precios: mostrar solo el precio del pack por producto
+## Cambios propuestos
 
-### Nuevo flujo
+### 1. Banner explicativo en la pagina de configuracion
 
-```text
-Landing (elige plan)
-    |
-    v
-Pagina unica de configuracion (/packs/:packId)
-    - Tabs horizontales por etapa (Etapa 0, Etapa 1, Etapa 2)
-    - Productos mostrados como cards simples
-    - Seleccion de variante con selector simple (dropdown o radio visual)
-    - Resumen de precio fijo abajo
-    - Boton "Suscribirme" directo
-    |
-    v
-Checkout (/packs/:packId/checkout)
-    - Sin cambios significativos
-```
+Anadir un bloque informativo justo debajo del titulo del pack en `PackDetail.tsx` con:
+- Explicacion corta de como funciona: "Tu pack incluye todo el equipamiento que necesitas. Te lo entregamos por etapas segun crece tu bebe."
+- Nota sobre precios: "Todos los productos incluidos tienen precio de pack. Si quitas algun producto, los restantes pasan a precio individual."
 
-Esto reduce de **4 paginas** a **2 paginas** (configuracion + checkout).
+### 2. Feedback dinamico en el footer al deseleccionar
 
-## Tutorial de bienvenida (post-login)
+Modificar el footer sticky para que cuando el pack NO este completo:
+- Muestre un aviso claro: "Precio individual aplicado — anade todos los productos para obtener el precio de pack"
+- Muestre la comparativa: precio actual vs precio del pack completo
+- Use color naranja para el estado incompleto y verde para el completo
 
-Un tour guiado que aparece **una sola vez** despues de que el usuario crea cuenta o inicia sesion por primera vez. Se controlara con un campo `has_seen_tutorial` en la tabla `profiles`.
+### 3. Tooltip/ayuda en cada producto sobre su precio
 
-### Implementacion del tutorial
+Anadir junto al precio de cada producto un icono de info con tooltip que explique:
+- "Este es tu precio de pack. Si quitas productos, el precio individual seria de X euros/mes"
 
-- Componente `WelcomeTutorial` tipo **modal paso a paso** (3-4 slides)
-- Se muestra en la pagina `/app` (dashboard) cuando `profile.has_seen_tutorial === false`
-- Contenido de los pasos:
-  1. "Bienvenido a Bebloo" - explicacion rapida del servicio
-  2. "Elige tu plan" - como funciona la seleccion de equipamiento
-  3. "Nosotros nos encargamos" - explicacion de entregas y etapas
-  4. "Empieza ahora" - CTA para explorar los packs
-- Al cerrar o completar, se actualiza `has_seen_tutorial = true` en profiles
-- No vuelve a aparecer nunca mas
+### 4. Seccion "Como funciona" colapsable
 
-## Cambios tecnicos detallados
+Un accordion al inicio de la pagina que explique:
+- Que es un pack Bebloo (suscripcion mensual, todo incluido)
+- Como funcionan las etapas (entrega progresiva segun la edad del bebe)
+- Que significa el precio de pack vs individual
+- Que pasa si quiero cambiar algo despues
 
-### Base de datos
-- Anadir columna `has_seen_tutorial boolean DEFAULT false` a la tabla `profiles`
+## Detalles tecnicos
 
-### Archivos a modificar
+### `src/pages/PackDetail.tsx`
 
-**`src/pages/PackDetail.tsx`** — Reescritura completa:
-- Eliminar la lista de cards de etapas
-- Implementar vista unificada con tabs (`Tabs` de Radix) por etapa
-- Dentro de cada tab, mostrar los productos como cards simples
-- Incluir selector de variante (radio visual compacto para categorias tipo "choice")
-- Checkbox simple para incluir/excluir sin modal de confirmacion
-- Footer sticky con precio total y boton "Continuar al pago"
+**Bloque explicativo** (nuevo, despues del titulo):
+- Card con icono de `Info` y texto explicativo sobre el pack
+- Texto breve: como funciona + nota sobre precios
+- Collapsible con mas detalle ("Como funciona Bebloo")
 
-**`src/pages/PackStageProducts.tsx`** — Eliminar o redirigir:
-- Esta pagina ya no es necesaria, su logica se integra en PackDetail
-- Redirigir `/packs/:packId/etapa/:stageId` a `/packs/:packId`
+**Footer sticky** (modificar la seccion existente lineas 161-177):
+- Detectar si el pack esta completo usando `isPackComplete` del hook
+- Si incompleto: mostrar precio actual en naranja + texto "Pack completo desde X euros/mes"
+- Si completo: mostrar precio en verde con checkmark "Pack completo"
 
-**`src/hooks/usePackSelections.ts`** — Simplificar:
-- Mantener la logica de selecciones pero simplificar los calculos de precio
-- Inicializar todas las etapas de golpe en vez de una por una
+**Productos** (modificar `FixedProductRow` y el radio group):
+- Anadir un `Tooltip` de Radix junto al precio que muestre el precio individual como referencia
+- Formato: "Precio pack: X euros | Individual: Y euros"
 
-**`src/components/packs/StickyPriceFooter.tsx`** — Simplificar:
-- Eliminar la logica de "pack completo vs incompleto"
-- Mostrar precio total simple + boton de continuar
+### `src/hooks/usePackSelections.ts`
 
-**`src/components/packs/DeselectionModal.tsx`** — Eliminar:
-- Ya no se necesita modal de confirmacion para deseleccionar
+- Exportar `isPackComplete` como parte del return (ya existe, solo verificar que se usa en PackDetail)
+- Anadir `calculatePackCompletePrice`: calcula el total si todos los productos estuvieran seleccionados (para mostrar la comparativa en el footer)
 
-**`src/components/packs/LowProductWarning.tsx`** — Eliminar:
-- Ya no se necesita el warning de pocos productos
+### Archivos modificados
 
-**`src/App.tsx`** — Actualizar rutas:
-- Eliminar o redirigir la ruta `/packs/:packId/etapa/:stageId`
+1. **`src/pages/PackDetail.tsx`** — Bloque explicativo, footer mejorado, tooltips en precios
+2. **`src/hooks/usePackSelections.ts`** — Verificar que `isPackComplete` y `calculatePackCompletePrice` estan disponibles
+3. **`src/components/packs/StickyPriceFooter.tsx`** — No se usa directamente en el nuevo flujo, pero se puede reutilizar la logica de comparativa
 
-### Tutorial (archivos nuevos)
+### Sin cambios en
 
-**`src/components/dashboard/WelcomeTutorial.tsx`** — Nuevo:
-- Modal con 3-4 pasos tipo carousel
-- Indicador de progreso (dots)
-- Boton "Siguiente" / "Empezar"
-- Al completar, llama a Supabase para actualizar `has_seen_tutorial`
-
-**`src/pages/AppDashboard.tsx`** — Modificar:
-- Importar y renderizar `WelcomeTutorial` condicionalmente cuando `profile.has_seen_tutorial === false`
+- Estructura de datos (`packStages.ts`, `planEquipment.ts`)
+- Logica de precios core (el mecanismo pack vs individual se mantiene)
+- Rutas ni navegacion
+- Tutorial de bienvenida (ya implementado)
 
