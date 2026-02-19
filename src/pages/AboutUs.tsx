@@ -1,14 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import {
-  CheckCircle,
-  Sparkles,
-  Truck,
-  Shield,
-  ArrowRight,
-  Mail,
-  MapPin,
-} from "lucide-react";
+import { CheckCircle, Sparkles, Truck, Shield, ArrowRight, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -55,10 +47,22 @@ const Reveal = ({ children, className = "" }: { children: React.ReactNode; class
 /* ── data ─────────────────────────────────────────────────── */
 
 const principles = [
-  { icon: CheckCircle, title: "Cero Decisiones", description: "Seleccionamos por ti. Marcas premium validadas tras cientos de restauraciones." },
-  { icon: Sparkles, title: "Higiene sin Compromiso", description: "Protocolos de limpieza grado hospitalario con tecnología UV-C." },
+  {
+    icon: CheckCircle,
+    title: "Cero Decisiones",
+    description: "Seleccionamos por ti. Marcas premium validadas tras cientos de restauraciones.",
+  },
+  {
+    icon: Sparkles,
+    title: "Higiene sin Compromiso",
+    description: "Protocolos de limpieza grado hospitalario con tecnología UV-C.",
+  },
   { icon: Truck, title: "Logística Invisible", description: "Entregamos, recogemos, rotamos. Sin cajas en tu portal." },
-  { icon: Shield, title: "Confianza Total", description: "Cobertura completa ante daños accidentales. Sin letra pequeña." },
+  {
+    icon: Shield,
+    title: "Confianza Total",
+    description: "Cobertura completa ante daños accidentales. Sin letra pequeña.",
+  },
 ];
 
 const stats = [
@@ -98,9 +102,7 @@ const EditorialSection = ({ number, image, imageAlt, imageFirst = false, title, 
               {title}
             </h2>
           </div>
-          <div className="mt-6">
-            {children}
-          </div>
+          <div className="mt-6">{children}</div>
         </Reveal>
       </div>
     </div>
@@ -144,23 +146,32 @@ const AboutUs = () => {
               Nuestra historia
             </Badge>
             <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-tight mb-6">
-              4 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
+              6 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
             </h1>
             <p className="text-lg text-white/80 leading-relaxed max-w-xl mx-auto">
-              Hemos acompañado a cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar. Bebloo existe para romper ese ciclo.
+              Hemos acompañado a cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar. Bebloo
+              existe para romper ese ciclo.
             </p>
           </Reveal>
         </div>
       </section>
 
       {/* ─── 2. Somos Bebloo ─────────────────────────────── */}
-      <EditorialSection number="01" image={missionImg} imageAlt="Familia disfrutando juntos" imageFirst title="Somos Bebloo">
+      <EditorialSection
+        number="01"
+        image={missionImg}
+        imageAlt="Familia disfrutando juntos"
+        imageFirst
+        title="Somos Bebloo"
+      >
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
-            Paola lleva desde niña fascinada con el mundo de los bebés. Esa pasión la llevó hace más de 4 años a dedicarse a restaurar y vender carritos de bebé.
+            Paola lleva desde niña fascinada con el mundo de los bebés. Esa pasión la llevó hace más de 4 años a
+            dedicarse a restaurar y vender carritos de bebé.
           </p>
           <p>
-            Cientos de transacciones después, el patrón era innegable: padres que compraban con ilusión, usaban el producto 3-4 meses, vendían con prisa… y meses después volvían a buscar lo mismo.
+            Cientos de transacciones después, el patrón era innegable: padres que compraban con ilusión, usaban el
+            producto 3-4 meses, vendían con prisa… y meses después volvían a buscar lo mismo.
           </p>
           <blockquote className="border-none pl-0 py-6 my-4">
             <p className="text-2xl md:text-3xl font-serif font-medium text-foreground italic text-center">
@@ -168,7 +179,8 @@ const AboutUs = () => {
             </p>
           </blockquote>
           <p>
-            Gabriel, su pareja, llevaba dos años ayudándola con las restauraciones. Juntos transformaron esa experiencia en Bebloo: un servicio diseñado para que ningún padre tenga que pasar por ese ciclo otra vez.
+            Gabriel, su pareja, llevaba dos años ayudándola con las restauraciones. Juntos transformaron esa experiencia
+            en Bebloo: un servicio diseñado para que ningún padre tenga que pasar por ese ciclo otra vez.
           </p>
         </div>
       </EditorialSection>
@@ -177,17 +189,18 @@ const AboutUs = () => {
       <EditorialSection number="02" image={carrierImg} imageAlt="Bebé jugando con juguetes" title="Lo que descubrimos">
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
-            La mayor parte de los padres que adquieren su equipo lo vuelven a vender después de algunos meses. Compra apresurada, uso corto, venta con pérdida.
+            La mayor parte de los padres que adquieren su equipo lo vuelven a vender después de algunos meses. Compra
+            apresurada, uso corto, venta con pérdida.
           </p>
           <p>
-            El problema no es el producto. Es el sistema de compra-acumulación-reventa. Nosotros lo sustituimos por un modelo circular: tú usas, nosotros rotamos.
+            El problema no es el producto. Es el sistema de compra-acumulación-reventa. Nosotros lo sustituimos por un
+            modelo circular: tú usas, nosotros rotamos.
           </p>
           <p>
-            No venimos del mundo startup ni de consultorías. Venimos de Wallapop, de limpiar carritos a mano, de responder mensajes a las 11 de la noche. Conocemos el mercado desde las trincheras.
+            No venimos del mundo startup ni de consultorías. Venimos de Wallapop, de limpiar carritos a mano, de
+            responder mensajes a las 11 de la noche. Conocemos el mercado desde las trincheras.
           </p>
-          <p className="text-xl font-serif font-semibold text-foreground">
-            Esa experiencia es nuestra ventaja.
-          </p>
+          <p className="text-xl font-serif font-semibold text-foreground">Esa experiencia es nuestra ventaja.</p>
         </div>
       </EditorialSection>
 
@@ -195,13 +208,16 @@ const AboutUs = () => {
       <EditorialSection number="03" image={twinsImg} imageAlt="Gemelos felices" imageFirst title="Nuestra visión">
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
-            Creemos que ser padre primerizo no debería venir con una lista interminable de decisiones de compra. Queremos que cada familia reciba exactamente lo que necesita, cuando lo necesita.
+            Creemos que ser padre primerizo no debería venir con una lista interminable de decisiones de compra.
+            Queremos que cada familia reciba exactamente lo que necesita, cuando lo necesita.
           </p>
           <p>
-            Seleccionamos marcas premium validadas tras cientos de restauraciones. Aplicamos protocolos de higiene de grado hospitalario. Nos encargamos de toda la logística para que tú solo disfrutes.
+            Seleccionamos marcas premium validadas tras cientos de restauraciones. Aplicamos protocolos de higiene de
+            grado hospitalario. Nos encargamos de toda la logística para que tú solo disfrutes.
           </p>
           <p>
-            Empezamos en Madrid por una razón: control absoluto de la experiencia. Conocemos cada producto que sale de nuestro almacén.
+            Empezamos en Madrid por una razón: control absoluto de la experiencia. Conocemos cada producto que sale de
+            nuestro almacén.
           </p>
         </div>
       </EditorialSection>
@@ -260,10 +276,12 @@ const AboutUs = () => {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10">
               <p>
-                Empezamos hiperlocal por una razón: control absoluto de la experiencia. Conocemos cada producto que sale de nuestro almacén. Controlamos cada limpieza. Gestionamos cada entrega personalmente.
+                Empezamos hiperlocal por una razón: control absoluto de la experiencia. Conocemos cada producto que sale
+                de nuestro almacén. Controlamos cada limpieza. Gestionamos cada entrega personalmente.
               </p>
               <p>
-                No somos una plataforma. Somos un equipo dedicado exclusivamente a que tu primer año como padre sea más simple.
+                No somos una plataforma. Somos un equipo dedicado exclusivamente a que tu primer año como padre sea más
+                simple.
               </p>
             </div>
 
