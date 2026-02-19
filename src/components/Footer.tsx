@@ -4,7 +4,7 @@ import logo from "@/assets/logo-bebloo.png";
 
 const Footer = () => {
   return (
-    <footer className="py-12 px-4 md:py-16 md:px-6 bg-foreground">
+    <footer className="py-12 pb-24 px-4 md:py-16 md:pb-16 md:px-6 bg-foreground">
       <div className="container max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10">
           {/* Brand */}
