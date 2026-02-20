@@ -146,11 +146,10 @@ const AboutUs = () => {
               Nuestra historia
             </Badge>
             <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-tight mb-6">
-              6 años restaurando carritos nos enseñaron lo que los padres realmente necesitan
+              Una inquietud real por el desperdicio nos enseñó lo que los padres realmente necesitan
             </h1>
             <p className="text-lg text-white/80 leading-relaxed max-w-xl mx-auto">
-              Hemos acompañado a cientos de familias comprando, vendiendo, arrepintiéndose y volviendo a comprar. Bebloo
-              existe para romper ese ciclo.
+              Vimos cómo productos de calidad se usaban unos meses y se descartaban. Bebloo existe para romper ese ciclo.
             </p>
           </Reveal>
         </div>
@@ -166,21 +165,24 @@ const AboutUs = () => {
       >
         <div className="space-y-4 text-muted-foreground leading-relaxed">
           <p>
-            Paola lleva desde niña fascinada con el mundo de los bebés. Esa pasión la llevó hace más de 4 años a
-            dedicarse a restaurar y vender carritos de bebé.
+            Paola lleva desde niña fascinada con el mundo de los bebés. Pero lo que realmente la movía era una
+            inquietud: la corta vida útil que se les da a los productos infantiles y el impacto medioambiental que eso
+            genera. Esa convicción la llevó hace más de 4 años a dedicarse a alargar la vida útil de carritos y
+            equipamiento de bebé, restaurándolos para que tuvieran una segunda oportunidad.
           </p>
           <p>
-            Cientos de transacciones después, el patrón era innegable: padres que compraban con ilusión, usaban el
+            Cientos de restauraciones después, el patrón era innegable: padres que compraban con ilusión, usaban el
             producto 3-4 meses, vendían con prisa… y meses después volvían a buscar lo mismo.
           </p>
           <blockquote className="border-none pl-0 py-6 my-4">
             <p className="text-2xl md:text-3xl font-serif font-medium text-foreground italic text-center">
-              "Un ciclo absurdo, costoso y agotador."
+              "Un ciclo absurdo, costoso y con un impacto innecesario."
             </p>
           </blockquote>
           <p>
-            Gabriel, su pareja, llevaba dos años ayudándola con las restauraciones. Juntos transformaron esa experiencia
-            en Bebloo: un servicio diseñado para que ningún padre tenga que pasar por ese ciclo otra vez.
+            Gabriel, su pareja, compartía esa misma inquietud y llevaba dos años ayudándola. Juntos transformaron esa
+            convicción en Bebloo: un servicio diseñado para que ningún producto se desperdicie y ningún padre tenga que
+            pasar por ese ciclo otra vez.
           </p>
         </div>
       </EditorialSection>
@@ -197,8 +199,8 @@ const AboutUs = () => {
             modelo circular: tú usas, nosotros rotamos.
           </p>
           <p>
-            No venimos del mundo startup ni de consultorías. Venimos de Wallapop, de limpiar carritos a mano, de
-            responder mensajes a las 11 de la noche. Conocemos el mercado desde las trincheras.
+            No venimos del mundo startup ni de consultorías. Venimos de restaurar productos a mano, de darles una
+            segunda vida cuando otros los descartaban. Conocemos el mercado desde las trincheras.
           </p>
           <p className="text-xl font-serif font-semibold text-foreground">Esa experiencia es nuestra ventaja.</p>
         </div>
