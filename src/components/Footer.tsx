@@ -9,7 +9,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <h3 className="text-2xl text-background mb-4 tracking-tight font-bold">bebloo</h3>
+            <h3 className="text-2xl text-background mb-4 tracking-tight font-bold">
+            </h3>
             <p className="text-background/70 text-sm leading-relaxed max-w-xs">
               Suscripción de equipamiento premium para bebés. Menos cajas, más calma.
             </p>
@@ -47,9 +48,8 @@ const Footer = () => {
             <h4 className="font-semibold text-background mb-4">Contacto</h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <a
-                  href="mailto:info@bebloo.es"
-                  className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
+                <a href="mailto:info@bebloo.es"
+                className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
 
                   <Mail className="h-4 w-4" />
                   info@bebloo.es
