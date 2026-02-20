@@ -1,59 +1,31 @@
 
 
-# Contenido emocional en el dashboard
+# Corregir dos problemas: logo en el footer y tutorial de bienvenida repetido
 
-## Resumen
+## Problema 1: Tutorial de bienvenida aparece siempre
 
-Actualmente el dashboard tiene un unico componente emocional (`EmotionalTip`) que muestra una frase segun la etapa y si es primer hijo o no. El objetivo es enriquecer la experiencia con mas contenido contextual y personalizado.
+La causa raiz es que el tipo `Profile` en `src/types/baby.ts` no incluye el campo `has_seen_tutorial`. Cuando se carga el perfil desde la base de datos, se castea a este tipo y el campo se pierde. Por eso la condicion `!(profile as any).has_seen_tutorial` siempre es `true` (porque el valor es `undefined`), y el tutorial se muestra cada vez.
 
-## Cambios propuestos
+### Solucion
 
-### 1. Nuevo componente: `StageMilestones` (hitos de la etapa)
+1. **Editar `src/types/baby.ts`**: Agregar `has_seen_tutorial: boolean;` al interface `Profile`.
+2. **Editar `src/pages/AppDashboard.tsx`**: Quitar el `as any` del acceso a `profile.has_seen_tutorial` ya que el tipo ahora lo incluira.
+3. **Editar `src/components/dashboard/WelcomeTutorial.tsx`**: Quitar el `as any` del update y llamar a `refreshProfile()` despues de marcar el tutorial como visto, para que el estado local se actualice correctamente.
 
-Un componente que muestra 2-3 hitos o cosas que esperar en la etapa actual del bebe. Por ejemplo, en "3-6m": "Empieza a agarrar objetos", "Primeras risas a carcajadas", "Reconoce tu voz desde lejos".
+## Problema 2: Logo en el pie de pagina se ve mal
 
-- Archivo: `src/components/dashboard/StageMilestones.tsx`
-- Icono: estrella o brujula
-- Estilo: tarjeta con lista visual de hitos
-- Datos estaticos por etapa (no requiere base de datos)
+En la captura se ve que el logo aparece con un icono generico (gota + texto "Bebloo") en lugar del logo completo. El filtro CSS `brightness-0 invert` puede no estar funcionando bien con el PNG del logo sobre el fondo oscuro.
 
-### 2. Nuevo componente: `WeeklyRecommendation` (recomendacion semanal)
+### Solucion
 
-Una tarjeta que sugiere una actividad o consejo practico que rota semanalmente (basado en el numero de semana del anio). Ejemplo: "Esta semana prueba el contacto piel con piel durante 15 minutos al dia."
-
-- Archivo: `src/components/dashboard/WeeklyRecommendation.tsx`
-- Icono: bombilla (Lightbulb)
-- Rotacion automatica por semana sin backend
-- Contenido diferente por etapa
-
-### 3. Mejorar `EmotionalTip` existente
-
-Ampliar de 1 frase a un pool de 3 frases por etapa/perfil, rotando por dia de la semana para que no sea siempre la misma.
-
-### 4. Saludo contextual en `WelcomeHeader`
-
-Cambiar el saludo fijo "Todo esta bajo control" por uno contextual segun la hora del dia y la etapa:
-- Maniana: "Buenos dias, [nombre]. Un nuevo dia con tu pequeno/a."
-- Tarde: "Buenas tardes. Esperamos que el dia este yendo bien."
-- Noche: "Buenas noches. Descansa, lo estas haciendo genial."
-
-### 5. Integrar en `AppDashboard.tsx`
-
-Anadir los nuevos componentes entre las tarjetas existentes:
-- `StageMilestones` despues de la grid de BabyAgeCard/StageCard
-- `WeeklyRecommendation` despues de EmotionalTip
+1. **Editar `src/components/Footer.tsx`**: Ajustar las clases del logo, quitando `brightness-0` y dejando solo `invert` con opacidad, o bien usando `filter: brightness(0) invert(1)` de forma mas explicita. Si el logo original es oscuro sobre fondo claro, `brightness-0 invert` deberia convertirlo a blanco, pero puede que el PNG tenga transparencia o colores que lo distorsionan. Se probara con `invert brightness-200` o simplemente con opacidad para que se integre mejor.
 
 ## Seccion tecnica
 
-### Archivos a crear
-- `src/components/dashboard/StageMilestones.tsx`
-- `src/components/dashboard/WeeklyRecommendation.tsx`
-
 ### Archivos a modificar
-- `src/components/dashboard/EmotionalTip.tsx` - ampliar pool de frases, rotar por dia
-- `src/components/dashboard/WelcomeHeader.tsx` - saludo contextual por hora/etapa
-- `src/pages/AppDashboard.tsx` - importar y colocar nuevos componentes
 
-### Sin cambios en base de datos
-Todo el contenido es estatico y se calcula en el frontend basandose en la etapa del bebe y la fecha actual.
+- `src/types/baby.ts` (linea 26): agregar `has_seen_tutorial: boolean;`
+- `src/pages/AppDashboard.tsx` (linea 31): cambiar `(profile as any).has_seen_tutorial` por `profile.has_seen_tutorial`
+- `src/components/dashboard/WelcomeTutorial.tsx` (linea 45): quitar `as any` del update, y pasar `refreshProfile` como prop para refrescar el perfil tras guardar
+- `src/components/Footer.tsx` (linea 12): ajustar las clases CSS del logo para que se vea limpio sobre fondo oscuro
 
