@@ -24,4 +24,5 @@ export interface Profile {
   onboarding_completed: boolean | null;
   is_first_child: boolean | null;
   parent_situation: string | null;
+  has_seen_tutorial: boolean;
 }
