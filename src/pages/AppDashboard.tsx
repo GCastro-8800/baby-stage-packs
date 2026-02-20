@@ -12,6 +12,8 @@ import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
 import { BabyAgeCard } from "@/components/dashboard/BabyAgeCard";
 import { StageCard } from "@/components/dashboard/StageCard";
 import { EmotionalTip } from "@/components/dashboard/EmotionalTip";
+import { StageMilestones } from "@/components/dashboard/StageMilestones";
+import { WeeklyRecommendation } from "@/components/dashboard/WeeklyRecommendation";
 import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
 import { ShipmentCard } from "@/components/dashboard/ShipmentCard";
 import { NoSubscriptionCard } from "@/components/dashboard/NoSubscriptionCard";
@@ -116,11 +118,17 @@ export default function AppDashboard() {
             />
           </div>
 
+          {/* Stage milestones */}
+          <StageMilestones stage={babyStage.stage} />
+
           {/* Emotional tip */}
           <EmotionalTip
             stage={babyStage.stage}
             isFirstChild={children.length <= 1}
           />
+
+          {/* Weekly recommendation */}
+          <WeeklyRecommendation stage={babyStage.stage} />
 
           {/* Subscription section */}
           {subscription ? (

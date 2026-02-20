@@ -21,6 +21,20 @@ export function WelcomeHeader({ fullName, email, avatarUrl }: WelcomeHeaderProps
 
   const firstName = fullName?.split(" ")[0] || "bienvenido/a";
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return `Buenos días, ${firstName}`;
+    if (hour < 20) return `Buenas tardes, ${firstName}`;
+    return `Buenas noches, ${firstName}`;
+  };
+
+  const getSubtitle = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Un nuevo día juntos. Aquí tienes tu resumen.";
+    if (hour < 20) return "Esperamos que el día esté yendo bien.";
+    return "Descansa, lo estás haciendo genial.";
+  };
+
   return (
     <div className="flex items-center gap-4">
       <Avatar className="h-16 w-16 border-2 border-primary/20">
@@ -31,10 +45,10 @@ export function WelcomeHeader({ fullName, email, avatarUrl }: WelcomeHeaderProps
       </Avatar>
       <div>
         <h1 className="text-2xl md:text-3xl font-display font-medium text-foreground">
-          Hola, {firstName}
+          {getGreeting()}
         </h1>
         <p className="text-muted-foreground">
-          Todo está bajo control. Aquí tienes tu resumen.
+          {getSubtitle()}
         </p>
       </div>
     </div>
