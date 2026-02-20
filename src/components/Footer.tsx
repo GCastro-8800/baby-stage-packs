@@ -1,6 +1,6 @@
 import { Instagram, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo-bebloo.png";
+
 
 const Footer = () => {
   return (
@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <img src={logo} alt="bebloo" className="h-10 mb-4 brightness-0 invert" />
+            <h3 className="text-2xl text-background mb-4 tracking-tight font-bold">bebloo</h3>
             <p className="text-background/70 text-sm leading-relaxed max-w-xs">
               Suscripción de equipamiento premium para bebés. Menos cajas, más calma.
             </p>
