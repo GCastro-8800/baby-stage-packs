@@ -42,7 +42,7 @@ export function WelcomeTutorial({ open, userId, onComplete }: WelcomeTutorialPro
   const handleFinish = async () => {
     await supabase
       .from("profiles")
-      .update({ has_seen_tutorial: true } as any)
+      .update({ has_seen_tutorial: true })
       .eq("id", userId);
     onComplete();
   };

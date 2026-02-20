@@ -23,12 +23,12 @@ import { openExternal } from "@/lib/openExternal";
 
 export default function AppDashboard() {
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, refreshProfile } = useAuth();
   const { children, activeChild, setActiveChild } = useChildren();
   const babyStage = useBabyStage(activeChild);
   const { subscription, shipments, nextShipment, lastDelivered, feedback, submitFeedback } = useSubscription();
   const [tutorialDismissed, setTutorialDismissed] = useState(false);
-  const showTutorial = !!user && !!profile && !(profile as any).has_seen_tutorial && !tutorialDismissed;
+  const showTutorial = !!user && !!profile && !profile.has_seen_tutorial && !tutorialDismissed;
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
@@ -44,7 +44,7 @@ export default function AppDashboard() {
         <WelcomeTutorial
           open={showTutorial}
           userId={user!.id}
-          onComplete={() => setTutorialDismissed(true)}
+          onComplete={() => { setTutorialDismissed(true); refreshProfile(); }}
         />
       )}
       {/* Header */}
