@@ -1,5 +1,4 @@
-import { DURATION_OPTIONS, type DurationOption } from "@/lib/constants";
-import { Badge } from "@/components/ui/badge";
+import { DURATION_OPTIONS } from "@/lib/constants";
 
 interface DurationSelectorProps {
   selected: number;
@@ -15,24 +14,21 @@ const DurationSelector = ({ selected, onChange }: DurationSelectorProps) => {
           <button
             key={opt.months}
             onClick={() => onChange(opt.months)}
-            className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            className={`flex flex-col items-center px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
               isActive
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            {opt.label}
+            <span>{opt.label}</span>
             {opt.discount > 0 && (
-              <Badge
-                variant="secondary"
-                className={`absolute -top-2 -right-2 text-[10px] px-1 py-0 leading-tight ${
-                  isActive
-                    ? "bg-accent text-accent-foreground"
-                    : "bg-primary/10 text-primary"
+              <span
+                className={`text-[10px] font-semibold leading-tight ${
+                  isActive ? "text-primary-foreground/80" : "text-primary"
                 }`}
               >
                 -{opt.discount * 100}%
-              </Badge>
+              </span>
             )}
           </button>
         );
