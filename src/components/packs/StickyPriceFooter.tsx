@@ -18,6 +18,8 @@ interface StickyPriceFooterProps {
   totalCount: number;
   products: ProductBreakdown[];
   serviceFee?: number;
+  durationMonths?: number;
+  durationDiscount?: number;
   onContinue: () => void;
 }
 
@@ -29,10 +31,14 @@ const StickyPriceFooter = ({
   totalCount,
   products,
   serviceFee = 0,
+  durationMonths = 1,
+  durationDiscount = 0,
   onContinue,
 }: StickyPriceFooterProps) => {
   const [open, setOpen] = useState(false);
   const diff = currentPrice - packPrice;
+  const totalPeriod = currentPrice * durationMonths;
+  const showPeriod = durationMonths > 1;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
@@ -47,14 +53,15 @@ const StickyPriceFooter = ({
                   </p>
                   <p className="text-xs font-medium text-primary flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
-                    {totalCount} productos incluidos
+                    {totalCount} productos{showPeriod && ` · ${durationMonths} meses (€${Math.round(totalPeriod)} total)`}
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="font-bold text-lg text-foreground">
-                    {selectedCount} producto{selectedCount !== 1 ? "s" : ""}: €{currentPrice.toFixed(0)}/mes
-                  </p>
+                <p className="font-bold text-lg text-foreground">
+                  {selectedCount} producto{selectedCount !== 1 ? "s" : ""}: €{currentPrice.toFixed(0)}/mes
+                  {showPeriod && <span className="text-sm font-normal text-muted-foreground"> · €{Math.round(totalPeriod)} total</span>}
+                </p>
                   {diff > 0 ? (
                     <p className="text-xs font-medium text-orange-500 flex items-center gap-1">
                       <AlertTriangle className="h-3.5 w-3.5" />

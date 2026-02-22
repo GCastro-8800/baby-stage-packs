@@ -90,7 +90,7 @@ export function usePackSelections(packId: string) {
   );
 
   const calculateTotalPrice = useCallback(
-    (pack: PackConfig): number => {
+    (pack: PackConfig, discountFactor = 0): number => {
       const complete = isPackComplete(pack);
       let total = 0;
       pack.stages.forEach((stage) => {
@@ -101,16 +101,15 @@ export function usePackSelections(packId: string) {
             ? isFixed
               ? sel.selectedFixed.has(cat.category)
               : sel.selectedChoice.has(cat.category)
-            : true; // Not visited = selected by default
+            : true;
           if (!isSelected) return;
           const idx = !isFixed && sel ? sel.variantChoices[cat.category] || 0 : 0;
           const opt = cat.options[idx];
           if (!opt) return;
-          // Pack complete → use pack price; incomplete → individual price
           total += complete ? (opt.precio_en_pack || 0) : (opt.precio_individual || 0);
         });
       });
-      return total + pack.serviceFee;
+      return (total + pack.serviceFee) * (1 - discountFactor);
     },
     [packId, isPackComplete]
   );
@@ -191,7 +190,7 @@ export function usePackSelections(packId: string) {
   );
 
   const calculatePackCompletePrice = useCallback(
-    (pack: PackConfig): number => {
+    (pack: PackConfig, discountFactor = 0): number => {
       let total = 0;
       pack.stages.forEach((stage) => {
         const sel = store[packId]?.[stage.id];
@@ -204,7 +203,7 @@ export function usePackSelections(packId: string) {
           }
         });
       });
-      return total + pack.serviceFee;
+      return (total + pack.serviceFee) * (1 - discountFactor);
     },
     [packId]
   );

@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     const userEmail = claimsData.claims.email as string;
 
     // Parse body
-    const { planId, selectedItems } = await req.json();
+    const { planId, selectedItems, durationMonths } = await req.json();
 
     if (!planId || !PRICE_MAP[planId]) {
       return new Response(
@@ -132,6 +132,7 @@ Deno.serve(async (req) => {
       "metadata[plan_id]": planId,
       "metadata[user_id]": userId,
       "metadata[selected_items]": JSON.stringify(selectedItems || []),
+      "metadata[duration_months]": String(durationMonths || 1),
     });
 
     const sessionRes = await fetch(

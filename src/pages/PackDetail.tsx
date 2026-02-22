@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate, useLocation } from "react-router-dom";
 import { ArrowRight, Eye, CheckCircle, AlertTriangle, Info, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -12,6 +12,8 @@ import Footer from "@/components/Footer";
 import PackBreadcrumbs from "@/components/packs/PackBreadcrumbs";
 import StickyPriceFooter from "@/components/packs/StickyPriceFooter";
 import ProductPreviewDialog from "@/components/packs/ProductPreviewDialog";
+import DurationSelector from "@/components/DurationSelector";
+import { DURATION_OPTIONS } from "@/lib/constants";
 import { getPackConfig } from "@/data/packStages";
 import type { PackStage } from "@/data/packStages";
 import type { EquipmentOption } from "@/data/planEquipment";
@@ -22,8 +24,14 @@ import { toast } from "sonner";
 const PackDetail = () => {
   const { packId } = useParams<{ packId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { track } = useAnalytics();
   const pack = packId ? getPackConfig(packId) : undefined;
+
+  // Duration state — may come from PricingSection navigation
+  const incomingDuration = (location.state as any)?.durationMonths;
+  const [selectedMonths, setSelectedMonths] = useState<number>(incomingDuration || 1);
+  const durationOption = DURATION_OPTIONS.find((d) => d.months === selectedMonths) || DURATION_OPTIONS[0];
 
   const {
     initStageIfNeeded,
@@ -52,8 +60,8 @@ const PackDetail = () => {
     }
   }, [pack, initStageIfNeeded, activeTab]);
 
-  const currentPrice = pack ? calculateTotalPrice(pack) : 0;
-  const packPrice = pack ? calculatePackCompletePrice(pack) : 0;
+  const currentPrice = pack ? calculateTotalPrice(pack, durationOption.discount) : 0;
+  const packPrice = pack ? calculatePackCompletePrice(pack, durationOption.discount) : 0;
   const complete = pack ? isPackComplete(pack) : true;
   const globalCounts = pack ? getGlobalCounts(pack) : { selectedCount: 0, totalCount: 0 };
   const productBreakdown = pack ? getGlobalProductBreakdown(pack) : [];
@@ -116,9 +124,12 @@ const PackDetail = () => {
       pack: pack.id,
       price: currentPrice,
       selected_count: globalCounts.selectedCount,
+      duration_months: selectedMonths,
     });
     const selections = getSelectedItemsMap(pack);
-    navigate(`/packs/${pack.id}/checkout`, { state: { selections } });
+    navigate(`/packs/${pack.id}/checkout`, {
+      state: { selections, durationMonths: selectedMonths },
+    });
   };
 
   if (!pack) return <Navigate to="/#precios" replace />;
@@ -139,6 +150,9 @@ const PackDetail = () => {
               <p className="text-muted-foreground text-sm max-w-lg mx-auto">
                 {pack.tagline}
               </p>
+              <div className="mt-4">
+                <DurationSelector selected={selectedMonths} onChange={setSelectedMonths} />
+              </div>
             </div>
 
             {/* Info banner */}
@@ -218,6 +232,8 @@ const PackDetail = () => {
           totalCount={globalCounts.totalCount}
           products={productBreakdown}
           serviceFee={pack.serviceFee}
+          durationMonths={selectedMonths}
+          durationDiscount={durationOption.discount}
           onContinue={handleContinue}
         />
 
