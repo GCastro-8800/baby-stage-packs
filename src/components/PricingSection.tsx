@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Check, X, Info, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import DurationSelector from "@/components/DurationSelector";
+import { DURATION_OPTIONS } from "@/lib/constants";
 import {
   Tooltip,
   TooltipContent,
@@ -150,23 +153,35 @@ const FeatureRow = ({ item, icon }: { item: FeatureItem; icon: "check" | "x" }) 
 const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   const { track } = useAnalytics();
   const navigate = useNavigate();
+  const [selectedMonths, setSelectedMonths] = useState(1);
+  const durationOption = DURATION_OPTIONS.find((d) => d.months === selectedMonths) || DURATION_OPTIONS[0];
 
   const handleSelectPlan = (plan: Plan) => {
-    track("pricing_click", { plan: plan.name });
-    navigate(`/packs/${plan.id}`);
+    track("pricing_click", { plan: plan.name, duration: selectedMonths });
+    navigate(`/packs/${plan.id}`, { state: { durationMonths: selectedMonths } });
   };
 
-  const renderCardContent = (plan: Plan) => (
+  const renderCardContent = (plan: Plan) => {
+    const discountedPrice = Math.round(plan.price * (1 - durationOption.discount));
+    return (
     <>
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
         <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
       </div>
       <div className="mb-1">
-        <span className="text-3xl md:text-4xl font-serif font-bold text-foreground">€{plan.price}</span>
+        <span className="text-3xl md:text-4xl font-serif font-bold text-foreground">€{discountedPrice}</span>
         <span className="text-muted-foreground">/mes</span>
       </div>
-      <p className="text-xs text-muted-foreground mb-5">{plan.duration}</p>
+      {durationOption.discount > 0 ? (
+        <p className="text-xs text-muted-foreground mb-5">
+          <span className="line-through">€{plan.price}/mes</span>
+          {" · "}
+          <span className="text-primary font-medium">durante {durationOption.months} meses</span>
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground mb-5">{plan.duration}</p>
+      )}
       <div className="mb-4">
         <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Equipamiento</h4>
         <ul className="space-y-2">
@@ -213,7 +228,8 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
         Seleccionar {plan.name.replace("BEBLOO ", "")}
       </Button>
     </>
-  );
+    );
+  };
 
   const renderCard = (plan: Plan, extraClass?: string) => (
     <div
@@ -244,9 +260,10 @@ const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4">
               Elige lo que necesitas
             </h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-6">
               Todos los planes incluyen equipamiento para el primer año. Renueva o cancela cuando quieras.
             </p>
+            <DurationSelector selected={selectedMonths} onChange={setSelectedMonths} />
           </div>
 
           {/* Mobile: Comfort first */}

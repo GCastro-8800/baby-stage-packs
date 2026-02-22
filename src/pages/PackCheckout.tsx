@@ -7,12 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { openExternal } from "@/lib/openExternal";
 import { getPlanById } from "@/data/planEquipment";
+import { DURATION_OPTIONS } from "@/lib/constants";
 
 const WHATSAPP_NUMBER = "34638706467";
 const CALENDLY_URL = "https://calendly.com/martincabanaspaola/30min";
 
 interface LocationState {
   selections?: Record<string, boolean>;
+  durationMonths?: number;
 }
 
 const PackCheckout = () => {
@@ -28,8 +30,11 @@ const PackCheckout = () => {
     .filter(([, v]) => v)
     .map(([k]) => k);
   const productNames = selectedItems.map((k) => k.split("::")[1]);
+  const durationMonths = locationState?.durationMonths || 1;
+  const durationOption = DURATION_OPTIONS.find((d) => d.months === durationMonths) || DURATION_OPTIONS[0];
 
   const plan = getPlanById(packId || "");
+  const discountedPrice = Math.round((plan?.price || 0) * (1 - durationOption.discount));
 
   if (!plan) {
     return (
@@ -48,7 +53,7 @@ const PackCheckout = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("stripe-checkout", {
-        body: { planId: plan.id, selectedItems },
+        body: { planId: plan.id, selectedItems, durationMonths },
       });
       if (error) throw error;
       if (data?.url) {
@@ -86,7 +91,7 @@ const PackCheckout = () => {
           </Button>
           <span className="font-serif font-semibold text-foreground">Suscripción</span>
           <span className="ml-auto text-sm text-muted-foreground">
-            {plan.name} · €{plan.price}/mes
+            {plan.name} · €{discountedPrice}/mes{durationMonths > 1 && ` × ${durationMonths} meses`}
           </span>
         </div>
       </div>
@@ -96,17 +101,24 @@ const PackCheckout = () => {
         <div className="text-center max-w-lg mx-auto space-y-8">
           <div className="space-y-2">
             <h1 className="text-2xl md:text-3xl font-serif text-foreground">Confirma tu suscripción</h1>
-            <p className="text-muted-foreground text-sm">Acceso inmediato a tu equipamiento. Sin permanencia.</p>
+            <p className="text-muted-foreground text-sm">
+              Acceso inmediato a tu equipamiento.{durationMonths > 1 ? ` Compromiso de ${durationMonths} meses.` : " Sin permanencia."}
+            </p>
           </div>
 
           <div className="rounded-xl border-2 border-primary/20 bg-card p-6 space-y-4">
             <div className="flex items-baseline justify-between">
               <span className="font-serif font-semibold text-foreground text-lg">{plan.name}</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-serif font-bold text-foreground">€{plan.price}</span>
+                <span className="text-3xl font-serif font-bold text-foreground">€{discountedPrice}</span>
                 <span className="text-muted-foreground text-sm">/mes</span>
               </div>
             </div>
+            {durationOption.discount > 0 && (
+              <p className="text-xs text-primary font-medium">
+                -{durationOption.discount * 100}% descuento · {durationMonths} meses · €{discountedPrice * durationMonths} total
+              </p>
+            )}
 
             {productNames.length > 0 && (
               <div className="text-left space-y-1 border-t border-border pt-3">
@@ -132,7 +144,7 @@ const PackCheckout = () => {
             {isLoading ? (
               <><Loader2 className="h-5 w-5 animate-spin mr-2" />Conectando con el pago...</>
             ) : (
-              <><CreditCard className="h-5 w-5 mr-2" />Suscribirme · €{plan.price}/mes</>
+              <><CreditCard className="h-5 w-5 mr-2" />Suscribirme · €{discountedPrice}/mes</>
             )}
           </Button>
 
