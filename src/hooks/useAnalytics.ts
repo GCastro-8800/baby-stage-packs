@@ -16,7 +16,11 @@ type EventType =
   | "pack_stage_next"
   | "product_deselect_attempt"
   | "product_deselect_confirmed"
-  | "product_deselect_cancelled";
+  | "product_deselect_cancelled"
+  | "recommendation_view"
+  | "product_swap"
+  | "product_add"
+  | "product_remove";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;
