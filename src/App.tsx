@@ -15,9 +15,7 @@ import Onboarding from "./pages/Onboarding";
 import AppDashboard from "./pages/AppDashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import PackDetail from "./pages/PackDetail";
-import PackStageRedirect from "./pages/PackStageRedirect";
-import PackCheckout from "./pages/PackCheckout";
+import Catalog from "./pages/Catalog";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import Settings from "./pages/Settings";
 import AboutUs from "./pages/AboutUs";
@@ -71,14 +69,15 @@ const App = () => (
                 </AdminRoute>
               }
             />
-            <Route path="/packs/:packId/checkout" element={<PackCheckout />} />
-            <Route path="/packs/:packId" element={<PackDetail />} />
-            <Route path="/packs/:packId/etapa/:stageId" element={<PackStageRedirect />} />
+            <Route path="/packs/:packId/checkout" element={<Navigate to="/configurador" replace />} />
+            <Route path="/packs/:packId" element={<Navigate to="/configurador" replace />} />
+            <Route path="/packs/:packId/etapa/:stageId" element={<Navigate to="/configurador" replace />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/quienes-somos" element={<AboutUs />} />
             <Route path="/condiciones" element={<TermsOfService />} />
             <Route path="/configurador" element={<Configurator />} />
+            <Route path="/catalogo" element={<Catalog />} />
             <Route path="/mi-seleccion" element={<Selection />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

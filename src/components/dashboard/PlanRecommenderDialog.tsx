@@ -253,10 +253,10 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                       variant="outline"
                       onClick={() => {
                         handleOpenChange(false);
-                        navigate(`/packs/${planData.slug}`);
+                        navigate("/configurador");
                       }}
                     >
-                      Ver detalles de {planData.name}
+                      Descubre qué necesitas
                     </Button>
                   </>
                 ) : (
@@ -264,10 +264,10 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                     <Button
                       onClick={() => {
                         handleOpenChange(false);
-                        navigate(`/packs/${planData.slug}`);
+                        navigate("/configurador");
                       }}
                     >
-                      Ver detalles de {planData.name}
+                      Descubre qué necesitas
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                     <Button variant="outline" onClick={() => openExternal(buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail))}>
@@ -276,16 +276,6 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
                     </Button>
                   </>
                 )}
-
-                <button
-                  className="text-xs text-muted-foreground underline mt-2 hover:text-foreground transition-colors"
-                  onClick={() => {
-                    handleOpenChange(false);
-                    navigate("/#precios");
-                  }}
-                >
-                  ¿No estás segura? Ver todos los planes
-                </button>
               </div>
             </>
           )

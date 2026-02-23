@@ -4,8 +4,8 @@ const steps = [
   {
     number: 1,
     icon: Package,
-    title: "Elige tu pack",
-    description: "Selecciona el plan que mejor se adapta a tu familia y etapa del bebé.",
+    title: "Cuéntanos tu situación",
+    description: "Responde 4 preguntas rápidas y te recomendamos lo que necesitas según tu etapa y estilo de vida.",
   },
   {
     number: 2,
@@ -17,7 +17,7 @@ const steps = [
     number: 3,
     icon: Truck,
     title: "Lo recogemos y renovamos",
-    description: "Cuando tu bebé crece, recogemos todo y te enviamos el pack de la siguiente etapa.",
+    description: "Cuando tu bebé crece, recogemos todo y te enviamos lo que necesita en su nueva etapa.",
   },
 ];
 
