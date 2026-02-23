@@ -21,6 +21,8 @@ import PackCheckout from "./pages/PackCheckout";
 import CheckoutSuccess from "@/pages/CheckoutSuccess";
 import Settings from "./pages/Settings";
 import AboutUs from "./pages/AboutUs";
+import Configurator from "./pages/Configurator";
+import Selection from "./pages/Selection";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +78,8 @@ const App = () => (
             <Route path="/privacidad" element={<PrivacyPolicy />} />
             <Route path="/quienes-somos" element={<AboutUs />} />
             <Route path="/condiciones" element={<TermsOfService />} />
+            <Route path="/configurador" element={<Configurator />} />
+            <Route path="/mi-seleccion" element={<Selection />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
