@@ -16,7 +16,7 @@ import logo from "@/assets/logo-bebloo.png";
 
 const navLinks = [
   { label: "Cómo funciona", href: "#como-funciona" },
-  { label: "Precios", href: "#precios" },
+  { label: "Productos", href: "/catalogo", isRoute: true },
   { label: "Quiénes somos", href: "/quienes-somos", isRoute: true },
   { label: "FAQ", href: "#faq" },
 ];
@@ -56,16 +56,9 @@ const Header = () => {
   };
 
   const handleCtaClick = () => {
-    if (!isHome) {
-      navigate("/#precios");
-    } else {
-      const element = document.getElementById("precios");
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
+    navigate("/configurador");
     setIsOpen(false);
-    track("cta_click", { source: "header", action: "empezar" });
+    track("cta_click", { source: "header", action: "configurador" });
   };
 
   const handleAuthClick = () => {

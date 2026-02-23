@@ -1,11 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowDown, Check, Star } from "lucide-react";
+import { ArrowRight, Check, Star } from "lucide-react";
 import heroImage from "@/assets/mother-stroller.png";
 import { useAnalytics } from "@/hooks/useAnalytics";
-
-interface HeroProps {
-  onSeePricing: () => void;
-}
 
 const benefits = [
   "Equipamiento premium de marcas top",
@@ -13,12 +10,13 @@ const benefits = [
   "Cambio de etapa sin complicaciones",
 ];
 
-const Hero = ({ onSeePricing }: HeroProps) => {
+const Hero = () => {
   const { track } = useAnalytics();
+  const navigate = useNavigate();
 
   const handleCtaClick = () => {
-    track("cta_click", { source: "hero", action: "see_pricing" });
-    onSeePricing();
+    track("cta_click", { source: "hero", action: "configurador" });
+    navigate("/configurador");
   };
 
   return (
@@ -39,12 +37,12 @@ const Hero = ({ onSeePricing }: HeroProps) => {
 
             {/* Headline */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4 md:mb-6 text-balance leading-tight">
-              Disfruta de tu bebé. Del equipamiento nos encargamos nosotros.
+              Equipamiento para tu bebé. Curado por expertos.
             </h1>
 
             {/* Subheadline */}
             <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0 text-balance">
-              Cunas, hamacas y más, siempre limpios, siempre seguros, renovados cuando tu bebé crece.
+              Sin decisiones equivocadas. Sin espacio ocupado. Sin estrés de reventa.
             </p>
 
             {/* Benefits with checkmarks */}
@@ -66,13 +64,13 @@ const Hero = ({ onSeePricing }: HeroProps) => {
                 onClick={handleCtaClick}
                 className="cta-tension text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto"
               >
-                Descubre los packs
-                <ArrowDown className="ml-2 h-5 w-5" />
+                Descubre qué necesitas
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
 
             {/* Micro-validation */}
-            <p className="mt-6 text-sm text-muted-foreground">Desde €59/mes • Sin permanencia • Envío incluido</p>
+            <p className="mt-6 text-sm text-muted-foreground">Sin permanencia • Envío incluido • Cambio de etapa gratis</p>
           </div>
 
           {/* Right column - Image */}

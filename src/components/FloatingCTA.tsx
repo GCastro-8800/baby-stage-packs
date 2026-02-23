@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { ArrowDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -7,22 +8,23 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 const FloatingCTA = () => {
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
-  const [isVisible, setIsVisible] = useState(true);
+  const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    const pricingSection = document.getElementById("precios");
-    if (!pricingSection) return;
+    const heroSection = document.querySelector(".hero-section");
+    if (!heroSection) return;
 
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
-        // Hide CTA when pricing section is visible
+        // Show CTA when hero is NOT visible (user scrolled past it)
         setIsVisible(!entry.isIntersecting);
       },
       { threshold: 0.1 }
     );
 
-    observerRef.current.observe(pricingSection);
+    observerRef.current.observe(heroSection);
 
     return () => {
       observerRef.current?.disconnect();
@@ -30,12 +32,10 @@ const FloatingCTA = () => {
   }, []);
 
   const handleClick = () => {
-    track("cta_click", { location: "floating_mobile", action: "scroll_to_pricing" });
-    const pricingSection = document.getElementById("precios");
-    pricingSection?.scrollIntoView({ behavior: "smooth" });
+    track("cta_click", { location: "floating_mobile", action: "configurador" });
+    navigate("/configurador");
   };
 
-  // Don't render on desktop or when pricing section is visible
   if (!isMobile || !isVisible) return null;
 
   return (
@@ -44,8 +44,8 @@ const FloatingCTA = () => {
         onClick={handleClick}
         className="w-full cta-tension rounded-full py-6 text-base font-semibold"
       >
-        Ver planes desde €79/mes
-        <ArrowDown className="ml-2 h-5 w-5" />
+        Descubre qué necesitas
+        <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
     </div>
   );
