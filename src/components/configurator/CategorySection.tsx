@@ -21,6 +21,9 @@ interface CategorySectionProps {
   onRemove: (productId: string) => void;
   onAdd: (product: Product) => void;
   stageBadge?: string;
+  getDuration?: (productId: string) => number;
+  setDuration?: (productId: string, months: number) => void;
+  getDiscountedPrice?: (product: Product) => number;
 }
 
 export default function CategorySection({
@@ -33,6 +36,9 @@ export default function CategorySection({
   onRemove,
   onAdd,
   stageBadge,
+  getDuration,
+  setDuration,
+  getDiscountedPrice,
 }: CategorySectionProps) {
   const Icon = CATEGORY_ICONS[category];
   const hasContent = selectedProduct || suggestedProducts.length > 0;
@@ -54,6 +60,9 @@ export default function CategorySection({
           alternatives={alternatives}
           onSwap={onSwap}
           onRemove={onRemove}
+          duration={getDuration ? getDuration(selectedProduct.id) : 6}
+          onDurationChange={setDuration ?? (() => {})}
+          discountedPrice={getDiscountedPrice ? getDiscountedPrice(selectedProduct) : selectedProduct.pricePerMonth}
         />
       )}
 

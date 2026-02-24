@@ -1,10 +1,12 @@
-import { useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import SelectionSidebar from "@/components/configurator/SelectionSidebar";
 import CategorySection from "@/components/configurator/CategorySection";
 import StickyMobileBar from "@/components/configurator/StickyMobileBar";
+import CheckoutOptionsDialog from "@/components/configurator/CheckoutOptionsDialog";
+import type { CheckoutProduct } from "@/components/configurator/CheckoutOptionsDialog";
 import { Button } from "@/components/ui/button";
 import { useSelection } from "@/hooks/useSelection";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,6 +33,7 @@ export default function Selection() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const state = location.state as {
     answers?: QuestionnaireAnswers;
@@ -56,11 +59,13 @@ export default function Selection() {
     swapProduct,
     isSelected,
     count,
+    getDuration,
+    setDuration,
+    getDiscountedPrice,
   } = useSelection(initialProducts, state?.answers);
 
   const stageSuggestions = useMemo(() => getStageSuggestions(), []);
 
-  // For free access: all products organized by category
   const allProductsByCategory = useMemo(() => {
     if (hasState) return null;
     const map: Record<ProductCategory, Product[]> = {
@@ -93,12 +98,15 @@ export default function Selection() {
     stageSuggestions.filter((p) => p.category === cat);
 
   const handleCheckout = () => {
-    const items = productList.map((p) => `• ${p.name} (${p.pricePerMonth}€/mes)`).join("\n");
-    const msg = encodeURIComponent(
-      `¡Hola! Me gustaría contratar estos productos:\n\n${items}\n\nTotal: ${totalPrice}€/mes`
-    );
-    window.open(`https://wa.me/34600000000?text=${msg}`, "_blank");
+    setCheckoutOpen(true);
   };
+
+  const checkoutItems: CheckoutProduct[] = productList.map((p) => ({
+    product: p,
+    months: getDuration(p.id),
+    originalPrice: p.pricePerMonth,
+    discountedPrice: getDiscountedPrice(p),
+  }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -157,7 +165,6 @@ export default function Selection() {
             <div className="flex-1 space-y-10">
               {hasState ? (
                 <>
-                  {/* Questionnaire-based view */}
                   <section className="space-y-6">
                     <h2 className="text-lg font-serif">{STAGE_LABELS["0-4"]}</h2>
                     {STAGE_04_CATEGORIES.map((cat) => {
@@ -174,6 +181,9 @@ export default function Selection() {
                           onSwap={swapProduct}
                           onRemove={removeProduct}
                           onAdd={addProduct}
+                          getDuration={getDuration}
+                          setDuration={setDuration}
+                          getDiscountedPrice={getDiscountedPrice}
                         />
                       );
                     })}
@@ -202,6 +212,9 @@ export default function Selection() {
                           onRemove={removeProduct}
                           onAdd={addProduct}
                           stageBadge="Recomendado etapa 4-8"
+                          getDuration={getDuration}
+                          setDuration={setDuration}
+                          getDiscountedPrice={getDiscountedPrice}
                         />
                       );
                     })}
@@ -209,7 +222,6 @@ export default function Selection() {
                 </>
               ) : (
                 <>
-                  {/* Free access: full catalog */}
                   {allProductsByCategory && (
                     <>
                       <section className="space-y-6">
@@ -231,6 +243,9 @@ export default function Selection() {
                               onSwap={swapProduct}
                               onRemove={removeProduct}
                               onAdd={addProduct}
+                              getDuration={getDuration}
+                              setDuration={setDuration}
+                              getDiscountedPrice={getDiscountedPrice}
                             />
                           );
                         })}
@@ -261,6 +276,9 @@ export default function Selection() {
                               onRemove={removeProduct}
                               onAdd={addProduct}
                               stageBadge="Recomendado etapa 4-8"
+                              getDuration={getDuration}
+                              setDuration={setDuration}
+                              getDiscountedPrice={getDiscountedPrice}
                             />
                           );
                         })}
@@ -284,6 +302,9 @@ export default function Selection() {
                   totalPrice={totalPrice}
                   onRemove={removeProduct}
                   onCheckout={handleCheckout}
+                  getDuration={getDuration}
+                  setDuration={setDuration}
+                  getDiscountedPrice={getDiscountedPrice}
                 />
               </div>
             )}
@@ -294,6 +315,13 @@ export default function Selection() {
       {isMobile && (
         <StickyMobileBar count={count} totalPrice={totalPrice} onCheckout={handleCheckout} />
       )}
+
+      <CheckoutOptionsDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        items={checkoutItems}
+        totalPrice={totalPrice}
+      />
     </div>
   );
 }

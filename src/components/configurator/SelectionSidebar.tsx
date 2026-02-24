@@ -1,12 +1,16 @@
 import { X, Sparkles, Truck, RefreshCw, HeadphonesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/data/productCatalog";
+import { DURATION_OPTIONS } from "@/lib/constants";
 
 interface SelectionSidebarProps {
   products: Product[];
   totalPrice: number;
   onRemove: (productId: string) => void;
   onCheckout: () => void;
+  getDuration: (productId: string) => number;
+  setDuration: (productId: string, months: number) => void;
+  getDiscountedPrice: (product: Product) => number;
 }
 
 const INCLUDED_PERKS = [
@@ -16,8 +20,17 @@ const INCLUDED_PERKS = [
   { icon: HeadphonesIcon, label: "Soporte experto personalizado" },
 ];
 
-export default function SelectionSidebar({ products, totalPrice, onRemove, onCheckout }: SelectionSidebarProps) {
-  const estimatedSavings = Math.round(totalPrice * 12 * 0.6);
+export default function SelectionSidebar({
+  products,
+  totalPrice,
+  onRemove,
+  onCheckout,
+  getDuration,
+  setDuration,
+  getDiscountedPrice,
+}: SelectionSidebarProps) {
+  const originalTotal = products.reduce((s, p) => s + p.pricePerMonth, 0);
+  const savings = originalTotal - totalPrice;
 
   return (
     <aside className="sticky top-28 space-y-5">
@@ -34,20 +47,47 @@ export default function SelectionSidebar({ products, totalPrice, onRemove, onChe
             Aún no has seleccionado productos
           </p>
         ) : (
-          <ul className="space-y-2.5">
-            {products.map((p) => (
-              <li key={p.id} className="flex items-center justify-between gap-2 text-sm group">
-                <span className="truncate flex-1">{p.name}</span>
-                <span className="text-muted-foreground whitespace-nowrap font-medium">{p.pricePerMonth}€</span>
-                <button
-                  onClick={() => onRemove(p.id)}
-                  className="text-muted-foreground/50 hover:text-destructive transition-colors shrink-0 opacity-0 group-hover:opacity-100"
-                  aria-label={`Quitar ${p.name}`}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </li>
-            ))}
+          <ul className="space-y-4">
+            {products.map((p) => {
+              const months = getDuration(p.id);
+              const discounted = getDiscountedPrice(p);
+              const hasDiscount = discounted < p.pricePerMonth;
+              return (
+                <li key={p.id} className="space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-sm truncate flex-1">{p.name}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {hasDiscount && (
+                        <span className="text-xs text-muted-foreground line-through">{p.pricePerMonth}€</span>
+                      )}
+                      <span className="text-sm font-medium">{discounted}€</span>
+                      <button
+                        onClick={() => onRemove(p.id)}
+                        className="text-muted-foreground/60 hover:text-destructive transition-colors ml-1"
+                        aria-label={`Quitar ${p.name}`}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {DURATION_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.months}
+                        onClick={() => setDuration(p.id, opt.months)}
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                          months === opt.months
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {opt.months}m
+                      </button>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
 
@@ -59,9 +99,9 @@ export default function SelectionSidebar({ products, totalPrice, onRemove, onChe
               <span className="text-sm text-muted-foreground">/mes</span>
             </div>
           </div>
-          {products.length > 0 && (
-            <p className="text-xs text-primary-foreground/70">
-              Ahorro estimado vs compra: ~{estimatedSavings}€
+          {savings > 0 && (
+            <p className="text-xs text-primary">
+              Ahorro por compromiso: {savings}€/mes
             </p>
           )}
         </div>
@@ -77,7 +117,7 @@ export default function SelectionSidebar({ products, totalPrice, onRemove, onChe
           {INCLUDED_PERKS.map((perk) => (
             <li key={perk.label} className="flex items-center gap-3 text-sm text-muted-foreground">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <perk.icon className="h-4 w-4 text-primary-foreground" />
+                <perk.icon className="h-4 w-4 text-primary" />
               </div>
               {perk.label}
             </li>
