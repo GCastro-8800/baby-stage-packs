@@ -1,5 +1,5 @@
 export type ProductCategory = "movilidad" | "descanso" | "porteo" | "alimentacion" | "extras";
-export type ProductStage = "0-4" | "4-8" | "ambas";
+export type ProductStage = "0-4" | "4-8" | "8-12" | "12-24" | "ambas";
 
 export interface Product {
   id: string;
@@ -14,7 +14,7 @@ export interface Product {
 }
 
 export const PRODUCT_CATALOG: Product[] = [
-  // MOVILIDAD
+  // === MOVILIDAD ===
   {
     id: "bugaboo-fox-5",
     name: "Bugaboo Fox 5",
@@ -55,8 +55,18 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "El carrito compacto por excelencia. Cabe en equipaje de mano.",
     shortReason: "El más compacto y económico",
   },
+  {
+    id: "triciclo-evolutivo",
+    name: "Triciclo Evolutivo Liki",
+    brand: "Doona",
+    category: "movilidad",
+    stage: "12-24",
+    pricePerMonth: 29,
+    description: "Triciclo plegable que crece con el niño. De paseo guiado a pedaleo autónomo.",
+    shortReason: "Autonomía y diversión",
+  },
 
-  // DESCANSO
+  // === DESCANSO ===
   {
     id: "stokke-sleepi",
     name: "Stokke Sleepi",
@@ -77,8 +87,18 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres.",
     shortReason: "Colecho seguro y accesible",
   },
+  {
+    id: "cama-montessori",
+    name: "Cama Montessori",
+    brand: "WoodlyKids",
+    category: "descanso",
+    stage: "12-24",
+    pricePerMonth: 45,
+    description: "Cama baja al suelo para fomentar la autonomía. Madera natural con barandillas opcionales.",
+    shortReason: "Autonomía desde el sueño",
+  },
 
-  // PORTEO
+  // === PORTEO Y CONFORT ===
   {
     id: "hamaca-nuna-leaf",
     name: "Hamaca Nuna LEAF",
@@ -120,7 +140,7 @@ export const PRODUCT_CATALOG: Product[] = [
     shortReason: "Económica y cómoda",
   },
 
-  // ALIMENTACIÓN
+  // === ALIMENTACIÓN ===
   {
     id: "trona-bugaboo-giraffe",
     name: "Trona Bugaboo Giraffe",
@@ -142,7 +162,7 @@ export const PRODUCT_CATALOG: Product[] = [
     shortReason: "La más icónica y duradera",
   },
 
-  // EXTRAS
+  // === EXTRAS ===
   {
     id: "monitor-premium",
     name: "Monitor premium",
@@ -183,6 +203,46 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Cambiador ergonómico con diseño danés premium.",
     shortReason: "Ergonómico y elegante",
   },
+  {
+    id: "parque-actividades",
+    name: "Parque de actividades",
+    brand: "Stokke",
+    category: "extras",
+    stage: "8-12",
+    pricePerMonth: 35,
+    description: "Espacio seguro para que el bebé explore y juegue. Paneles modulares.",
+    shortReason: "Exploración segura",
+  },
+  {
+    id: "andador-empuje",
+    name: "Andador de empuje",
+    brand: "Hape",
+    category: "extras",
+    stage: "8-12",
+    pricePerMonth: 19,
+    description: "Andador de madera con actividades. Ayuda a los primeros pasos del bebé.",
+    shortReason: "Primeros pasos con apoyo",
+  },
+  {
+    id: "valla-seguridad",
+    name: "Valla de seguridad",
+    brand: "BabyDan",
+    category: "extras",
+    stage: "8-12",
+    pricePerMonth: 12,
+    description: "Barrera de seguridad extensible para escaleras y puertas.",
+    shortReason: "Protección indispensable",
+  },
+  {
+    id: "torre-aprendizaje",
+    name: "Torre de aprendizaje",
+    brand: "WoodlyKids",
+    category: "extras",
+    stage: "12-24",
+    pricePerMonth: 29,
+    description: "Torre Montessori para que el niño participe en la cocina y baño de forma segura.",
+    shortReason: "Autonomía en casa",
+  },
 ];
 
 export const getProductById = (id: string): Product | undefined =>
@@ -205,4 +265,8 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
 export const STAGE_LABELS: Record<string, string> = {
   "0-4": "Etapa 0–4 meses",
   "4-8": "Etapa 4–8 meses",
+  "8-12": "Etapa 8–12 meses",
+  "12-24": "Etapa 12–24 meses",
 };
+
+export const ALL_STAGES = ["0-4", "4-8", "8-12", "12-24"] as const;
