@@ -1,58 +1,71 @@
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/data/productCatalog";
+import ProductImagePlaceholder from "./ProductImagePlaceholder";
 
 interface ProductCardSuggestedProps {
   product: Product;
   isSelected: boolean;
   onAdd: (product: Product) => void;
   onRemove: (productId: string) => void;
+  stageBadge?: string;
 }
 
-export default function ProductCardSuggested({ product, isSelected, onAdd, onRemove }: ProductCardSuggestedProps) {
+export default function ProductCardSuggested({ product, isSelected, onAdd, onRemove, stageBadge }: ProductCardSuggestedProps) {
   return (
-    <div className={`rounded-xl border ${isSelected ? "border-primary/30 bg-card" : "border-dashed border-border bg-background"} p-4 space-y-3`}>
-      <div className="flex items-start gap-3">
-        {isSelected && (
-          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-            <Check className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="font-medium text-sm">{product.name}</p>
-              <p className="text-xs text-muted-foreground">{product.brand}</p>
-            </div>
-            <span className="text-sm font-semibold whitespace-nowrap">{product.pricePerMonth}€/mes</span>
-          </div>
-          {product.shortReason && (
-            <p className="text-xs text-muted-foreground mt-1">{product.shortReason}</p>
-          )}
-        </div>
-      </div>
+    <div className={`rounded-xl border ${isSelected ? "border-primary/30 bg-card shadow-sm" : "border-dashed border-border/60 bg-background"} overflow-hidden transition-all`}>
+      <div className="p-4 flex gap-4">
+        <ProductImagePlaceholder category={product.category} image={product.image} />
 
-      <div className={isSelected ? "pl-9" : ""}>
-        {isSelected ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 text-xs px-2 text-muted-foreground hover:text-destructive"
-            onClick={() => onRemove(product.id)}
-          >
-            Quitar
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            onClick={() => onAdd(product)}
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            Añadir a mi selección
-          </Button>
-        )}
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-base text-foreground">{product.name}</p>
+                <span className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full mt-1">
+                  {product.brand}
+                </span>
+              </div>
+              <div className="text-right shrink-0">
+                <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
+                  {product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
+                </span>
+              </div>
+            </div>
+            {stageBadge && !isSelected && (
+              <span className="inline-block text-[11px] font-medium text-primary-foreground bg-primary/20 px-2 py-0.5 rounded-full mt-2">
+                {stageBadge}
+              </span>
+            )}
+            {product.shortReason && (
+              <p className="text-xs text-muted-foreground mt-1.5">{product.shortReason}</p>
+            )}
+          </div>
+
+          <div className="mt-3">
+            {isSelected ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-destructive"
+                onClick={() => onRemove(product.id)}
+              >
+                <X className="h-3 w-3" />
+                Quitar
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs gap-1.5"
+                onClick={() => onAdd(product)}
+              >
+                <Plus className="h-3 w-3" />
+                Añadir a mi selección
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
