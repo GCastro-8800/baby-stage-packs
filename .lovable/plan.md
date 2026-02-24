@@ -1,73 +1,77 @@
 
-# Checkout mejorado: duracion por producto + pantalla de cierre con 3 opciones
+# Mejoras: botones funcionales, 4 etapas, y flujo catalogo-seleccion coherente
 
 ## Resumen
 
-Tres cambios principales:
+Tres problemas a resolver:
 
-1. **Duracion por producto**: Cada producto en el carrito puede tener su propia duracion (3, 6, 9, 12, 24 meses). A mas meses, menor precio/mes. El precio total se recalcula en tiempo real.
-2. **Pantalla de cierre**: Al pulsar "Contratar"/"Continuar", en vez de ir directo a WhatsApp, se abre un dialog/modal con 3 opciones: Calendly (hablar con asesora), WhatsApp (con el mensaje detallado ya existente), y Pago online.
-3. **Gestion rapida del carrito**: En el sidebar y en la barra movil, poder ajustar duracion y quitar productos mas rapido.
-
----
-
-## Detalles tecnicos
-
-### 1. Duraciones y descuentos por producto
-
-**`src/lib/constants.ts`** - Actualizar opciones de duracion:
-- Anadir opciones: 3, 6, 9, 12, 24 meses
-- Descuentos progresivos: 3m (5%), 6m (10%), 9m (15%), 12m (20%), 24m (30%)
-
-**`src/hooks/useSelection.ts`** - Anadir estado de duracion por producto:
-- Nuevo estado: `durations: Map<string, number>` (productId -> meses)
-- Duracion por defecto: 6 meses
-- Funcion `setDuration(productId, months)` para cambiar
-- `getDuration(productId)` para leer
-- `getDiscountedPrice(product)` que aplica el descuento segun duracion
-- `totalPrice` recalculado con descuentos individuales
-- Cuando se quita un producto, limpiar su duracion
-
-**`src/components/configurator/ProductCardSelected.tsx`** - Selector de duracion inline:
-- Debajo del precio, anadir una fila de chips pequenos (3, 6, 9, 12, 24 meses)
-- Chip activo en color primario, los demas en gris
-- Mostrar precio original tachado + precio con descuento cuando hay descuento
-- Al cambiar duracion, llamar a `setDuration`
-
-**`src/components/configurator/SelectionSidebar.tsx`** - Mostrar duracion en la lista:
-- Cada producto muestra: nombre, duracion seleccionada (ej: "6 meses"), precio con descuento
-- Selector de duracion compacto (dropdown o mini-chips) por producto para cambio rapido
-- Precio total recalculado con todos los descuentos
-
-**`src/components/configurator/StickyMobileBar.tsx`** - Sin cambios grandes, solo muestra el total con descuentos aplicados
-
-### 2. Pantalla de cierre (CheckoutOptionsDialog)
-
-**Nuevo componente: `src/components/configurator/CheckoutOptionsDialog.tsx`**
-- Dialog/modal que aparece al pulsar "Contratar ahora"
-- Tres opciones presentadas como cards grandes:
-  1. **Hablar con una asesora** - Icono de calendario - Abre Calendly con datos pre-rellenados (nombre, email, productos seleccionados como nota)
-  2. **Contratar por WhatsApp** - Icono de WhatsApp - Abre el mismo mensaje actual con la lista de productos, duraciones y precios
-  3. **Pagar online** - Icono de tarjeta - Por ahora muestra "Proximamente" o navega a flujo de Stripe si esta configurado
-- Props: open, onOpenChange, products (con duraciones y precios), totalPrice
-- El mensaje de WhatsApp incluye la duracion de cada producto: "Bugaboo Fox 5 - 6 meses (99EUR/mes -> 89EUR/mes)"
-
-### 3. Gestion rapida del carrito
-
-**`src/components/configurator/SelectionSidebar.tsx`** - Mejoras:
-- Boton X siempre visible (no solo en hover) para quitar rapido
-- Cada producto tiene un mini-selector de duracion (chips inline pequenos)
-- Precio con descuento visible al lado de cada producto
+1. **Botones Calendly/WhatsApp**: El numero de WhatsApp en el checkout es falso (34600000000). Hay que cambiarlo al real (34638706467). Calendly ya apunta a la URL correcta.
+2. **4 etapas en vez de 2**: Ampliar de 2 etapas (0-4, 4-8) a 4 etapas (0-4, 4-8, 8-12, 12-24 meses). Esto requiere nuevos tipos, nuevos productos para las etapas 8-12 y 12-24, y actualizar la logica de agrupacion en catalogo y seleccion.
+3. **Flujo catalogo -> seleccion**: Actualmente, el boton "Anadir a mi seleccion" en el catalogo navega a `/mi-seleccion` perdiendo el estado previo. Hay que implementar un carrito compartido que persista entre paginas, o permitir anadir productos directamente desde el catalogo con un toast de confirmacion y un mini-carrito visible.
 
 ---
 
-## Archivos a crear
-1. `src/components/configurator/CheckoutOptionsDialog.tsx`
+## Cambios detallados
+
+### 1. WhatsApp real en CheckoutOptionsDialog
+
+**`src/components/configurator/CheckoutOptionsDialog.tsx`**:
+- Cambiar `34600000000` por `34638706467` (el numero real ya usado en `WhatsAppButton.tsx`)
+
+### 2. Ampliar a 4 etapas
+
+**`src/data/productCatalog.ts`**:
+- Cambiar el tipo `ProductStage` a `"0-4" | "4-8" | "8-12" | "12-24" | "ambas"`
+- Anadir etapas `"8-12"` y `"12-24"` a `STAGE_LABELS`
+- Anadir nuevos productos para las etapas 8-12 y 12-24:
+  - **8-12 meses (exploradores)**: Parque de actividades (tipo extras), andador de empuje, valla de seguridad
+  - **12-24 meses (caminantes)**: Triciclo evolutivo, cama Montessori, torre de aprendizaje
+- Actualizar algunos productos existentes que aplican a las nuevas etapas (ej: mochilas portabebe que sirven hasta 12-24, tronas que van de 4-24)
+
+**`src/pages/Selection.tsx`**:
+- Ampliar las constantes de categorias por etapa para incluir las 4 etapas
+- Renderizar las 4 secciones de etapa
+
+**`src/pages/Catalog.tsx`**:
+- Actualizar `groupByStage` para manejar las 4 etapas
+- Renderizar las 4 secciones
+
+### 3. Flujo coherente catalogo <-> seleccion
+
+El problema actual: al pulsar "Anadir a mi seleccion" en `/catalogo`, navegas a `/mi-seleccion` y se pierde cualquier seleccion previa (el estado solo vive en memoria de la pagina Selection).
+
+**Solucion**: Usar `localStorage` para persistir la seleccion entre paginas.
+
+**`src/hooks/useSelection.ts`**:
+- Al inicializar, leer productos guardados de `localStorage` (key: `bebloo_selection`)
+- Cada vez que cambian `selectedProducts` o `durations`, guardar en `localStorage`
+- Si llega con `initialProducts` (del cuestionario), estos tienen prioridad y sobrescriben el localStorage
+- Funcion de merge: si llega un `preselectedProduct` desde el catalogo, se anade a los existentes
+
+**`src/pages/Selection.tsx`**:
+- Leer `location.state.preselectedProduct` y pasarlo a `useSelection` para que lo anade
+- Los productos previos se mantienen gracias al localStorage
+
+**`src/components/catalog/CatalogProductCard.tsx`**:
+- Cambiar la navegacion: en vez de navegar a `/mi-seleccion`, guardar el producto directamente en localStorage y mostrar un toast de confirmacion
+- Anadir un boton/enlace "Ver mi seleccion (X productos)" como toast action
+- Importar toast de sonner
+
+**`src/pages/Catalog.tsx`**:
+- Anadir un mini-badge flotante o banner superior que muestre cuantos productos hay en la seleccion
+- Con enlace a `/mi-seleccion`
+
+---
 
 ## Archivos a modificar
-1. `src/lib/constants.ts` - Nuevas opciones de duracion (9 y 24 meses)
-2. `src/hooks/useSelection.ts` - Estado de duracion por producto + precios con descuento
-3. `src/components/configurator/ProductCardSelected.tsx` - Selector de duracion inline
-4. `src/components/configurator/SelectionSidebar.tsx` - Duracion por producto + X visible
-5. `src/components/configurator/StickyMobileBar.tsx` - Total con descuentos
-6. `src/pages/Selection.tsx` - Integrar CheckoutOptionsDialog en vez de ir directo a WhatsApp
+
+1. `src/components/configurator/CheckoutOptionsDialog.tsx` - Numero WhatsApp real
+2. `src/data/productCatalog.ts` - 4 etapas + nuevos productos
+3. `src/hooks/useSelection.ts` - Persistencia en localStorage
+4. `src/pages/Selection.tsx` - 4 secciones de etapa + merge de preseleccion
+5. `src/pages/Catalog.tsx` - 4 etapas + indicador de seleccion
+6. `src/components/catalog/CatalogProductCard.tsx` - Anadir al carrito sin navegar + toast
+
+## Archivos sin cambios
+- `src/lib/constants.ts` - Las duraciones y descuentos no cambian
+- `src/components/configurator/CheckoutOptionsDialog.tsx` - Solo cambia el numero
