@@ -43,14 +43,14 @@ export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
     if (wantsBest) {
       selected.push(findProduct("hamaca-nuna-leaf")!);
     } else if (budgetTight) {
-      selected.push(findProduct("mochila-babybjorn")!);
+      selected.push(findProduct("babybjorn-air")!);
     } else {
-      selected.push(findProduct("mochila-ergobaby")!);
+      selected.push(findProduct("ergobaby-omni")!);
     }
   } else if (!hasSome) {
     // "specific" — skip porteo
   } else {
-    selected.push(findProduct("mochila-ergobaby")!);
+    selected.push(findProduct("ergobaby-omni")!);
   }
 
   // — MONITOR —
