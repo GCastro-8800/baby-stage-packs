@@ -1,10 +1,42 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Product } from "@/data/productCatalog";
+import { Product, getProductById } from "@/data/productCatalog";
 import ProductImagePlaceholder from "@/components/configurator/ProductImagePlaceholder";
+import { toast } from "sonner";
+import { DEFAULT_DURATION } from "@/lib/constants";
+
+const STORAGE_KEY = "bebloo_selection";
+
+function addToStoredSelection(product: Product): number {
+  let stored: { productIds: string[]; durations: Record<string, number> };
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    stored = raw ? JSON.parse(raw) : { productIds: [], durations: {} };
+  } catch {
+    stored = { productIds: [], durations: {} };
+  }
+  if (!stored.productIds.includes(product.id)) {
+    stored.productIds.push(product.id);
+    stored.durations[product.id] = DEFAULT_DURATION;
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  return stored.productIds.length;
+}
+
+function isInStoredSelection(productId: string): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const stored = JSON.parse(raw);
+    return stored.productIds?.includes(productId) ?? false;
+  } catch {
+    return false;
+  }
+}
 
 interface CatalogProductCardProps {
   product: Product;
@@ -12,14 +44,22 @@ interface CatalogProductCardProps {
 
 export default function CatalogProductCard({ product }: CatalogProductCardProps) {
   const navigate = useNavigate();
+  const [added, setAdded] = useState(() => isInStoredSelection(product.id));
 
   const handleAdd = () => {
-    navigate("/mi-seleccion", { state: { preselectedProduct: product.id } });
+    const count = addToStoredSelection(product);
+    setAdded(true);
+    toast.success(`${product.name} añadido`, {
+      description: `Tienes ${count} producto${count > 1 ? "s" : ""} en tu selección`,
+      action: {
+        label: "Ver selección",
+        onClick: () => navigate("/mi-seleccion"),
+      },
+    });
   };
 
   return (
     <Card className="overflow-hidden group hover:shadow-md transition-shadow">
-      {/* Image */}
       <div className="aspect-square bg-muted/30 flex items-center justify-center">
         <ProductImagePlaceholder
           category={product.category}
@@ -29,7 +69,6 @@ export default function CatalogProductCard({ product }: CatalogProductCardProps)
         />
       </div>
 
-      {/* Info */}
       <div className="p-4 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -51,15 +90,27 @@ export default function CatalogProductCard({ product }: CatalogProductCardProps)
           </span>
         )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-2 w-full gap-1.5 text-xs"
-          onClick={handleAdd}
-        >
-          <Plus className="h-3 w-3" />
-          Añadir a mi selección
-        </Button>
+        {added ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="mt-2 w-full gap-1.5 text-xs"
+            onClick={() => navigate("/mi-seleccion")}
+          >
+            <Check className="h-3 w-3" />
+            En tu selección — ver
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2 w-full gap-1.5 text-xs"
+            onClick={handleAdd}
+          >
+            <Plus className="h-3 w-3" />
+            Añadir a mi selección
+          </Button>
+        )}
       </div>
     </Card>
   );

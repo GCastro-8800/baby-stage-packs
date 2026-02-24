@@ -23,10 +23,19 @@ import {
   getProductById,
   getProductsByCategory,
   STAGE_LABELS,
+  ALL_STAGES,
 } from "@/data/productCatalog";
 
-const STAGE_04_CATEGORIES: ProductCategory[] = ["movilidad", "descanso", "porteo", "extras"];
-const STAGE_48_CATEGORIES: ProductCategory[] = ["alimentacion", "extras"];
+const STAGE_CATEGORIES: Record<string, ProductCategory[]> = {
+  "0-4": ["movilidad", "descanso", "porteo", "extras"],
+  "4-8": ["alimentacion", "extras"],
+  "8-12": ["extras"],
+  "12-24": ["movilidad", "descanso", "extras"],
+};
+
+function productsForStage(stage: string): (p: Product) => boolean {
+  return (p) => p.stage === stage || (stage === "0-4" && p.stage === "ambas") || (stage === "4-8" && p.stage === "ambas");
+}
 
 export default function Selection() {
   const location = useLocation();
@@ -38,6 +47,7 @@ export default function Selection() {
   const state = location.state as {
     answers?: QuestionnaireAnswers;
     recommended?: string[];
+    preselectedProduct?: string;
   } | null;
 
   const hasState = !!state?.recommended && !!state?.answers;
@@ -64,10 +74,22 @@ export default function Selection() {
     getDiscountedPrice,
   } = useSelection(initialProducts, state?.answers);
 
+  // Handle preselected product from catalog
+  useEffect(() => {
+    if (state?.preselectedProduct) {
+      const p = getProductById(state.preselectedProduct);
+      if (p && !isSelected(p.id)) {
+        addProduct(p);
+      }
+      // Clear state to prevent re-adding on re-render
+      window.history.replaceState({}, "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const stageSuggestions = useMemo(() => getStageSuggestions(), []);
 
   const allProductsByCategory = useMemo(() => {
-    if (hasState) return null;
     const map: Record<ProductCategory, Product[]> = {
       movilidad: [],
       descanso: [],
@@ -77,7 +99,7 @@ export default function Selection() {
     };
     PRODUCT_CATALOG.forEach((p) => map[p.category].push(p));
     return map;
-  }, [hasState]);
+  }, []);
 
   useEffect(() => {
     if (hasState) {
@@ -107,6 +129,47 @@ export default function Selection() {
     originalPrice: p.pricePerMonth,
     discountedPrice: getDiscountedPrice(p),
   }));
+
+  const renderStageSection = (stage: string, isFirst: boolean) => {
+    const categories = STAGE_CATEGORIES[stage] ?? [];
+    const stageFilter = productsForStage(stage);
+
+    return (
+      <section key={stage} className="space-y-6">
+        <div>
+          <h2 className="text-lg font-serif">{STAGE_LABELS[stage]}</h2>
+          {!isFirst && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Productos para cuando tu bebé crezca
+            </p>
+          )}
+        </div>
+        {categories.map((cat) => {
+          const products = allProductsByCategory[cat].filter(stageFilter);
+          if (products.length === 0) return null;
+          const selected = getSelectedForCategory(cat);
+          const isSelectedInStage = selected && stageFilter(selected);
+          return (
+            <CategorySection
+              key={`${stage}-${cat}`}
+              category={cat}
+              selectedProduct={isSelectedInStage ? selected : undefined}
+              alternatives={isSelectedInStage ? getAlternatives(cat, selected!.id).filter(stageFilter) : []}
+              suggestedProducts={products.filter((p) => !isSelected(p.id) && p.id !== selected?.id)}
+              isSelected={isSelected}
+              onSwap={swapProduct}
+              onRemove={removeProduct}
+              onAdd={addProduct}
+              stageBadge={!isFirst ? `Recomendado ${STAGE_LABELS[stage]}` : undefined}
+              getDuration={getDuration}
+              setDuration={setDuration}
+              getDiscountedPrice={getDiscountedPrice}
+            />
+          );
+        })}
+      </section>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,130 +226,7 @@ export default function Selection() {
 
           <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1 space-y-10">
-              {hasState ? (
-                <>
-                  <section className="space-y-6">
-                    <h2 className="text-lg font-serif">{STAGE_LABELS["0-4"]}</h2>
-                    {STAGE_04_CATEGORIES.map((cat) => {
-                      const selected = getSelectedForCategory(cat);
-                      const alts = getAlternatives(cat, selected?.id);
-                      return (
-                        <CategorySection
-                          key={cat}
-                          category={cat}
-                          selectedProduct={selected}
-                          alternatives={alts}
-                          suggestedProducts={[]}
-                          isSelected={isSelected}
-                          onSwap={swapProduct}
-                          onRemove={removeProduct}
-                          onAdd={addProduct}
-                          getDuration={getDuration}
-                          setDuration={setDuration}
-                          getDiscountedPrice={getDiscountedPrice}
-                        />
-                      );
-                    })}
-                  </section>
-
-                  <section className="space-y-6">
-                    <div>
-                      <h2 className="text-lg font-serif">{STAGE_LABELS["4-8"]}</h2>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Productos opcionales para cuando tu bebé crezca
-                      </p>
-                    </div>
-                    {STAGE_48_CATEGORIES.map((cat) => {
-                      const suggested = getSuggestedForCategory(cat);
-                      if (suggested.length === 0) return null;
-                      const selected = getSelectedForCategory(cat);
-                      return (
-                        <CategorySection
-                          key={`48-${cat}`}
-                          category={cat}
-                          selectedProduct={selected?.stage === "4-8" ? selected : undefined}
-                          alternatives={selected?.stage === "4-8" ? getAlternatives(cat, selected.id) : []}
-                          suggestedProducts={suggested.filter((p) => !isSelected(p.id))}
-                          isSelected={isSelected}
-                          onSwap={swapProduct}
-                          onRemove={removeProduct}
-                          onAdd={addProduct}
-                          stageBadge="Recomendado etapa 4-8"
-                          getDuration={getDuration}
-                          setDuration={setDuration}
-                          getDiscountedPrice={getDiscountedPrice}
-                        />
-                      );
-                    })}
-                  </section>
-                </>
-              ) : (
-                <>
-                  {allProductsByCategory && (
-                    <>
-                      <section className="space-y-6">
-                        <h2 className="text-lg font-serif">{STAGE_LABELS["0-4"]}</h2>
-                        {STAGE_04_CATEGORIES.map((cat) => {
-                          const products = allProductsByCategory[cat].filter(
-                            (p) => p.stage === "0-4" || p.stage === "ambas"
-                          );
-                          if (products.length === 0) return null;
-                          const selected = getSelectedForCategory(cat);
-                          return (
-                            <CategorySection
-                              key={cat}
-                              category={cat}
-                              selectedProduct={selected?.stage !== "4-8" ? selected : undefined}
-                              alternatives={selected && selected.stage !== "4-8" ? getAlternatives(cat, selected.id).filter(p => p.stage !== "4-8") : []}
-                              suggestedProducts={products.filter((p) => !isSelected(p.id) && p.id !== selected?.id)}
-                              isSelected={isSelected}
-                              onSwap={swapProduct}
-                              onRemove={removeProduct}
-                              onAdd={addProduct}
-                              getDuration={getDuration}
-                              setDuration={setDuration}
-                              getDiscountedPrice={getDiscountedPrice}
-                            />
-                          );
-                        })}
-                      </section>
-
-                      <section className="space-y-6">
-                        <div>
-                          <h2 className="text-lg font-serif">{STAGE_LABELS["4-8"]}</h2>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Productos opcionales para cuando tu bebé crezca
-                          </p>
-                        </div>
-                        {STAGE_48_CATEGORIES.map((cat) => {
-                          const products = allProductsByCategory[cat].filter(
-                            (p) => p.stage === "4-8"
-                          );
-                          if (products.length === 0) return null;
-                          const selected = getSelectedForCategory(cat);
-                          return (
-                            <CategorySection
-                              key={`48-${cat}`}
-                              category={cat}
-                              selectedProduct={selected?.stage === "4-8" ? selected : undefined}
-                              alternatives={selected?.stage === "4-8" ? getAlternatives(cat, selected.id).filter(p => p.stage === "4-8") : []}
-                              suggestedProducts={products.filter((p) => !isSelected(p.id) && p.id !== selected?.id)}
-                              isSelected={isSelected}
-                              onSwap={swapProduct}
-                              onRemove={removeProduct}
-                              onAdd={addProduct}
-                              stageBadge="Recomendado etapa 4-8"
-                              getDuration={getDuration}
-                              setDuration={setDuration}
-                              getDiscountedPrice={getDiscountedPrice}
-                            />
-                          );
-                        })}
-                      </section>
-                    </>
-                  )}
-                </>
-              )}
+              {ALL_STAGES.map((stage, i) => renderStageSection(stage, i === 0))}
 
               <div className="text-center py-4">
                 <Link to="/catalogo" className="text-sm text-primary-foreground underline underline-offset-4 hover:opacity-80">

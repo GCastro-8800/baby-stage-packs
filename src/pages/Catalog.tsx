@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 import {
   PRODUCT_CATALOG,
   CATEGORY_LABELS,
   STAGE_LABELS,
+  ALL_STAGES,
   type ProductCategory,
   type Product,
 } from "@/data/productCatalog";
@@ -16,17 +17,46 @@ import CatalogProductCard from "@/components/catalog/CatalogProductCard";
 const ALL_CATEGORIES: ProductCategory[] = ["movilidad", "descanso", "porteo", "alimentacion", "extras"];
 
 function groupByStage(products: Product[]): Record<string, Product[]> {
-  const groups: Record<string, Product[]> = { "0-4": [], "4-8": [] };
+  const groups: Record<string, Product[]> = {};
+  ALL_STAGES.forEach((s) => (groups[s] = []));
+
   products.forEach((p) => {
-    if (p.stage === "0-4" || p.stage === "ambas") groups["0-4"].push(p);
-    if (p.stage === "4-8") groups["4-8"].push(p);
+    if (p.stage === "ambas") {
+      // "ambas" means 0-4 and 4-8
+      groups["0-4"].push(p);
+      groups["4-8"].push(p);
+    } else if (groups[p.stage]) {
+      groups[p.stage].push(p);
+    }
   });
   return groups;
+}
+
+function getSelectionCount(): number {
+  try {
+    const raw = localStorage.getItem("bebloo_selection");
+    if (!raw) return 0;
+    return JSON.parse(raw).productIds?.length ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 const Catalog = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<ProductCategory | null>(null);
+  const [selectionCount, setSelectionCount] = useState(getSelectionCount);
+
+  // Listen for storage changes (from CatalogProductCard adding items)
+  useEffect(() => {
+    const handleStorage = () => setSelectionCount(getSelectionCount());
+    window.addEventListener("storage", handleStorage);
+    const interval = setInterval(() => setSelectionCount(getSelectionCount()), 1000);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearInterval(interval);
+    };
+  }, []);
 
   const filtered = activeCategory
     ? PRODUCT_CATALOG.filter((p) => p.category === activeCategory)
@@ -43,6 +73,20 @@ const Catalog = () => {
         <p className="text-muted-foreground mb-6 max-w-xl">
           Explora nuestro catálogo de equipamiento premium para bebés. Alquila solo lo que necesitas, cuando lo necesitas.
         </p>
+
+        {/* Selection indicator */}
+        {selectionCount > 0 && (
+          <button
+            onClick={() => navigate("/mi-seleccion")}
+            className="mb-6 w-full rounded-xl bg-primary/10 border border-primary/20 p-3 flex items-center gap-3 hover:bg-primary/15 transition-colors"
+          >
+            <ShoppingBag className="h-5 w-5 text-primary shrink-0" />
+            <span className="text-sm text-foreground flex-1 text-left">
+              Tienes <strong>{selectionCount}</strong> producto{selectionCount > 1 ? "s" : ""} en tu selección
+            </span>
+            <span className="text-xs font-medium text-primary shrink-0">Ver selección →</span>
+          </button>
+        )}
 
         {/* CTA Banner */}
         <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-8">
@@ -83,9 +127,9 @@ const Catalog = () => {
         </div>
 
         {/* Product grid by stage */}
-        {(["0-4", "4-8"] as const).map((stage) => {
+        {ALL_STAGES.map((stage) => {
           const products = grouped[stage];
-          if (!products.length) return null;
+          if (!products || !products.length) return null;
           return (
             <section key={stage} className="mb-12">
               <h2 className="text-xl font-serif text-foreground mb-5">{STAGE_LABELS[stage]}</h2>

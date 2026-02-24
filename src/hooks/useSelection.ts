@@ -1,7 +1,32 @@
-import { useState, useCallback, useMemo } from "react";
-import { Product } from "@/data/productCatalog";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { Product, getProductById } from "@/data/productCatalog";
 import { QuestionnaireAnswers } from "@/data/recommendationEngine";
 import { DEFAULT_DURATION, getDiscountForMonths } from "@/lib/constants";
+
+const STORAGE_KEY = "bebloo_selection";
+
+interface StoredSelection {
+  productIds: string[];
+  durations: Record<string, number>;
+}
+
+function loadFromStorage(): StoredSelection | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StoredSelection;
+  } catch {
+    return null;
+  }
+}
+
+function saveToStorage(products: Map<string, Product>, durations: Map<string, number>) {
+  const data: StoredSelection = {
+    productIds: Array.from(products.keys()),
+    durations: Object.fromEntries(durations),
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
 
 export interface SelectionState {
   selectedProducts: Map<string, Product>;
@@ -10,18 +35,48 @@ export interface SelectionState {
 
 export function useSelection(initialProducts: Product[] = [], answers?: QuestionnaireAnswers) {
   const [selectedProducts, setSelectedProducts] = useState<Map<string, Product>>(() => {
-    const map = new Map<string, Product>();
-    initialProducts.forEach((p) => map.set(p.id, p));
-    return map;
+    // If initialProducts come from questionnaire, they take priority
+    if (initialProducts.length > 0) {
+      const map = new Map<string, Product>();
+      initialProducts.forEach((p) => map.set(p.id, p));
+      return map;
+    }
+    // Otherwise load from localStorage
+    const stored = loadFromStorage();
+    if (stored) {
+      const map = new Map<string, Product>();
+      stored.productIds.forEach((id) => {
+        const p = getProductById(id);
+        if (p) map.set(id, p);
+      });
+      return map;
+    }
+    return new Map();
   });
 
   const [durations, setDurations] = useState<Map<string, number>>(() => {
-    const map = new Map<string, number>();
-    initialProducts.forEach((p) => map.set(p.id, DEFAULT_DURATION));
-    return map;
+    if (initialProducts.length > 0) {
+      const map = new Map<string, number>();
+      initialProducts.forEach((p) => map.set(p.id, DEFAULT_DURATION));
+      return map;
+    }
+    const stored = loadFromStorage();
+    if (stored) {
+      const map = new Map<string, number>();
+      Object.entries(stored.durations).forEach(([id, months]) => {
+        map.set(id, months);
+      });
+      return map;
+    }
+    return new Map();
   });
 
   const [questionnaireAnswers] = useState<QuestionnaireAnswers | undefined>(answers);
+
+  // Persist to localStorage on changes
+  useEffect(() => {
+    saveToStorage(selectedProducts, durations);
+  }, [selectedProducts, durations]);
 
   const addProduct = useCallback((product: Product) => {
     setSelectedProducts((prev) => {
@@ -31,7 +86,9 @@ export function useSelection(initialProducts: Product[] = [], answers?: Question
     });
     setDurations((prev) => {
       const next = new Map(prev);
-      next.set(product.id, DEFAULT_DURATION);
+      if (!next.has(product.id)) {
+        next.set(product.id, DEFAULT_DURATION);
+      }
       return next;
     });
   }, []);

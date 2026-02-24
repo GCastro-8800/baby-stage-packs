@@ -70,7 +70,7 @@ export default function CheckoutOptionsDialog({
   const handleOption = (key: string) => {
     if (key === "whatsapp") {
       const msg = encodeURIComponent(buildWhatsAppMessage(items, totalPrice));
-      openExternal(`https://wa.me/34600000000?text=${msg}`);
+      openExternal(`https://wa.me/34638706467?text=${msg}`);
     } else if (key === "calendly") {
       openExternal("https://calendly.com/bebloo/asesoria");
     }
