@@ -153,7 +153,7 @@ const FeatureRow = ({ item, icon }: { item: FeatureItem; icon: "check" | "x" }) 
 const PricingSection = ({ onSelectPlan, pricingRef }: PricingSectionProps) => {
   const { track } = useAnalytics();
   const navigate = useNavigate();
-  const [selectedMonths, setSelectedMonths] = useState(1);
+  const [selectedMonths, setSelectedMonths] = useState(6);
   const durationOption = DURATION_OPTIONS.find((d) => d.months === selectedMonths) || DURATION_OPTIONS[0];
 
   const handleSelectPlan = (plan: Plan) => {

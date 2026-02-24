@@ -4,6 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import { Product } from "@/data/productCatalog";
 import { cn } from "@/lib/utils";
+import { DURATION_OPTIONS } from "@/lib/constants";
 import ProductImagePlaceholder from "./ProductImagePlaceholder";
 
 interface ProductCardSelectedProps {
@@ -11,16 +12,28 @@ interface ProductCardSelectedProps {
   alternatives: Product[];
   onSwap: (oldId: string, newProduct: Product) => void;
   onRemove: (productId: string) => void;
+  duration: number;
+  onDurationChange: (productId: string, months: number) => void;
+  discountedPrice: number;
 }
 
-export default function ProductCardSelected({ product, alternatives, onSwap, onRemove }: ProductCardSelectedProps) {
+export default function ProductCardSelected({
+  product,
+  alternatives,
+  onSwap,
+  onRemove,
+  duration,
+  onDurationChange,
+  discountedPrice,
+}: ProductCardSelectedProps) {
   const [open, setOpen] = useState(false);
+  const hasDiscount = discountedPrice < product.pricePerMonth;
 
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
       <div className="p-4 flex gap-4">
         <ProductImagePlaceholder category={product.category} image={product.image} />
-        
+
         <div className="flex-1 min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex items-start justify-between gap-2">
@@ -31,11 +44,43 @@ export default function ProductCardSelected({ product, alternatives, onSwap, onR
                 </span>
               </div>
               <div className="text-right shrink-0">
+                {hasDiscount && (
+                  <span className="block text-xs text-muted-foreground line-through">
+                    {product.pricePerMonth}€/mes
+                  </span>
+                )}
                 <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
-                  {product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
+                  {discountedPrice}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
                 </span>
               </div>
             </div>
+
+            {/* Duration chips */}
+            <div className="flex gap-1 mt-2">
+              {DURATION_OPTIONS.map((opt) => (
+                <button
+                  key={opt.months}
+                  onClick={() => onDurationChange(product.id, opt.months)}
+                  className={cn(
+                    "px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors",
+                    duration === opt.months
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {opt.label}
+                  {opt.discount > 0 && (
+                    <span className={cn(
+                      "ml-0.5 text-[9px]",
+                      duration === opt.months ? "text-primary-foreground/80" : "text-primary"
+                    )}>
+                      -{opt.discount * 100}%
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
             {product.shortReason && (
               <p className="text-xs text-primary-foreground/80 bg-primary/15 inline-block px-2 py-0.5 rounded-full mt-2">
                 {product.shortReason}
@@ -89,7 +134,7 @@ export default function ProductCardSelected({ product, alternatives, onSwap, onR
                         <div className="text-right shrink-0">
                           <p className="text-sm font-semibold">{alt.pricePerMonth}€</p>
                           {diff !== 0 && (
-                            <p className={cn("text-xs font-medium", diff > 0 ? "text-destructive" : "text-primary-foreground")}>
+                            <p className={cn("text-xs font-medium", diff > 0 ? "text-destructive" : "text-primary")}>
                               {diff > 0 ? `+${diff}€` : `${diff}€`}
                             </p>
                           )}

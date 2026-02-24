@@ -30,7 +30,7 @@ const PackDetail = () => {
 
   // Duration state — may come from PricingSection navigation
   const incomingDuration = (location.state as any)?.durationMonths;
-  const [selectedMonths, setSelectedMonths] = useState<number>(incomingDuration || 1);
+  const [selectedMonths, setSelectedMonths] = useState<number>(incomingDuration || 6);
   const durationOption = DURATION_OPTIONS.find((d) => d.months === selectedMonths) || DURATION_OPTIONS[0];
 
   const {
