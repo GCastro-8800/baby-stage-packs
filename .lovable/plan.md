@@ -1,81 +1,89 @@
 
-# Iteracion 2: Pagina de seleccion curada `/mi-seleccion`
+# Rediseno de `/mi-seleccion` - Aspecto e-commerce + flujo sin preguntas repetidas
 
 ## Resumen
 
-Reemplazar el placeholder actual de `/mi-seleccion` con la pagina completa e interactiva de seleccion personalizada. El usuario ve sus productos recomendados organizados por etapa, puede cambiar, quitar o anadir productos, y ve el precio total en tiempo real.
+Dos problemas a resolver:
+
+1. **Visual**: La pagina parece una lista plana, no un e-commerce. Necesita imagenes de producto, cards mas visuales, mejor jerarquia y un aspecto mas premium.
+2. **Flujo**: Las preguntas del cuestionario solo deben aparecer la primera vez. Si el usuario vuelve a `/mi-seleccion` directamente (sin pasar por `/configurador`), deberia poder ver el catalogo completo y elegir productos libremente, sin redirigir al cuestionario.
 
 ---
 
-## Archivos nuevos (5 componentes)
+## Cambios visuales - Cards de producto tipo e-commerce
 
-### 1. `src/components/configurator/SelectionSidebar.tsx`
-- Panel sticky (solo desktop) con:
-  - Titulo "Tu seleccion" + contador de productos
-  - Lista de productos con nombre, precio y boton X para quitar
-  - Precio total en formato grande (ej: "139EUR/mes")
-  - Boton CTA "Contratar ahora"
-  - Bloque "Incluye siempre": Limpieza UV-C, Entrega en casa, Cambios gratis, Soporte experto
+### `ProductCardSelected.tsx` - Rediseno completo
+- Anadir imagen placeholder del producto (cuadrado 80x80px con fondo gris claro y icono de categoria si no hay imagen real)
+- Layout horizontal: imagen a la izquierda, info a la derecha
+- Nombre del producto mas grande (text-base font-semibold)
+- Marca como badge sutil
+- Precio destacado con fondo accent suave
+- shortReason como chip/badge verde
+- Boton "Cambiar" mas visible, estilo outline
+- Boton "Quitar" como icono de papelera discreto
+- Alternativas en collapsible con mini-cards que tambien tienen imagen placeholder
 
-### 2. `src/components/configurator/ProductCardSelected.tsx`
-- Card para producto preseleccionado por la recomendacion
-- Check verde, nombre, marca, precio/mes, shortReason
-- Boton "Cambiar producto" que abre/cierra un Collapsible con alternativas de la misma categoria
-- Alternativas muestran: nombre, precio, diferencia de precio, shortReason
-- Al seleccionar alternativa: llama a `swapProduct`, cierra el collapsible
-- Opcion "No necesito esto" para quitar el producto
+### `ProductCardSuggested.tsx` - Rediseno completo
+- Mismo layout con imagen placeholder
+- Fondo blanco con borde punteado sutil
+- Badge "Recomendado para etapa 4-8" en azul claro
+- Boton "+ Anadir" mas prominente, estilo outline con icono
 
-### 3. `src/components/configurator/ProductCardSuggested.tsx`
-- Card para producto NO seleccionado (etapa 4-8 meses)
-- Estilo mas tenue (borde gris punteado, sin check)
-- Nombre, precio, shortReason
-- Boton "+ Anadir a mi seleccion" -> llama a `addProduct`
-- Si ya esta seleccionado, cambia a estilo seleccionado con boton "Quitar"
+### `CategorySection.tsx` - Mejor jerarquia
+- Titulo de categoria mas grande con icono a la izquierda
+- Separador visual entre categorias
+- Si no hay producto seleccionado, mostrar texto "No has seleccionado ningun producto de esta categoria" con boton "Ver opciones"
 
-### 4. `src/components/configurator/CategorySection.tsx`
-- Wrapper que agrupa una categoria (ej: "Movilidad")
-- Icono de categoria + titulo
-- Renderiza ProductCardSelected si hay producto seleccionado de esa categoria, o ProductCardSuggested si no
+### `SelectionSidebar.tsx` - Mas premium
+- Fondo blanco con sombra sutil en vez de borde
+- Precio total mas grande y destacado
+- Anadir linea "Ahorro estimado vs compra: ~X EUR" como gancho
+- Perks con iconos mas grandes y coloridos
 
-### 5. `src/components/configurator/StickyMobileBar.tsx`
-- Barra fija en la parte inferior (solo movil, useIsMobile)
-- Muestra: numero de productos, precio total, boton "Contratar"
-- Solo visible si hay al menos 1 producto seleccionado
-
----
-
-## Archivo modificado
-
-### 6. `src/pages/Selection.tsx` (reescritura completa)
-- Recibe answers y recommended IDs del state de navegacion (desde Configurator)
-- Reconstruye los productos recomendados usando getProductById
-- Obtiene sugerencias de etapa 4-8 con getStageSuggestions()
-- Inicializa useSelection con los productos recomendados
-- Muestra buildSituationSummary(answers) como subtitulo
-- Layout desktop: grid 2 columnas (sidebar 1/3 + contenido 2/3)
-- Layout movil: contenido full-width + StickyMobileBar abajo
-- Contenido organizado en 2 bloques:
-  - "Etapa 0-4 meses": secciones de movilidad, descanso, porteo, extras (solo categorias con producto)
-  - "Etapa 4-8 meses": alimentacion, extras-4-8 (como sugerencias)
-- Footer con enlace "Ver catalogo completo" -> /catalogo
-- Analytics: track recommendation_view al montar
+### `StickyMobileBar.tsx` - Mas e-commerce
+- Fondo blanco con sombra superior
+- Precio en fuente serif grande
+- Boton CTA mas ancho
 
 ---
 
-## Interacciones detalladas
+## Cambio de flujo - Eliminar redireccion forzosa al cuestionario
 
-- **Cambiar**: Collapsible abre lista de alternativas de la misma categoria. Al seleccionar, swapProduct + cierre
-- **Quitar**: X en sidebar o "No necesito esto" en card -> removeProduct
-- **Anadir sugerido**: boton en card sugerida -> addProduct
-- **Precio**: se recalcula en tiempo real en sidebar (desktop) y barra inferior (movil)
-- **Checkout**: por ahora abre WhatsApp con mensaje que incluye lista de productos seleccionados
+### `Selection.tsx` - Acceso libre
+- Eliminar la redireccion `<Navigate to="/configurador">` cuando no hay state
+- Si el usuario llega sin state (sin cuestionario):
+  - Mostrar TODOS los productos del catalogo organizados por categoria y etapa
+  - Cada producto aparece como `ProductCardSuggested` (no seleccionado)
+  - El usuario puede anadir los que quiera
+  - Mostrar un banner superior tipo "Quieres que te ayudemos a elegir?" con enlace al configurador
+- Si llega CON state (desde cuestionario):
+  - Mantener el flujo actual: productos preseleccionados + sugerencias
+  - Mostrar banner "Seleccion basada en tu cuestionario" con opcion de "Volver a hacer el cuestionario"
+
+### `useSelection.ts` - Sin cambios
+- El hook ya soporta inicializar con array vacio, asi que funciona en ambos casos
 
 ---
 
 ## Detalles tecnicos
 
-- Usa useIsMobile() existente para responsive
-- Usa useSelection() existente para estado (addProduct, removeProduct, swapProduct, totalPrice, productList)
-- Usa Collapsible de radix-ui (ya instalado) para acordeon de alternativas
-- Usa PRODUCT_CATALOG, CATEGORY_LABELS, getProductById, getProductsByCategory del catalogo existente
-- Usa buildSituationSummary y getStageSuggestions de recommendationEngine existente
+### Imagenes de producto
+- Como no hay imagenes reales aun, usar un placeholder visual:
+  - Fondo con gradiente suave (segun categoria: azul para movilidad, lila para descanso, rosa para porteo, naranja para alimentacion, gris para extras)
+  - Icono de lucide centrado (Baby, Moon, Heart, UtensilsCrossed, Package)
+  - Tamano 80x80 en mobile, 96x96 en desktop
+- Cuando haya imagenes reales, solo habra que rellenar el campo `image` en el catalogo
+
+### Layout de la pagina
+- Header: "Tu seleccion" + subtitulo contextual (resumen si viene de cuestionario, "Elige lo que necesitas" si acceso libre)
+- Banner contextual: cuestionario o acceso libre
+- Grid de productos por etapa y categoria
+- Sidebar sticky (desktop) / Bottom bar (mobile)
+
+### Archivos a modificar
+1. `src/pages/Selection.tsx` - Logica de acceso libre + layout mejorado
+2. `src/components/configurator/ProductCardSelected.tsx` - Rediseno visual
+3. `src/components/configurator/ProductCardSuggested.tsx` - Rediseno visual
+4. `src/components/configurator/CategorySection.tsx` - Mejor jerarquia
+5. `src/components/configurator/SelectionSidebar.tsx` - Aspecto premium
+6. `src/components/configurator/StickyMobileBar.tsx` - Estilo e-commerce
