@@ -20,6 +20,7 @@ interface CategorySectionProps {
   onSwap: (oldId: string, newProduct: Product) => void;
   onRemove: (productId: string) => void;
   onAdd: (product: Product) => void;
+  stageBadge?: string;
 }
 
 export default function CategorySection({
@@ -31,6 +32,7 @@ export default function CategorySection({
   onSwap,
   onRemove,
   onAdd,
+  stageBadge,
 }: CategorySectionProps) {
   const Icon = CATEGORY_ICONS[category];
   const hasContent = selectedProduct || suggestedProducts.length > 0;
@@ -39,9 +41,11 @@ export default function CategorySection({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-muted-foreground" />
-        <h3 className="font-medium text-sm">{CATEGORY_LABELS[category]}</h3>
+      <div className="flex items-center gap-2.5 pb-1 border-b border-border/50">
+        <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center">
+          <Icon className="h-4 w-4 text-primary-foreground" />
+        </div>
+        <h3 className="font-serif text-base font-medium">{CATEGORY_LABELS[category]}</h3>
       </div>
 
       {selectedProduct && (
@@ -60,6 +64,7 @@ export default function CategorySection({
           isSelected={isSelected(p.id)}
           onAdd={onAdd}
           onRemove={onRemove}
+          stageBadge={stageBadge}
         />
       ))}
     </div>
