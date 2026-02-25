@@ -104,6 +104,7 @@ export default function SelectionSidebar({
               Ahorro por compromiso: {savings}€/mes
             </p>
           )}
+          <p className="text-[10px] text-muted-foreground mt-1">Compromiso mínimo: 3 meses por producto</p>
         </div>
 
         <Button className="w-full cta-tension" size="lg" onClick={onCheckout}>
