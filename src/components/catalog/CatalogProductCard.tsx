@@ -77,9 +77,12 @@ export default function CatalogProductCard({ product }: CatalogProductCardProps)
               {product.brand}
             </Badge>
           </div>
-          <span className="shrink-0 bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
-            {product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
-          </span>
+          <div className="shrink-0 text-right">
+            <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
+              {product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
+            </span>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Mín. 3 meses</p>
+          </div>
         </div>
 
         <p className="text-xs text-muted-foreground line-clamp-2">{product.description}</p>

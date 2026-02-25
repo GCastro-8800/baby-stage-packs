@@ -30,6 +30,7 @@ export default function ProductCardSuggested({ product, isSelected, onAdd, onRem
                 <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
                   {product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
                 </span>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Mín. 3 meses</p>
               </div>
             </div>
             {stageBadge && !isSelected && (

@@ -43,7 +43,7 @@ export function useSelection(initialProducts: Product[] = [], answers?: Question
     }
     // Otherwise load from localStorage
     const stored = loadFromStorage();
-    if (stored) {
+    if (stored && stored.productIds.length > 0) {
       const map = new Map<string, Product>();
       stored.productIds.forEach((id) => {
         const p = getProductById(id);
@@ -51,7 +51,14 @@ export function useSelection(initialProducts: Product[] = [], answers?: Question
       });
       return map;
     }
-    return new Map();
+    // Default: 4 products (one per main category)
+    const defaults = ["bugaboo-fox-3", "stokke-sleepi-mini", "babybjorn-bliss", "ergobaby-omni"];
+    const map = new Map<string, Product>();
+    defaults.forEach((id) => {
+      const p = getProductById(id);
+      if (p) map.set(id, p);
+    });
+    return map;
   });
 
   const [durations, setDurations] = useState<Map<string, number>>(() => {
@@ -61,14 +68,21 @@ export function useSelection(initialProducts: Product[] = [], answers?: Question
       return map;
     }
     const stored = loadFromStorage();
-    if (stored) {
+    if (stored && stored.productIds.length > 0) {
       const map = new Map<string, number>();
       Object.entries(stored.durations).forEach(([id, months]) => {
         map.set(id, months);
       });
       return map;
     }
-    return new Map();
+    // Default durations for default products
+    const defaults = ["bugaboo-fox-3", "stokke-sleepi-mini", "babybjorn-bliss", "ergobaby-omni"];
+    const map = new Map<string, number>();
+    defaults.forEach((id) => {
+      const p = getProductById(id);
+      if (p) map.set(id, DEFAULT_DURATION);
+    });
+    return map;
   });
 
   const [questionnaireAnswers] = useState<QuestionnaireAnswers | undefined>(answers);
