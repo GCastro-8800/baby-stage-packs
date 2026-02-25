@@ -1,55 +1,74 @@
 
-# Actualizar catalogo de productos: solo los 17 productos finales
+# Correcciones: eliminar referencias a "packs" y arreglar diseño movil
 
-## Resumen
+## Problema
 
-Reemplazar todo el catalogo actual con exactamente los 17 productos que habeis definido. Esto implica:
-- Renombrar productos existentes (Fox 5 -> Fox 3, YOYO3 -> YOYO2, etc.)
-- Anadir nuevos (Bugaboo Donkey 3, BabyBjorn Harmony)
-- Eliminar todos los que no estan en la lista (Chicco Lite Way, monitores, alfombra, parque, andador, valla, torre, cama Montessori, etc.)
-- Actualizar categorias para reflejar la nueva estructura: carrito, cuna, trona, hamaca, porteo, cambiador
+Hay dos problemas principales:
 
-## Productos finales (17)
+1. **Referencias a "packs" obsoletas**: El modelo de negocio ha cambiado a seleccion de productos individuales, pero multiples componentes siguen mencionando "packs", "planes" y la seccion de precios antigua (Start/Comfort/Total Peace) que ya no aplica.
 
-| Producto | Categoria | ID |
-|---|---|---|
-| Bugaboo Fox 3 | movilidad | bugaboo-fox-3 |
-| Bugaboo Donkey 3 | movilidad | bugaboo-donkey-3 |
-| Bugaboo Dragonfly | movilidad | bugaboo-dragonfly |
-| Joolz Aer 2 | movilidad | joolz-aer-2 |
-| Babyzen YOYO2 | movilidad | babyzen-yoyo2 |
-| Stokke Sleepi Mini | descanso | stokke-sleepi-mini |
-| Moises mimbre | descanso | moises-mimbre |
-| Stokke Tripp Trapp | alimentacion | trona-stokke-tripp-trapp |
-| Bugaboo Giraffe (trona) | alimentacion | trona-bugaboo-giraffe |
-| BabyBjorn Bliss/Balance | porteo | babybjorn-bliss |
-| Bugaboo Giraffe (hamaca) | porteo | bugaboo-giraffe-hamaca |
-| Nuna LEAF Grow | porteo | nuna-leaf-grow |
-| BabyBjorn Balance Soft | porteo | babybjorn-balance-soft |
-| BabyBjorn Harmony | porteo | babybjorn-harmony |
-| Ergobaby Omni | porteo | ergobaby-omni |
-| Boba Wrap | porteo | boba-wrap |
-| Cambiador mimbre | extras | cambiador |
+2. **Problemas de diseño movil**: Algunos elementos se cortan o no caben bien en pantallas pequenas (tarjetas de producto con selectores de duracion, botones flotantes superpuestos).
 
-## Productos a ELIMINAR
+---
 
-- Chicco Lite Way, Triciclo Evolutivo Liki, Chicco Next2Me, Cama Montessori, Nuna LEAF (la no-Grow), BabyBjorn Air, BabyBjorn One, Monitor premium, Monitor basico, Alfombra Toddlekind, Parque de actividades, Andador de empuje, Valla de seguridad, Torre de aprendizaje
+## Cambios a realizar
 
-## Cambios tecnicos
+### 1. Eliminar/corregir textos con "pack" en toda la app
 
-### `src/data/productCatalog.ts`
-- Reescribir `PRODUCT_CATALOG` con exactamente los 17 productos
-- Renombrar: Fox 5 -> Fox 3, YOYO3 -> YOYO2, Sleepi -> Sleepi Mini, Tripp Trapp Oak -> Tripp Trapp
-- Anadir: Bugaboo Donkey 3 (nuevo carrito premium) y BabyBjorn Harmony (nueva hamaca)
-- Cambiador pasa de marca "Leander" a "mimbre" (sin marca especifica)
-- Mantener categorias existentes (movilidad, descanso, porteo, alimentacion, extras) - el cambiador queda en extras
+**`src/components/FAQSection.tsx`**:
+- Pregunta "Que incluye exactamente cada pack?" -> Cambiar a "Que incluye el servicio?" con respuesta sobre seleccion individual de productos
+- Pregunta sobre cambio de etapa: quitar "recogida del pack actual" -> "recogida del equipamiento actual"
 
-### `src/data/recommendationEngine.ts`
-- Actualizar IDs referenciados: `bugaboo-fox-5` -> `bugaboo-fox-3`, `babyzen-yoyo3` -> `babyzen-yoyo2`, `stokke-sleepi` -> `stokke-sleepi-mini`
-- Eliminar referencias a productos borrados: `chicco-next2me`, `hamaca-nuna-leaf`, `babybjorn-air`, `monitor-premium`, `monitor-basico`
-- Reemplazar con alternativas existentes: chicco-next2me -> moises-mimbre, hamaca-nuna-leaf -> nuna-leaf-grow, babybjorn-air -> ergobaby-omni
-- Eliminar seccion de monitor (ya no existe)
+**`src/pages/AboutUs.tsx`** (linea 299):
+- "Descubre nuestros packs" -> "Descubre nuestro servicio"
 
-### Otros archivos
-- Verificar que `Selection.tsx` y `Catalog.tsx` no tengan IDs hardcodeados de productos eliminados
-- El localStorage de seleccion del usuario podria tener productos viejos; el hook `useSelection` ya filtra por `getProductById` que devolveria undefined
+**`src/components/ChatBot.tsx`** (linea 18):
+- "nuestros planes, envios" -> "nuestro servicio, envios"
+
+**`src/pages/PrivacyPolicy.tsx`** (linea 58):
+- "packs de suscripcion" -> "equipamiento de suscripcion"
+
+**`src/pages/Selection.tsx`** (linea 185):
+- "monta tu pack a medida" -> "monta tu seleccion a medida"
+
+### 2. Actualizar la seccion de precios (PricingSection)
+
+La PricingSection muestra 3 planes fijos (Start/Comfort/Total Peace) con equipamiento predefinido. Esto ya no aplica porque el modelo es de seleccion individual.
+
+**`src/components/PricingSection.tsx`**: Reemplazar completamente por una seccion simplificada que:
+- Explique que el precio se calcula segun los productos que elijas
+- Muestre un rango orientativo (ej: "desde X euros/mes")
+- Tenga un CTA claro hacia el configurador o catalogo
+- Mantenga el selector de duracion con descuentos
+- Elimine las 3 columnas de planes fijos
+
+**`src/pages/Index.tsx`**: Actualizar el uso de PricingSection (ya no necesita `onSelectPlan` ni `pricingRef` si se simplifica).
+
+### 3. Arreglar diseño movil
+
+**`src/components/configurator/ProductCardSelected.tsx`**:
+- Los chips de duracion pueden desbordar en pantallas pequenas. Anadir `flex-wrap` y reducir tamano en movil
+- La card con imagen + info + precio necesita mejor disposicion en pantallas de 320px
+
+**`src/components/catalog/CatalogProductCard.tsx`**:
+- Asegurar que el precio y nombre no se corten con `truncate`
+
+**`src/components/FloatingCTA.tsx`** y **`src/components/WhatsAppButton.tsx`**:
+- Verificar que el CTA flotante inferior no se superpone con WhatsApp y ChatBot. Ajustar posiciones (WhatsApp arriba del CTA, ChatBot a la derecha)
+
+**`src/components/configurator/ProductCardSelected.tsx`**:
+- En movil, cambiar el layout de la tarjeta a vertical (imagen arriba, info debajo) para que todo quepa
+
+---
+
+## Archivos a modificar
+
+1. `src/components/FAQSection.tsx` - Corregir textos de FAQ
+2. `src/pages/AboutUs.tsx` - Quitar "packs"
+3. `src/components/ChatBot.tsx` - Quitar "planes"
+4. `src/pages/PrivacyPolicy.tsx` - Quitar "packs"
+5. `src/pages/Selection.tsx` - Quitar "pack a medida"
+6. `src/components/PricingSection.tsx` - Reemplazar planes fijos por seccion de precios dinamica
+7. `src/pages/Index.tsx` - Actualizar integracion de PricingSection
+8. `src/components/configurator/ProductCardSelected.tsx` - Mejorar layout movil
+9. `src/components/catalog/CatalogProductCard.tsx` - Ajustes responsive
