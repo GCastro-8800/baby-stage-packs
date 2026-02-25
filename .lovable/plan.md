@@ -1,77 +1,55 @@
 
-# Mejoras: botones funcionales, 4 etapas, y flujo catalogo-seleccion coherente
+# Actualizar catalogo de productos: solo los 17 productos finales
 
 ## Resumen
 
-Tres problemas a resolver:
+Reemplazar todo el catalogo actual con exactamente los 17 productos que habeis definido. Esto implica:
+- Renombrar productos existentes (Fox 5 -> Fox 3, YOYO3 -> YOYO2, etc.)
+- Anadir nuevos (Bugaboo Donkey 3, BabyBjorn Harmony)
+- Eliminar todos los que no estan en la lista (Chicco Lite Way, monitores, alfombra, parque, andador, valla, torre, cama Montessori, etc.)
+- Actualizar categorias para reflejar la nueva estructura: carrito, cuna, trona, hamaca, porteo, cambiador
 
-1. **Botones Calendly/WhatsApp**: El numero de WhatsApp en el checkout es falso (34600000000). Hay que cambiarlo al real (34638706467). Calendly ya apunta a la URL correcta.
-2. **4 etapas en vez de 2**: Ampliar de 2 etapas (0-4, 4-8) a 4 etapas (0-4, 4-8, 8-12, 12-24 meses). Esto requiere nuevos tipos, nuevos productos para las etapas 8-12 y 12-24, y actualizar la logica de agrupacion en catalogo y seleccion.
-3. **Flujo catalogo -> seleccion**: Actualmente, el boton "Anadir a mi seleccion" en el catalogo navega a `/mi-seleccion` perdiendo el estado previo. Hay que implementar un carrito compartido que persista entre paginas, o permitir anadir productos directamente desde el catalogo con un toast de confirmacion y un mini-carrito visible.
+## Productos finales (17)
 
----
+| Producto | Categoria | ID |
+|---|---|---|
+| Bugaboo Fox 3 | movilidad | bugaboo-fox-3 |
+| Bugaboo Donkey 3 | movilidad | bugaboo-donkey-3 |
+| Bugaboo Dragonfly | movilidad | bugaboo-dragonfly |
+| Joolz Aer 2 | movilidad | joolz-aer-2 |
+| Babyzen YOYO2 | movilidad | babyzen-yoyo2 |
+| Stokke Sleepi Mini | descanso | stokke-sleepi-mini |
+| Moises mimbre | descanso | moises-mimbre |
+| Stokke Tripp Trapp | alimentacion | trona-stokke-tripp-trapp |
+| Bugaboo Giraffe (trona) | alimentacion | trona-bugaboo-giraffe |
+| BabyBjorn Bliss/Balance | porteo | babybjorn-bliss |
+| Bugaboo Giraffe (hamaca) | porteo | bugaboo-giraffe-hamaca |
+| Nuna LEAF Grow | porteo | nuna-leaf-grow |
+| BabyBjorn Balance Soft | porteo | babybjorn-balance-soft |
+| BabyBjorn Harmony | porteo | babybjorn-harmony |
+| Ergobaby Omni | porteo | ergobaby-omni |
+| Boba Wrap | porteo | boba-wrap |
+| Cambiador mimbre | extras | cambiador |
 
-## Cambios detallados
+## Productos a ELIMINAR
 
-### 1. WhatsApp real en CheckoutOptionsDialog
+- Chicco Lite Way, Triciclo Evolutivo Liki, Chicco Next2Me, Cama Montessori, Nuna LEAF (la no-Grow), BabyBjorn Air, BabyBjorn One, Monitor premium, Monitor basico, Alfombra Toddlekind, Parque de actividades, Andador de empuje, Valla de seguridad, Torre de aprendizaje
 
-**`src/components/configurator/CheckoutOptionsDialog.tsx`**:
-- Cambiar `34600000000` por `34638706467` (el numero real ya usado en `WhatsAppButton.tsx`)
+## Cambios tecnicos
 
-### 2. Ampliar a 4 etapas
+### `src/data/productCatalog.ts`
+- Reescribir `PRODUCT_CATALOG` con exactamente los 17 productos
+- Renombrar: Fox 5 -> Fox 3, YOYO3 -> YOYO2, Sleepi -> Sleepi Mini, Tripp Trapp Oak -> Tripp Trapp
+- Anadir: Bugaboo Donkey 3 (nuevo carrito premium) y BabyBjorn Harmony (nueva hamaca)
+- Cambiador pasa de marca "Leander" a "mimbre" (sin marca especifica)
+- Mantener categorias existentes (movilidad, descanso, porteo, alimentacion, extras) - el cambiador queda en extras
 
-**`src/data/productCatalog.ts`**:
-- Cambiar el tipo `ProductStage` a `"0-4" | "4-8" | "8-12" | "12-24" | "ambas"`
-- Anadir etapas `"8-12"` y `"12-24"` a `STAGE_LABELS`
-- Anadir nuevos productos para las etapas 8-12 y 12-24:
-  - **8-12 meses (exploradores)**: Parque de actividades (tipo extras), andador de empuje, valla de seguridad
-  - **12-24 meses (caminantes)**: Triciclo evolutivo, cama Montessori, torre de aprendizaje
-- Actualizar algunos productos existentes que aplican a las nuevas etapas (ej: mochilas portabebe que sirven hasta 12-24, tronas que van de 4-24)
+### `src/data/recommendationEngine.ts`
+- Actualizar IDs referenciados: `bugaboo-fox-5` -> `bugaboo-fox-3`, `babyzen-yoyo3` -> `babyzen-yoyo2`, `stokke-sleepi` -> `stokke-sleepi-mini`
+- Eliminar referencias a productos borrados: `chicco-next2me`, `hamaca-nuna-leaf`, `babybjorn-air`, `monitor-premium`, `monitor-basico`
+- Reemplazar con alternativas existentes: chicco-next2me -> moises-mimbre, hamaca-nuna-leaf -> nuna-leaf-grow, babybjorn-air -> ergobaby-omni
+- Eliminar seccion de monitor (ya no existe)
 
-**`src/pages/Selection.tsx`**:
-- Ampliar las constantes de categorias por etapa para incluir las 4 etapas
-- Renderizar las 4 secciones de etapa
-
-**`src/pages/Catalog.tsx`**:
-- Actualizar `groupByStage` para manejar las 4 etapas
-- Renderizar las 4 secciones
-
-### 3. Flujo coherente catalogo <-> seleccion
-
-El problema actual: al pulsar "Anadir a mi seleccion" en `/catalogo`, navegas a `/mi-seleccion` y se pierde cualquier seleccion previa (el estado solo vive en memoria de la pagina Selection).
-
-**Solucion**: Usar `localStorage` para persistir la seleccion entre paginas.
-
-**`src/hooks/useSelection.ts`**:
-- Al inicializar, leer productos guardados de `localStorage` (key: `bebloo_selection`)
-- Cada vez que cambian `selectedProducts` o `durations`, guardar en `localStorage`
-- Si llega con `initialProducts` (del cuestionario), estos tienen prioridad y sobrescriben el localStorage
-- Funcion de merge: si llega un `preselectedProduct` desde el catalogo, se anade a los existentes
-
-**`src/pages/Selection.tsx`**:
-- Leer `location.state.preselectedProduct` y pasarlo a `useSelection` para que lo anade
-- Los productos previos se mantienen gracias al localStorage
-
-**`src/components/catalog/CatalogProductCard.tsx`**:
-- Cambiar la navegacion: en vez de navegar a `/mi-seleccion`, guardar el producto directamente en localStorage y mostrar un toast de confirmacion
-- Anadir un boton/enlace "Ver mi seleccion (X productos)" como toast action
-- Importar toast de sonner
-
-**`src/pages/Catalog.tsx`**:
-- Anadir un mini-badge flotante o banner superior que muestre cuantos productos hay en la seleccion
-- Con enlace a `/mi-seleccion`
-
----
-
-## Archivos a modificar
-
-1. `src/components/configurator/CheckoutOptionsDialog.tsx` - Numero WhatsApp real
-2. `src/data/productCatalog.ts` - 4 etapas + nuevos productos
-3. `src/hooks/useSelection.ts` - Persistencia en localStorage
-4. `src/pages/Selection.tsx` - 4 secciones de etapa + merge de preseleccion
-5. `src/pages/Catalog.tsx` - 4 etapas + indicador de seleccion
-6. `src/components/catalog/CatalogProductCard.tsx` - Anadir al carrito sin navegar + toast
-
-## Archivos sin cambios
-- `src/lib/constants.ts` - Las duraciones y descuentos no cambian
-- `src/components/configurator/CheckoutOptionsDialog.tsx` - Solo cambia el numero
+### Otros archivos
+- Verificar que `Selection.tsx` y `Catalog.tsx` no tengan IDs hardcodeados de productos eliminados
+- El localStorage de seleccion del usuario podria tener productos viejos; el hook `useSelection` ya filtra por `getProductById` que devolveria undefined
