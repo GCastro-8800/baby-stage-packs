@@ -253,7 +253,16 @@ export default function Selection() {
       </main>
 
       {isMobile && (
-        <StickyMobileBar count={count} totalPrice={totalPrice} onCheckout={handleCheckout} />
+        <StickyMobileBar
+          count={count}
+          totalPrice={totalPrice}
+          onCheckout={handleCheckout}
+          products={productList}
+          onRemove={removeProduct}
+          getDuration={getDuration}
+          setDuration={setDuration}
+          getDiscountedPrice={getDiscountedPrice}
+        />
       )}
 
       <CheckoutOptionsDialog
