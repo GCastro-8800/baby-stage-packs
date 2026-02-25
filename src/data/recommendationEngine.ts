@@ -1,16 +1,12 @@
 import { Product, PRODUCT_CATALOG } from "./productCatalog";
 
 export interface QuestionnaireAnswers {
-  dueDate: string; // ISO date or "already-born"
+  dueDate: string;
   housing: "small-apartment" | "spacious" | "no-elevator";
   concerns: string[];
   existingEquipment: "nothing" | "some" | "specific";
 }
 
-/**
- * Returns a list of recommended products based on the user's questionnaire answers.
- * Products from stage "4-8" are NOT pre-selected — they'll be shown as suggestions.
- */
 export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
   const selected: Product[] = [];
 
@@ -20,11 +16,11 @@ export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
   const startFromZero = answers.existingEquipment === "nothing";
   const hasSome = answers.existingEquipment === "some";
 
-  // — CARRITO (always recommend one) —
+  // — CARRITO —
   if (wantsBest && !smallSpace) {
-    selected.push(findProduct("bugaboo-fox-5")!);
+    selected.push(findProduct("bugaboo-fox-3")!);
   } else if (budgetTight) {
-    selected.push(findProduct("babyzen-yoyo3")!);
+    selected.push(findProduct("babyzen-yoyo2")!);
   } else if (smallSpace) {
     selected.push(findProduct("joolz-aer-2")!);
   } else {
@@ -33,33 +29,24 @@ export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
 
   // — CUNA —
   if (wantsBest) {
-    selected.push(findProduct("stokke-sleepi")!);
+    selected.push(findProduct("stokke-sleepi-mini")!);
   } else {
-    selected.push(findProduct("chicco-next2me")!);
+    selected.push(findProduct("moises-mimbre")!);
   }
 
-  // — PORTEO (mochila o hamaca) —
+  // — PORTEO —
   if (startFromZero) {
     if (wantsBest) {
-      selected.push(findProduct("hamaca-nuna-leaf")!);
+      selected.push(findProduct("nuna-leaf-grow")!);
     } else if (budgetTight) {
-      selected.push(findProduct("babybjorn-air")!);
+      selected.push(findProduct("ergobaby-omni")!);
     } else {
       selected.push(findProduct("ergobaby-omni")!);
     }
   } else if (!hasSome) {
-    // "specific" — skip porteo
+    // "specific" — skip
   } else {
     selected.push(findProduct("ergobaby-omni")!);
-  }
-
-  // — MONITOR —
-  if (startFromZero || !hasSome) {
-    if (wantsBest) {
-      selected.push(findProduct("monitor-premium")!);
-    } else {
-      selected.push(findProduct("monitor-basico")!);
-    }
   }
 
   // — CAMBIADOR (only if starting from zero) —
@@ -70,9 +57,6 @@ export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
   return selected.filter(Boolean);
 }
 
-/**
- * Returns products that should be SHOWN but NOT selected (stage 4-8 suggestions).
- */
 export function getStageSuggestions(): Product[] {
   return PRODUCT_CATALOG.filter((p) => p.stage === "4-8");
 }
@@ -81,9 +65,6 @@ function findProduct(id: string): Product | undefined {
   return PRODUCT_CATALOG.find((p) => p.id === id);
 }
 
-/**
- * Build a short summary of the user's situation for display.
- */
 export function buildSituationSummary(answers: QuestionnaireAnswers): string {
   const parts: string[] = [];
 
