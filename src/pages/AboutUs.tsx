@@ -295,8 +295,8 @@ const AboutUs = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="cta-tension gap-2 text-base px-8">
-                <Link to="/#precios">
-                  Descubre nuestros packs
+                <Link to="/catalogo">
+                  Descubre nuestro catálogo
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

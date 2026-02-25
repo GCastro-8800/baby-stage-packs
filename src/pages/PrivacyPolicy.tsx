@@ -55,7 +55,7 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-6 space-y-2">
               <li>Gestionar tu cuenta y autenticación.</li>
               <li>Personalizar la experiencia según la etapa de tu bebé.</li>
-              <li>Preparar y enviar los packs de suscripción adecuados.</li>
+              <li>Preparar y enviar el equipamiento de suscripción adecuado.</li>
               <li>Comunicarnos contigo sobre tu suscripción y servicio.</li>
               <li>Mejorar y optimizar nuestro servicio.</li>
             </ul>

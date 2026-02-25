@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     question: "¿Qué pasa cuando mi bebé crece y necesita otra etapa?",
-    answer: "¡Muy fácil! Nos avisas cuando estés listo para el cambio, programamos la recogida del pack actual y te enviamos el de la siguiente etapa. Todo incluido en tu suscripción.",
+    answer: "¡Muy fácil! Nos avisas cuando estés listo para el cambio, programamos la recogida del equipamiento actual y te enviamos lo que necesitas para la siguiente etapa. Todo incluido en tu suscripción.",
   },
   {
     question: "¿Puedo cancelar en cualquier momento?",
@@ -20,15 +20,15 @@ const faqs = [
   },
   {
     question: "¿Qué marcas utilizáis?",
-    answer: "Trabajamos con las marcas más reconocidas y seguras del mercado: BabyBjörn, Stokke, Cybex, Maxi-Cosi, entre otras. Solo seleccionamos productos que cumplen con los más altos estándares de calidad y seguridad.",
+    answer: "Trabajamos con las marcas más reconocidas y seguras del mercado: Bugaboo, Stokke, BabyBjörn, Babyzen, Ergobaby, entre otras. Solo seleccionamos productos que cumplen con los más altos estándares de calidad y seguridad.",
   },
   {
     question: "¿En qué zonas hacéis entrega?",
     answer: "Actualmente operamos en Madrid y área metropolitana. Estamos expandiéndonos, así que si estás en otra ciudad, déjanos tu email y te avisaremos cuando lleguemos a tu zona.",
   },
   {
-    question: "¿Qué incluye exactamente cada pack?",
-    answer: "Cada pack está diseñado para cubrir las necesidades específicas de cada etapa. Puedes ver el detalle completo de cada plan en nuestra sección de precios. Si tienes dudas específicas, escríbenos.",
+    question: "¿Qué incluye el servicio?",
+    answer: "Tú eliges los productos que necesitas de nuestro catálogo y nosotros nos encargamos de todo: entrega, montaje, limpieza profesional y recogida. El precio se calcula según lo que selecciones.",
   },
 ];
 

@@ -15,7 +15,7 @@ import ReactMarkdown from "react-markdown";
 const WELCOME_MESSAGE: ChatMessage = {
   role: "assistant",
   content:
-    "¡Hola! 👋 Soy el asistente de **bebloo**. Estoy aquí para ayudarte con cualquier duda sobre nuestros planes, envíos o lo que necesites. ¿En qué puedo ayudarte?",
+    "¡Hola! 👋 Soy el asistente de **bebloo**. Estoy aquí para ayudarte con cualquier duda sobre nuestro servicio, envíos o lo que necesites. ¿En qué puedo ayudarte?",
 };
 
 function ChatMessages({
