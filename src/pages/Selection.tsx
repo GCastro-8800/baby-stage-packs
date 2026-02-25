@@ -182,7 +182,7 @@ export default function Selection() {
               {hasState ? "Tu selección bebloo" : "Elige lo que necesitas"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {hasState ? situationSummary : "Explora nuestro catálogo y monta tu pack a medida"}
+              {hasState ? situationSummary : "Explora nuestro catálogo y monta tu selección a medida"}
             </p>
           </div>
 

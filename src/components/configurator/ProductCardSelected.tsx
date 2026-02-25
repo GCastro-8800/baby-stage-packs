@@ -31,7 +31,7 @@ export default function ProductCardSelected({
 
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-      <div className="p-4 flex gap-4">
+      <div className="p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
         <ProductImagePlaceholder category={product.category} image={product.image} />
 
         <div className="flex-1 min-w-0 flex flex-col justify-between">
@@ -56,7 +56,7 @@ export default function ProductCardSelected({
             </div>
 
             {/* Duration chips */}
-            <div className="flex gap-1 mt-2">
+            <div className="flex flex-wrap gap-1 mt-2">
               {DURATION_OPTIONS.map((opt) => (
                 <button
                   key={opt.months}
