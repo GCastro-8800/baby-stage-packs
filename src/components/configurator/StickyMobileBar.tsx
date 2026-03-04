@@ -77,7 +77,8 @@ export default function StickyMobileBar({
             {products.map((p) => {
               const months = getDuration(p.id);
               const discounted = getDiscountedPrice(p);
-              const hasDiscount = discounted < p.pricePerMonth;
+              const basePrice = p.prices?.[1] ?? p.pricePerMonth;
+              const hasDiscount = discounted < basePrice;
               return (
                 <div key={p.id} className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
