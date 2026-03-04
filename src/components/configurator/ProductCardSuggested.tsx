@@ -28,9 +28,9 @@ export default function ProductCardSuggested({ product, isSelected, onAdd, onRem
               </div>
               <div className="text-right shrink-0">
                 <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
-                  {product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
+                  {product.prices?.[3] ?? product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
                 </span>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Mín. 3 meses</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Desde 3 meses</p>
               </div>
             </div>
             {stageBadge && !isSelected && (

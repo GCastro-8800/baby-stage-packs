@@ -29,7 +29,7 @@ export default function SelectionSidebar({
   setDuration,
   getDiscountedPrice,
 }: SelectionSidebarProps) {
-  const originalTotal = products.reduce((s, p) => s + p.pricePerMonth, 0);
+  const originalTotal = products.reduce((s, p) => s + (p.prices?.[1] ?? p.pricePerMonth), 0);
   const savings = originalTotal - totalPrice;
 
   return (
@@ -51,14 +51,15 @@ export default function SelectionSidebar({
             {products.map((p) => {
               const months = getDuration(p.id);
               const discounted = getDiscountedPrice(p);
-              const hasDiscount = discounted < p.pricePerMonth;
+              const basePrice = p.prices?.[1] ?? p.pricePerMonth;
+              const hasDiscount = discounted < basePrice;
               return (
                 <li key={p.id} className="space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm truncate flex-1">{p.name}</span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {hasDiscount && (
-                        <span className="text-xs text-muted-foreground line-through">{p.pricePerMonth}€</span>
+                        <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
                       )}
                       <span className="text-sm font-medium">{discounted}€</span>
                       <button

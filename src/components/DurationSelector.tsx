@@ -21,15 +21,6 @@ const DurationSelector = ({ selected, onChange }: DurationSelectorProps) => {
             }`}
           >
             <span>{opt.label}</span>
-            {opt.discount > 0 && (
-              <span
-                className={`text-[10px] font-semibold leading-tight ${
-                  isActive ? "text-primary-foreground/80" : "text-primary"
-                }`}
-              >
-                -{opt.discount * 100}%
-              </span>
-            )}
           </button>
         );
       })}

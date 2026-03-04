@@ -36,7 +36,7 @@ export default function StickyMobileBar({
 
   if (count === 0) return null;
 
-  const originalTotal = products.reduce((s, p) => s + p.pricePerMonth, 0);
+  const originalTotal = products.reduce((s, p) => s + (p.prices?.[1] ?? p.pricePerMonth), 0);
   const savings = originalTotal - totalPrice;
 
   return (
@@ -77,7 +77,8 @@ export default function StickyMobileBar({
             {products.map((p) => {
               const months = getDuration(p.id);
               const discounted = getDiscountedPrice(p);
-              const hasDiscount = discounted < p.pricePerMonth;
+              const basePrice = p.prices?.[1] ?? p.pricePerMonth;
+              const hasDiscount = discounted < basePrice;
               return (
                 <div key={p.id} className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -87,7 +88,7 @@ export default function StickyMobileBar({
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {hasDiscount && (
-                        <span className="text-xs text-muted-foreground line-through">{p.pricePerMonth}€</span>
+                        <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
                       )}
                       <span className="text-sm font-semibold">{discounted}€</span>
                       <button

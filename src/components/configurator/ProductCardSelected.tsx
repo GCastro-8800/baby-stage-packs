@@ -69,14 +69,6 @@ export default function ProductCardSelected({
                   )}
                 >
                   {opt.label}
-                  {opt.discount > 0 && (
-                    <span className={cn(
-                      "ml-0.5 text-[9px]",
-                      duration === opt.months ? "text-primary-foreground/80" : "text-primary"
-                    )}>
-                      -{opt.discount * 100}%
-                    </span>
-                  )}
                 </button>
               ))}
             </div>

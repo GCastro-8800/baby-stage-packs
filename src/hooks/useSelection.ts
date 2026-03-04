@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Product, getProductById } from "@/data/productCatalog";
 import { QuestionnaireAnswers } from "@/data/recommendationEngine";
-import { DEFAULT_DURATION, getDiscountForMonths } from "@/lib/constants";
+import { DEFAULT_DURATION } from "@/lib/constants";
 
 const STORAGE_KEY = "bebloo_selection";
 
@@ -152,8 +152,7 @@ export function useSelection(initialProducts: Product[] = [], answers?: Question
   const getDiscountedPrice = useCallback(
     (product: Product) => {
       const months = durations.get(product.id) ?? DEFAULT_DURATION;
-      const discount = getDiscountForMonths(months);
-      return Math.round(product.pricePerMonth * (1 - discount));
+      return product.prices?.[months] ?? product.pricePerMonth;
     },
     [durations]
   );
