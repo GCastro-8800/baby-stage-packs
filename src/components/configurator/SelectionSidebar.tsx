@@ -29,7 +29,7 @@ export default function SelectionSidebar({
   setDuration,
   getDiscountedPrice,
 }: SelectionSidebarProps) {
-  const originalTotal = products.reduce((s, p) => s + p.pricePerMonth, 0);
+  const originalTotal = products.reduce((s, p) => s + (p.prices?.[1] ?? p.pricePerMonth), 0);
   const savings = originalTotal - totalPrice;
 
   return (
