@@ -36,7 +36,7 @@ export default function StickyMobileBar({
 
   if (count === 0) return null;
 
-  const originalTotal = products.reduce((s, p) => s + p.pricePerMonth, 0);
+  const originalTotal = products.reduce((s, p) => s + (p.prices?.[1] ?? p.pricePerMonth), 0);
   const savings = originalTotal - totalPrice;
 
   return (
