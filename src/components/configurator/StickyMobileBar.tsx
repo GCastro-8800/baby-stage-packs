@@ -88,7 +88,7 @@ export default function StickyMobileBar({
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {hasDiscount && (
-                        <span className="text-xs text-muted-foreground line-through">{p.pricePerMonth}€</span>
+                        <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
                       )}
                       <span className="text-sm font-semibold">{discounted}€</span>
                       <button

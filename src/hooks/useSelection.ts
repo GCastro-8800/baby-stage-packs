@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Product, getProductById } from "@/data/productCatalog";
 import { QuestionnaireAnswers } from "@/data/recommendationEngine";
-import { DEFAULT_DURATION, getDiscountForMonths } from "@/lib/constants";
+import { DEFAULT_DURATION } from "@/lib/constants";
 
 const STORAGE_KEY = "bebloo_selection";
 

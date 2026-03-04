@@ -59,7 +59,7 @@ export default function SelectionSidebar({
                     <span className="text-sm truncate flex-1">{p.name}</span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {hasDiscount && (
-                        <span className="text-xs text-muted-foreground line-through">{p.pricePerMonth}€</span>
+                        <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
                       )}
                       <span className="text-sm font-medium">{discounted}€</span>
                       <button
