@@ -152,8 +152,7 @@ export function useSelection(initialProducts: Product[] = [], answers?: Question
   const getDiscountedPrice = useCallback(
     (product: Product) => {
       const months = durations.get(product.id) ?? DEFAULT_DURATION;
-      const discount = getDiscountForMonths(months);
-      return Math.round(product.pricePerMonth * (1 - discount));
+      return product.prices?.[months] ?? product.pricePerMonth;
     },
     [durations]
   );
