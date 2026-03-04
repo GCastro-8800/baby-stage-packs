@@ -51,7 +51,8 @@ export default function SelectionSidebar({
             {products.map((p) => {
               const months = getDuration(p.id);
               const discounted = getDiscountedPrice(p);
-              const hasDiscount = discounted < p.pricePerMonth;
+              const basePrice = p.prices?.[1] ?? p.pricePerMonth;
+              const hasDiscount = discounted < basePrice;
               return (
                 <li key={p.id} className="space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
