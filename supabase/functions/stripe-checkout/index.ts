@@ -14,6 +14,17 @@ interface CartItem {
   pricePerMonth: number; // in euros (e.g. 67)
 }
 
+function stripeInterval(months: number): { interval: "month" | "year"; interval_count: number; multiplier: number } {
+  switch (months) {
+    case 1:  return { interval: "month", interval_count: 1, multiplier: 1 };
+    case 3:  return { interval: "month", interval_count: 3, multiplier: 3 };
+    case 6:  return { interval: "month", interval_count: 6, multiplier: 6 };
+    case 12: return { interval: "year",  interval_count: 1, multiplier: 12 };
+    case 24: return { interval: "year",  interval_count: 2, multiplier: 24 };
+    default: return { interval: "month", interval_count: months, multiplier: months };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
