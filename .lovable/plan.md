@@ -1,57 +1,38 @@
 
+# Panel de gestion de cesta en movil
 
-# Integración de Stripe para pago online
+## Problema
 
-## Situación actual
+En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
 
-- Stripe está habilitado y la clave secreta configurada.
-- La función `stripe-checkout` existente usa IDs de precio placeholder para planes fijos (start/comfort/total-peace), que ya no reflejan el modelo real.
-- El modelo real es: cada usuario selecciona productos individuales, cada uno con su propia duración (1/3/6/12/24 meses), y el precio mensual varía según la duración.
-- 17 productos × 5 duraciones = 85 combinaciones de precio.
+## Solucion
 
-## Plan de implementación
+Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
 
-### 1. Crear productos y precios en Stripe
+## Cambios
 
-Crear 17 productos en Stripe (uno por producto del catálogo) y 85 precios recurrentes mensuales usando las herramientas de Stripe disponibles. Cada precio será un cargo mensual recurrente con el importe fijo correspondiente a la duración comprometida.
+### 1. `src/components/configurator/StickyMobileBar.tsx`
 
-Ejemplo: "Bugaboo Fox 3" tendrá 5 precios: 70€/mes (1m), 67€/mes (3m), 60€/mes (6m), 48€/mes (12m), 34€/mes (24m).
+- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
+- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
+- Dentro del Sheet mostrar:
+  - Lista de productos con nombre, marca, precio
+  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
+  - Boton de eliminar por producto
+  - Total mensual con ahorro
+  - Nota de "Compromiso minimo: 3 meses"
+  - Boton "Contratar ahora"
+- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
 
-### 2. Mapear IDs de precio en el catálogo
+### 2. `src/pages/Selection.tsx`
 
-Añadir un campo `stripePrices: Record<number, string>` a la interfaz `Product` en `productCatalog.ts` para mapear cada duración a su `price_id` de Stripe.
+- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
 
-### 3. Reescribir la función `stripe-checkout`
+## Detalle tecnico
 
-Reemplazar la función actual con una nueva que:
-- Reciba la lista de productos seleccionados con sus duraciones.
-- Construya los `line_items` usando los `price_id` reales del catálogo.
-- Use el SDK de Stripe (no fetch manual).
-- Cree o reutilice un customer de Stripe.
-- Devuelva la URL de checkout.
-
-### 4. Activar la opción "Pagar online" en el diálogo de checkout
-
-En `CheckoutOptionsDialog.tsx`, habilitar el botón de pago online (actualmente deshabilitado con `disabled: true`) y conectarlo a la función de checkout.
-
-### 5. Página de éxito post-pago
-
-La página `CheckoutSuccess.tsx` ya existe. Verificar que funciona correctamente con el nuevo flujo.
+El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
 
 ## Archivos a modificar
 
-1. `src/data/productCatalog.ts` — Añadir `stripePrices` con los IDs reales
-2. `supabase/functions/stripe-checkout/index.ts` — Reescribir con SDK de Stripe y line items dinámicos
-3. `src/components/configurator/CheckoutOptionsDialog.tsx` — Habilitar pago online
-4. `supabase/config.toml` — Verificar configuración de la función
-
-## Archivos nuevos
-
-5. `supabase/functions/stripe-checkout/deno.json` — Dependencias de Stripe
-
-## Notas
-
-- Se crearán los 17 productos y 85 precios en Stripe en lote usando las herramientas disponibles.
-- No se usan webhooks por ahora (se puede añadir después si se necesita activar suscripciones automáticamente en la base de datos).
-- La autenticación ya está implementada en el proyecto.
-
+1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
+2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar
