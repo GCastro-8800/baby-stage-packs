@@ -58,7 +58,7 @@ const OPTIONS: { key: string; icon: typeof Calendar; title: string; description:
     key: "online",
     icon: CreditCard,
     title: "Pagar online",
-    description: "Pago seguro con tarjeta — suscripción mensual",
+    description: "Pago seguro con tarjeta — facturación según duración elegida",
     cta: "Pagar con tarjeta",
   },
 ];
