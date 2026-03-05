@@ -1,38 +1,54 @@
 
-# Panel de gestion de cesta en movil
 
-## Problema
+## Problem
 
-En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
+When the user selects a 3-month commitment, the Stripe Checkout page shows "facturación mensual" (monthly billing) instead of billing every 3 months. This is because the edge function hardcodes `recurring: { interval: "month" }` regardless of the selected duration.
 
-## Solucion
+The user expects: if they commit to 3 months, they should be billed every 3 months (i.e., the total for 3 months upfront), not monthly.
 
-Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
+## Solution
 
-## Cambios
+Update the `stripe-checkout` edge function to set the Stripe recurring interval based on the selected duration:
 
-### 1. `src/components/configurator/StickyMobileBar.tsx`
+- **1 month** → `interval: "month"`, `interval_count: 1`
+- **3 months** → `interval: "month"`, `interval_count: 3` (billed every 3 months)
+- **6 months** → `interval: "month"`, `interval_count: 6`
+- **12 months** → `interval: "year"`, `interval_count: 1`
+- **24 months** → `interval: "year"`, `interval_count: 2`
 
-- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
-- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
-- Dentro del Sheet mostrar:
-  - Lista de productos con nombre, marca, precio
-  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
-  - Boton de eliminar por producto
-  - Total mensual con ahorro
-  - Nota de "Compromiso minimo: 3 meses"
-  - Boton "Contratar ahora"
-- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
+The `unit_amount` will be adjusted to reflect the total for the billing period (e.g., for 3 months at 67€/month → 201€ every 3 months).
 
-### 2. `src/pages/Selection.tsx`
+**Important caveat**: Stripe only supports `interval_count` up to certain limits (month max 12, year max 1 for subscriptions). So the mapping will be:
 
-- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
+- 1 month → `month`, count 1, amount = pricePerMonth × 1
+- 3 months → `month`, count 3, amount = pricePerMonth × 3
+- 6 months → `month`, count 6, amount = pricePerMonth × 6
+- 12 months → `month`, count 12, amount = pricePerMonth × 12
+- 24 months → `month`, count 12, amount = pricePerMonth × 12 (two-year intervals not supported natively — we'll need to handle this differently, possibly as 12-month with a note, or bill yearly)
 
-## Detalle tecnico
+Actually, Stripe supports `interval: "year"` with `interval_count: 1` or `2`. So:
 
-El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
+- 12 months → `year`, count 1, amount = pricePerMonth × 12
+- 24 months → `year`, count 2, amount = pricePerMonth × 24
 
-## Archivos a modificar
+## Changes
 
-1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
-2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar
+### 1. Edge function `stripe-checkout/index.ts`
+- Map `item.months` to the correct Stripe `interval` and `interval_count`
+- Multiply `unit_amount` by the number of months in the billing period
+- Update product name to include billing period (e.g., "Bugaboo Fox 3 (3 meses)")
+
+### 2. UI description update in `CheckoutOptionsDialog.tsx`
+- Change "suscripción mensual" to dynamically reflect the selected commitment period
+
+## Technical Details
+
+```text
+months → Stripe mapping:
+1  → interval: "month", interval_count: 1, amount: price × 1
+3  → interval: "month", interval_count: 3, amount: price × 3
+6  → interval: "month", interval_count: 6, amount: price × 6
+12 → interval: "year",  interval_count: 1, amount: price × 12
+24 → interval: "year",  interval_count: 2, amount: price × 24
+```
+
