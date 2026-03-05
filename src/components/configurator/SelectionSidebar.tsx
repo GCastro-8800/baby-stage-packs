@@ -14,11 +14,11 @@ interface SelectionSidebarProps {
 }
 
 const INCLUDED_PERKS = [
-  { icon: Sparkles, label: "Limpieza UV-C profesional" },
-  { icon: Truck, label: "Entrega y recogida en casa" },
-  { icon: RefreshCw, label: "Cambios gratis entre etapas" },
-  { icon: HeadphonesIcon, label: "Soporte experto personalizado" },
-];
+{ icon: Sparkles, label: "Limpieza UV-C profesional" },
+{ icon: Truck, label: "Entrega y recogida en casa" },
+{ icon: RefreshCw, label: "Cambios gratis entre etapas" },
+{ icon: HeadphonesIcon, label: "Soporte experto personalizado" }];
+
 
 export default function SelectionSidebar({
   products,
@@ -27,7 +27,7 @@ export default function SelectionSidebar({
   onCheckout,
   getDuration,
   setDuration,
-  getDiscountedPrice,
+  getDiscountedPrice
 }: SelectionSidebarProps) {
   const originalTotal = products.reduce((s, p) => s + (p.prices?.[1] ?? p.pricePerMonth), 0);
   const savings = originalTotal - totalPrice;
@@ -42,55 +42,55 @@ export default function SelectionSidebar({
           </span>
         </div>
 
-        {products.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-6 text-center">
+        {products.length === 0 ?
+        <p className="text-sm text-muted-foreground py-6 text-center">
             Aún no has seleccionado productos
-          </p>
-        ) : (
-          <ul className="space-y-4">
+          </p> :
+
+        <ul className="space-y-4">
             {products.map((p) => {
-              const months = getDuration(p.id);
-              const discounted = getDiscountedPrice(p);
-              const basePrice = p.prices?.[1] ?? p.pricePerMonth;
-              const hasDiscount = discounted < basePrice;
-              return (
-                <li key={p.id} className="space-y-1.5">
+            const months = getDuration(p.id);
+            const discounted = getDiscountedPrice(p);
+            const basePrice = p.prices?.[1] ?? p.pricePerMonth;
+            const hasDiscount = discounted < basePrice;
+            return (
+              <li key={p.id} className="space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm truncate flex-1">{p.name}</span>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {hasDiscount && (
-                        <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
-                      )}
+                      {hasDiscount &&
+                    <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
+                    }
                       <span className="text-sm font-medium">{discounted}€</span>
                       <button
-                        onClick={() => onRemove(p.id)}
-                        className="text-muted-foreground/60 hover:text-destructive transition-colors ml-1"
-                        aria-label={`Quitar ${p.name}`}
-                      >
+                      onClick={() => onRemove(p.id)}
+                      className="text-muted-foreground/60 hover:text-destructive transition-colors ml-1"
+                      aria-label={`Quitar ${p.name}`}>
+                      
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    {DURATION_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.months}
-                        onClick={() => setDuration(p.id, opt.months)}
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                          months === opt.months
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
+                    {DURATION_OPTIONS.map((opt) =>
+                  <button
+                    key={opt.months}
+                    onClick={() => setDuration(p.id, opt.months)}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                    months === opt.months ?
+                    "bg-primary text-primary-foreground" :
+                    "bg-muted text-muted-foreground hover:text-foreground"}`
+                    }>
+                    
                         {opt.months}m
                       </button>
-                    ))}
+                  )}
                   </div>
-                </li>
-              );
-            })}
+                </li>);
+
+          })}
           </ul>
-        )}
+        }
 
         <div className="border-t pt-4 space-y-1">
           <div className="flex items-baseline justify-between">
@@ -100,12 +100,12 @@ export default function SelectionSidebar({
               <span className="text-sm text-muted-foreground">/mes</span>
             </div>
           </div>
-          {savings > 0 && (
-            <p className="text-xs text-primary">
+          {savings > 0 &&
+          <p className="text-xs text-primary">
               Ahorro por compromiso: {savings}€/mes
             </p>
-          )}
-          <p className="text-[10px] text-muted-foreground mt-1">Compromiso mínimo: 3 meses por producto</p>
+          }
+          
         </div>
 
         <Button className="w-full cta-tension" size="lg" onClick={onCheckout}>
@@ -116,16 +116,16 @@ export default function SelectionSidebar({
       <div className="rounded-2xl bg-card shadow-sm p-5 space-y-3">
         <h4 className="text-sm font-semibold text-foreground">Incluye siempre</h4>
         <ul className="space-y-3">
-          {INCLUDED_PERKS.map((perk) => (
-            <li key={perk.label} className="flex items-center gap-3 text-sm text-muted-foreground">
+          {INCLUDED_PERKS.map((perk) =>
+          <li key={perk.label} className="flex items-center gap-3 text-sm text-muted-foreground">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <perk.icon className="h-4 w-4 text-primary" />
               </div>
               {perk.label}
             </li>
-          ))}
+          )}
         </ul>
       </div>
-    </aside>
-  );
+    </aside>);
+
 }
