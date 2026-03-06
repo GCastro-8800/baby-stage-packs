@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
