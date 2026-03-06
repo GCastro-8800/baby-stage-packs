@@ -1,38 +1,36 @@
 
-# Panel de gestion de cesta en movil
 
-## Problema
+## What comes next
 
-En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
+Based on the current state, the Stripe checkout flow creates sessions correctly with dynamic billing intervals, but several critical pieces are missing to complete the end-to-end subscription lifecycle:
 
-## Solucion
+### Current gaps
 
-Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
+1. **Webhook not operational**: The `stripe-webhook` edge function exists but the `STRIPE_WEBHOOK_SECRET` is not configured. Additionally, the webhook expects `plan_id` in session metadata, but the checkout function sends `item_count` instead -- so even if triggered, it would fail.
 
-## Cambios
+2. **No subscription verification**: There is no `check-subscription` function. After payment, the app has no way to know the user is subscribed. The dashboard relies on the `subscriptions` table, which only gets populated by the webhook (which doesn't work yet).
 
-### 1. `src/components/configurator/StickyMobileBar.tsx`
+3. **No customer portal**: Users have no way to manage, cancel, or update their subscription after subscribing.
 
-- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
-- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
-- Dentro del Sheet mostrar:
-  - Lista de productos con nombre, marca, precio
-  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
-  - Boton de eliminar por producto
-  - Total mensual con ahorro
-  - Nota de "Compromiso minimo: 3 meses"
-  - Boton "Contratar ahora"
-- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
+### Recommended next steps (in order)
 
-### 2. `src/pages/Selection.tsx`
+**Step 1 -- Fix and activate the webhook**
+- Add the `STRIPE_WEBHOOK_SECRET` secret
+- Update `stripe-webhook/index.ts` to match the metadata the checkout function actually sends (`user_id`, `item_count`, cart items)
+- Store selected products in the `subscriptions` and `shipments` tables correctly
+- Configure webhook URL in Stripe dashboard (the user would need to do this)
 
-- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
+**Step 2 -- Create `check-subscription` function**
+- Query Stripe for active subscriptions by user email
+- Return subscription status, product details, and end date
+- Integrate into the frontend: call on login, page load, and periodically
+- Update dashboard to reflect real subscription state
 
-## Detalle tecnico
+**Step 3 -- Create `customer-portal` function**
+- Allow users to manage billing, cancel, or update payment methods via Stripe's Customer Portal
+- Add a "Gestionar suscripcion" button in the dashboard/settings
 
-El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
+### Which to tackle first?
 
-## Archivos a modificar
+The webhook is the most critical -- without it, payments succeed in Stripe but nothing happens in your database. I would recommend starting there.
 
-1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
-2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar
