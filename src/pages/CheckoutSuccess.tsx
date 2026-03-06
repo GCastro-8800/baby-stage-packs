@@ -2,10 +2,22 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 
 const CheckoutSuccess = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  // Invalidate subscription queries so dashboard picks up new state
+  useEffect(() => {
+    if (user) {
+      queryClient.invalidateQueries({ queryKey: ["stripe-subscription", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["subscription", user.id] });
+    }
+  }, [user, queryClient]);
 
   useEffect(() => {
     const timer = setInterval(() => {
