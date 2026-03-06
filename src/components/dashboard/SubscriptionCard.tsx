@@ -1,6 +1,10 @@
-import { CheckCircle, PauseCircle, XCircle, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle, PauseCircle, XCircle, Sparkles, ExternalLink, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import type { Subscription } from "@/hooks/useSubscription";
 
 const STATUS_CONFIG = {
@@ -32,6 +36,25 @@ interface SubscriptionCardProps {
 export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
   const status = STATUS_CONFIG[subscription.status];
   const StatusIcon = status.icon;
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const handleManage = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("No portal URL returned");
+      }
+    } catch (err: any) {
+      console.error("Portal error:", err);
+      toast.error("No se pudo abrir el portal de gestión. Inténtalo de nuevo.");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   return (
     <Card className="border-primary/20 bg-primary/5">
@@ -59,9 +82,25 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
             </span>
           </div>
           {subscription.status === "active" && (
-            <p className="text-sm text-muted-foreground bg-background/60 rounded-lg p-3 text-center">
-              ✨ Todo bajo control. Nos encargamos de todo.
-            </p>
+            <>
+              <p className="text-sm text-muted-foreground bg-background/60 rounded-lg p-3 text-center">
+                ✨ Todo bajo control. Nos encargamos de todo.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-2"
+                onClick={handleManage}
+                disabled={portalLoading}
+              >
+                {portalLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ExternalLink className="h-4 w-4" />
+                )}
+                Gestionar suscripción
+              </Button>
+            </>
           )}
         </div>
       </CardContent>
