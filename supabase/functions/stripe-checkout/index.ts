@@ -54,9 +54,8 @@ Deno.serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Build line items with inline price_data (recurring monthly)
+    // Build line items — all use monthly billing to avoid mixed-interval errors
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => {
-      const { interval, interval_count, multiplier } = stripeInterval(item.months);
       const periodLabel = item.months === 1 ? "1 mes" : `${item.months} meses`;
       return {
         price_data: {
@@ -68,8 +67,8 @@ Deno.serve(async (req) => {
               commitment_months: String(item.months),
             },
           },
-          unit_amount: Math.round(item.pricePerMonth * multiplier * 100),
-          recurring: { interval: interval as "month" | "year", interval_count },
+          unit_amount: Math.round(item.pricePerMonth * 100),
+          recurring: { interval: "month" as const, interval_count: 1 },
         },
         quantity: 1,
       };
