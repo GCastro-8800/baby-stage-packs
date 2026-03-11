@@ -1,22 +1,38 @@
 
+# Panel de gestion de cesta en movil
 
-## Plan: Actualizar FAQs al modelo actual
+## Problema
 
-Las FAQs actuales usan términos prohibidos ("suscripción", "etapa") y no reflejan el modelo de selección individual con duración personalizada por producto. Hay que alinearlas con la terminología y el flujo real.
+En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
 
-### Cambios en `src/components/FAQSection.tsx`
+## Solucion
 
-Reescribir el array `faqs` con preguntas que reflejen:
-- **Modelo de selección individual**: el usuario elige productos uno a uno del catálogo y selecciona la duración de cada uno
-- **Terminología correcta**: usar "selección", "servicio", "equipamiento" — nunca "pack", "plan" ni "suscripción"
-- **Sostenibilidad**: mencionar la motivación de alargar la vida útil del equipamiento
-- Mantener las preguntas sobre limpieza, marcas, zonas de entrega y cancelación, pero con respuestas actualizadas
+Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
 
-FAQs propuestas:
-1. **¿Cómo funciona el servicio?** — Eliges productos, duración por producto, te lo entregamos y recogemos.
-2. **¿Cómo funciona la limpieza?** — Proceso profesional hipoalergénico + inspección de seguridad.
-3. **¿Puedo cancelar o devolver en cualquier momento?** — Sin permanencia, recogida sin coste.
-4. **¿Qué marcas utilizáis?** — Bugaboo, Stokke, BabyBjörn, Babyzen, Cybex…
-5. **¿En qué zonas hacéis entrega?** — Madrid y área metropolitana.
-6. **¿Por qué alquilar en vez de comprar?** — Sostenibilidad, ahorro, equipamiento premium sin compromiso a largo plazo.
+## Cambios
 
+### 1. `src/components/configurator/StickyMobileBar.tsx`
+
+- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
+- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
+- Dentro del Sheet mostrar:
+  - Lista de productos con nombre, marca, precio
+  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
+  - Boton de eliminar por producto
+  - Total mensual con ahorro
+  - Nota de "Compromiso minimo: 3 meses"
+  - Boton "Contratar ahora"
+- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
+
+### 2. `src/pages/Selection.tsx`
+
+- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
+
+## Detalle tecnico
+
+El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
+
+## Archivos a modificar
+
+1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
+2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar

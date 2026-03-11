@@ -7,28 +7,28 @@ import {
 
 const faqs = [
   {
+    question: "¿Cómo funciona el servicio?",
+    answer: "Muy sencillo: exploras nuestro catálogo, eliges los productos que necesitas y seleccionas la duración para cada uno. Nosotros nos encargamos de la entrega, el montaje y la recogida cuando termines. Tú solo disfrutas de tu bebé.",
+  },
+  {
     question: "¿Cómo funciona la limpieza del equipamiento?",
     answer: "Cada artículo pasa por un proceso de limpieza profesional con estándares hospitalarios. Usamos productos hipoalergénicos y realizamos una inspección de seguridad exhaustiva antes de cada entrega.",
   },
   {
-    question: "¿Qué pasa cuando mi bebé crece y necesita otra etapa?",
-    answer: "¡Muy fácil! Nos avisas cuando estés listo para el cambio, programamos la recogida del equipamiento actual y te enviamos lo que necesitas para la siguiente etapa. Todo incluido en tu suscripción.",
-  },
-  {
-    question: "¿Puedo cancelar en cualquier momento?",
-    answer: "Sí, no hay permanencia. Si decides cancelar, simplemente nos avisas y pasamos a recoger todo. Sin penalizaciones ni letras pequeñas.",
+    question: "¿Puedo cancelar o devolver en cualquier momento?",
+    answer: "Sí, sin permanencia ni penalizaciones. Si decides que ya no necesitas un producto, nos avisas y pasamos a recogerlo sin coste adicional. Sin letras pequeñas.",
   },
   {
     question: "¿Qué marcas utilizáis?",
-    answer: "Trabajamos con las marcas más reconocidas y seguras del mercado: Bugaboo, Stokke, BabyBjörn, Babyzen, Ergobaby, entre otras. Solo seleccionamos productos que cumplen con los más altos estándares de calidad y seguridad.",
+    answer: "Trabajamos con las marcas más reconocidas y seguras del mercado: Bugaboo, Stokke, BabyBjörn, Babyzen, Cybex, entre otras. Solo seleccionamos productos que cumplen con los más altos estándares de calidad y seguridad.",
   },
   {
     question: "¿En qué zonas hacéis entrega?",
     answer: "Actualmente operamos en Madrid y área metropolitana. Estamos expandiéndonos, así que si estás en otra ciudad, déjanos tu email y te avisaremos cuando lleguemos a tu zona.",
   },
   {
-    question: "¿Qué incluye el servicio?",
-    answer: "Tú eliges los productos que necesitas de nuestro catálogo y nosotros nos encargamos de todo: entrega, montaje, limpieza profesional y recogida. El precio se calcula según lo que selecciones.",
+    question: "¿Por qué alquilar en vez de comprar?",
+    answer: "El equipamiento de bebé se usa pocos meses. Alquilando accedes a productos premium por una fracción del precio, evitas acumular cosas que no vas a usar y contribuyes a alargar la vida útil del equipamiento. Mejor para ti y para el planeta.",
   },
 ];
 
