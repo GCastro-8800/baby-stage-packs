@@ -113,7 +113,7 @@ const EditorialSection = ({ number, image, imageAlt, imageFirst = false, title, 
 
 const AboutUs = () => {
   useEffect(() => {
-    document.title = "Quiénes Somos | Bebloo - Equipamiento Premium por Suscripción para Bebés en Madrid";
+    document.title = "Quiénes Somos | Bebloo - Equipamiento Premium para Bebés en Madrid";
     const meta = document.querySelector('meta[name="description"]');
     const content =
       "Conoce a Bebloo: fundado por expertos con +4 años en el mercado de equipamiento infantil. Sabemos qué funciona porque lo hemos visto cientos de veces.";

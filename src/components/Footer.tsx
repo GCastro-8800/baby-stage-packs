@@ -9,10 +9,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10">
           {/* Brand */}
           <div className="md:col-span-2">
-            <h3 className="text-2xl text-background mb-4 tracking-tight font-bold">
+            <h3 className="text-2xl text-background mb-4 tracking-tight font-bold font-serif">
+              bebloo
             </h3>
             <p className="text-background/70 text-sm leading-relaxed max-w-xs">
-              Suscripción de equipamiento premium para bebés. Menos cajas, más calma.
+              Equipamiento premium para bebés, sin complicaciones. Menos cajas, más calma.
             </p>
           </div>
 

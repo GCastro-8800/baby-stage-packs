@@ -7,7 +7,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 const benefits = [
   "Equipamiento premium de marcas top",
   "Limpieza con estándares hospitalarios",
-  "Cambio de etapa sin complicaciones",
+  "Cambios cuando tu bebé crece",
 ];
 
 const Hero = () => {
@@ -70,7 +70,7 @@ const Hero = () => {
             </div>
 
             {/* Micro-validation */}
-            <p className="mt-6 text-sm text-muted-foreground">Sin permanencia • Envío incluido • Cambio de etapa gratis</p>
+            <p className="mt-6 text-sm text-muted-foreground">Sin permanencia • Envío incluido • Cambios sin coste</p>
           </div>
 
           {/* Right column - Image */}

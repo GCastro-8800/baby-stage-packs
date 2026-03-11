@@ -26,15 +26,15 @@ export default function TermsOfService() {
         <h1 className="text-3xl md:text-4xl font-display font-medium text-foreground mb-2">
           Términos y Condiciones
         </h1>
-        <p className="text-muted-foreground mb-10">Última actualización: 7 de febrero de 2026</p>
+        <p className="text-muted-foreground mb-10">Última actualización: 11 de marzo de 2026</p>
 
         <div className="prose prose-neutral max-w-none space-y-8 text-foreground/90">
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-3">1. Descripción del servicio</h2>
             <p className="leading-relaxed">
-              <strong>bebloo</strong> es un servicio de suscripción que proporciona equipamiento premium 
-              para bebés organizado por etapas de crecimiento. Cada pack está diseñado por expertos para 
-              cubrir las necesidades esenciales de cada fase del primer año de vida del bebé.
+              <strong>bebloo</strong> es un servicio de equipamiento premium para bebés. El usuario selecciona 
+              productos individuales de nuestro catálogo, elige la duración deseada para cada uno, y bebloo se encarga 
+              de la entrega a domicilio, la limpieza profesional y la recogida al finalizar el periodo contratado.
             </p>
           </section>
 
@@ -53,50 +53,58 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">3. Suscripción y planes</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">3. Selección y precios</h2>
             <p className="leading-relaxed">
-              bebloo ofrece diferentes planes de suscripción con distintas coberturas y precios. 
-              Al suscribirte, aceptas el plan seleccionado y su precio correspondiente. Los precios 
-              se muestran en euros (€) e incluyen IVA. Nos reservamos el derecho de modificar los precios 
-              con un preaviso mínimo de 30 días.
+              bebloo ofrece un catálogo de productos individuales. El usuario selecciona los productos que necesita 
+              y elige la duración para cada uno (3, 6, 9 o 12 meses). El precio mensual total es la suma de los 
+              precios individuales de los productos seleccionados. Los precios se muestran en euros (€) e incluyen IVA. 
+              A mayor duración, mayor ahorro por producto. Nos reservamos el derecho de modificar los precios con un 
+              preaviso mínimo de 30 días.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-3">4. Pagos y facturación</h2>
             <p className="leading-relaxed">
-              Los pagos se procesan de forma recurrente según la periodicidad de tu plan (mensual o trimestral). 
-              El cargo se realizará automáticamente en el método de pago registrado. En caso de fallo en el cobro, 
-              intentaremos procesarlo nuevamente. Si el pago no se completa tras varios intentos, 
-              podremos suspender temporalmente el servicio.
+              Los pagos se procesan de forma mensual. El cargo se realizará automáticamente en el método de pago 
+              registrado. En caso de fallo en el cobro, intentaremos procesarlo nuevamente. Si el pago no se completa 
+              tras varios intentos, podremos suspender temporalmente el servicio.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-3">5. Envíos y entregas</h2>
             <p className="leading-relaxed">
-              Los packs se envían a la dirección proporcionada en tu perfil. Los plazos de entrega son 
-              estimados y pueden variar según la disponibilidad y la zona de entrega. bebloo no se hace 
-              responsable de retrasos causados por el servicio de mensajería o por datos de envío incorrectos.
+              Los productos se entregan a la dirección proporcionada en tu perfil. Actualmente operamos en Madrid y 
+              su área metropolitana. Los plazos de entrega son estimados y pueden variar según la disponibilidad. 
+              bebloo no se hace responsable de retrasos causados por datos de envío incorrectos.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">6. Cancelación y devoluciones</h2>
-            <p className="leading-relaxed mb-3">Puedes cancelar tu suscripción en cualquier momento desde tu cuenta. Al cancelar:</p>
+            <h2 className="text-xl font-semibold text-foreground mb-3">6. Cuidado del equipamiento</h2>
+            <p className="leading-relaxed">
+              El usuario se compromete a cuidar razonablemente los productos durante el periodo de uso. 
+              El desgaste normal por uso está cubierto. En caso de daños graves por negligencia o uso indebido, 
+              bebloo podrá solicitar una compensación proporcional al daño.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground mb-3">7. Cancelación y devoluciones</h2>
+            <p className="leading-relaxed mb-3">
+              No hay permanencia obligatoria. Puedes solicitar la devolución de cualquier producto en cualquier momento. 
+              Al cancelar:
+            </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Seguirás teniendo acceso al servicio hasta el final del período ya pagado.</li>
-              <li>No se realizarán cargos adicionales.</li>
-              <li>Los packs ya enviados no son reembolsables.</li>
+              <li>Coordinaremos la recogida del equipamiento a domicilio sin coste adicional.</li>
+              <li>No se realizarán cargos adicionales tras la devolución.</li>
+              <li>Los días de uso del mes en curso serán facturados proporcionalmente.</li>
             </ul>
-            <p className="leading-relaxed mt-3">
-              Para devoluciones de packs sin abrir, dispones de 14 días naturales desde la recepción 
-              conforme al derecho de desistimiento. Los gastos de devolución corren a cargo del usuario.
-            </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">7. Uso aceptable</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">8. Uso aceptable</h2>
             <p className="leading-relaxed mb-3">Te comprometes a:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Utilizar el servicio únicamente para fines personales y no comerciales.</li>
@@ -107,7 +115,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">8. Propiedad intelectual</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">9. Propiedad intelectual</h2>
             <p className="leading-relaxed">
               Todo el contenido de la plataforma (textos, imágenes, logotipos, diseños, software) es propiedad 
               de bebloo o de sus licenciantes y está protegido por las leyes de propiedad intelectual. 
@@ -116,7 +124,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">9. Limitación de responsabilidad</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">10. Limitación de responsabilidad</h2>
             <p className="leading-relaxed">
               bebloo proporciona el servicio "tal cual" y no garantiza que sea ininterrumpido o libre de errores. 
               En la máxima medida permitida por la ley, bebloo no será responsable de daños indirectos, 
@@ -126,7 +134,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">10. Modificaciones</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">11. Modificaciones</h2>
             <p className="leading-relaxed">
               Podemos modificar estos términos en cualquier momento. Te notificaremos los cambios 
               significativos por correo electrónico o mediante un aviso en la aplicación con al menos 
@@ -136,7 +144,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">11. Ley aplicable y jurisdicción</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">12. Ley aplicable y jurisdicción</h2>
             <p className="leading-relaxed">
               Estos términos se rigen por la legislación española. Para la resolución de cualquier 
               controversia, las partes se someten a los juzgados y tribunales de la ciudad de Madrid, España, 
@@ -145,7 +153,7 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-3">12. Contacto</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-3">13. Contacto</h2>
             <p className="leading-relaxed">
               Para cualquier consulta sobre estos términos, puedes escribirnos a{" "}
               <a href="mailto:info@bebloo.es" className="text-primary hover:underline">info@bebloo.es</a>.

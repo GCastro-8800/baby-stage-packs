@@ -98,6 +98,9 @@ const TestimonialsSection = () => {
           <CarouselPrevious className="hidden md:flex -left-12" />
           <CarouselNext className="hidden md:flex -right-12" />
         </Carousel>
+        <p className="text-center text-xs text-muted-foreground mt-4 md:hidden">
+          Desliza para ver más →
+        </p>
       </div>
     </section>
   );
