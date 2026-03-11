@@ -70,7 +70,7 @@ const Hero = () => {
             </div>
 
             {/* Micro-validation */}
-            <p className="mt-6 text-sm text-muted-foreground">Sin permanencia • Envío incluido • Cambio de etapa gratis</p>
+            <p className="mt-6 text-sm text-muted-foreground">Sin permanencia • Envío incluido • Cambios sin coste</p>
           </div>
 
           {/* Right column - Image */}

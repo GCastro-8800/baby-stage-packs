@@ -43,7 +43,7 @@ const CheckoutSuccess = () => {
 
         <div className="space-y-2">
           <h1 className="text-3xl font-serif font-bold text-foreground">
-            ¡Suscripción confirmada!
+            ¡Pedido confirmado!
           </h1>
           <p className="text-muted-foreground">
             Tu equipamiento está en camino. Recibirás un email con los detalles

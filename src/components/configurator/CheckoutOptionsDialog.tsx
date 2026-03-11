@@ -112,7 +112,7 @@ export default function CheckoutOptionsDialog({
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">¿Cómo quieres continuar?</DialogTitle>
           <DialogDescription>
-            Elige la opción que prefieras para finalizar tu suscripción de {totalPrice}€/mes
+            Elige la opción que prefieras para finalizar tu selección de {totalPrice}€/mes
           </DialogDescription>
         </DialogHeader>
 

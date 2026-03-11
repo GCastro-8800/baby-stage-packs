@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
         <h1 className="text-3xl md:text-4xl font-display font-medium text-foreground mb-2">
           Política de Privacidad
         </h1>
-        <p className="text-muted-foreground mb-10">Última actualización: 7 de febrero de 2026</p>
+        <p className="text-muted-foreground mb-10">Última actualización: 11 de marzo de 2026</p>
 
         <div className="prose prose-neutral max-w-none space-y-8 text-foreground/90">
           <section>
@@ -44,7 +44,7 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-6 space-y-2">
               <li><strong>Datos de registro:</strong> nombre completo, dirección de correo electrónico y contraseña.</li>
               <li><strong>Datos del bebé:</strong> fecha de nacimiento o fecha estimada de parto, y si es tu primer hijo/a.</li>
-              <li><strong>Datos de uso:</strong> interacciones con la aplicación, preferencias y configuración del servicio.</li>
+              <li><strong>Datos de uso:</strong> interacciones con la aplicación, productos seleccionados y preferencias de equipamiento.</li>
               <li><strong>Datos técnicos:</strong> dirección IP, tipo de navegador, dispositivo y sistema operativo.</li>
             </ul>
           </section>
@@ -54,9 +54,9 @@ export default function PrivacyPolicy() {
             <p className="leading-relaxed mb-3">Utilizamos tus datos para:</p>
             <ul className="list-disc pl-6 space-y-2">
               <li>Gestionar tu cuenta y autenticación.</li>
-              <li>Personalizar la experiencia según la etapa de tu bebé.</li>
-              <li>Preparar y enviar el equipamiento de suscripción adecuado.</li>
-              <li>Comunicarnos contigo sobre tu suscripción y servicio.</li>
+              <li>Personalizar las recomendaciones de equipamiento según las necesidades de tu bebé.</li>
+              <li>Preparar y entregar los productos seleccionados.</li>
+              <li>Comunicarnos contigo sobre tu servicio y entregas.</li>
               <li>Mejorar y optimizar nuestro servicio.</li>
             </ul>
           </section>
@@ -64,7 +64,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-3">4. Base legal del tratamiento</h2>
             <p className="leading-relaxed">
-              El tratamiento de tus datos se basa en: (a) la ejecución del contrato de suscripción, 
+              El tratamiento de tus datos se basa en: (a) la ejecución del contrato de servicio, 
               (b) tu consentimiento expreso al registrarte, y (c) nuestro interés legítimo en mejorar el servicio. 
               Puedes retirar tu consentimiento en cualquier momento.
             </p>

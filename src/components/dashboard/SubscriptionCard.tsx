@@ -98,7 +98,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
                 ) : (
                   <ExternalLink className="h-4 w-4" />
                 )}
-                Gestionar suscripción
+                Gestionar servicio
               </Button>
             </>
           )}

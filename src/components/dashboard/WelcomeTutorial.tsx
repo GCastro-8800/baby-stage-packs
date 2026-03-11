@@ -19,13 +19,13 @@ const steps = [
     icon: Baby,
     title: "¡Bienvenido a Bebloo!",
     description:
-      "Equipamiento de bebé premium por suscripción mensual. Recibes todo lo que necesitas, sin comprar ni acumular.",
+      "Equipamiento de bebé premium sin complicaciones. Elige lo que necesitas, te lo entregamos y lo recogemos cuando ya no lo uses.",
   },
   {
     icon: Package,
-    title: "Elige tu plan",
+    title: "Elige tu equipamiento",
     description:
-      "Selecciona el pack que mejor se adapte a ti. Puedes personalizar el equipamiento eligiendo las marcas y productos que prefieras.",
+      "Explora nuestro catálogo y selecciona los productos que mejor se adapten a ti. Tú decides la duración de cada uno.",
   },
   {
     icon: Truck,
@@ -88,7 +88,7 @@ export function WelcomeTutorial({ open, userId, onComplete }: WelcomeTutorialPro
         </div>
 
         <Button onClick={handleNext} className="w-full gap-2">
-          {isLast ? "Explorar planes" : "Siguiente"}
+          {isLast ? "Explorar catálogo" : "Siguiente"}
           <ArrowRight className="h-4 w-4" />
         </Button>
 

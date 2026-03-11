@@ -33,6 +33,7 @@ const Index = () => {
       <HowItWorksSection />
       <MissionSection />
       <ComparisonSection />
+      <PricingSection />
 
       {/* CTA Section — invites to configurador */}
       <section className="py-16 px-4 md:py-24 md:px-6 bg-primary/10">

@@ -53,7 +53,7 @@ const PricingSection = () => {
         </Button>
 
         <p className="text-xs text-muted-foreground mt-6">
-          Ahorra hasta un 20 % con suscripciones de 12 meses. Sin permanencia.
+          Ahorra hasta un 20 % eligiendo 12 meses por producto. Sin permanencia.
         </p>
       </div>
     </section>
