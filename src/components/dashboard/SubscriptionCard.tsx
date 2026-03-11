@@ -62,7 +62,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Sparkles className="h-5 w-5 text-primary" />
-            Tu suscripción
+            Tu servicio
           </CardTitle>
           <Badge className={status.className}>
             <StatusIcon className="h-3 w-3 mr-1" />
