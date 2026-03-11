@@ -6,6 +6,7 @@ import BrandLogosSection from "@/components/BrandLogosSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import MissionSection from "@/components/MissionSection";
 import ComparisonSection from "@/components/ComparisonSection";
+import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
