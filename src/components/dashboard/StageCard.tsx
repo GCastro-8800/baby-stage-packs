@@ -61,7 +61,7 @@ export function StageCard({
             )}
 
             <Button variant="outline" size="sm" className="w-full" onClick={() => setQuizOpen(true)}>
-              Ver pack recomendado
+              Descubre qué necesitas
             </Button>
             <PlanRecommenderDialog open={quizOpen} onOpenChange={setQuizOpen} />
           </div>
