@@ -41,7 +41,7 @@ export function StageCard({
           <div className="flex-1 space-y-4">
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                Etapa actual
+                Momento actual
               </p>
               <p className="text-2xl font-display font-medium text-foreground">
                 {stageLabel}
@@ -61,7 +61,7 @@ export function StageCard({
             )}
 
             <Button variant="outline" size="sm" className="w-full" onClick={() => setQuizOpen(true)}>
-              Ver pack recomendado
+              Descubre qué necesitas
             </Button>
             <PlanRecommenderDialog open={quizOpen} onOpenChange={setQuizOpen} />
           </div>

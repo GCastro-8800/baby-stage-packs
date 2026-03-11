@@ -14,8 +14,6 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { openExternal } from "@/lib/openExternal";
 
-type Plan = "start" | "comfort" | "total-peace";
-
 interface PlanRecommenderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,7 +23,7 @@ const QUESTIONS = [
   {
     title: "¿Qué te preocupa MÁS ahora mismo sobre el equipamiento del bebé?",
     options: [
-      "No sé qué necesito en cada etapa",
+      "No sé qué necesito en cada momento",
       "Me agobia tener objetos acumulados en casa",
       "Me da miedo equivocarme con algo importante (seguridad)",
       "No tengo tiempo para investigar, comparar y decidir",
@@ -59,67 +57,38 @@ const QUESTIONS = [
   },
 ];
 
-// Points: [start, comfort, totalPeace, isAnxious]
-type ScoreEntry = [number, number, number, boolean];
-
-const SCORING: ScoreEntry[][] = [
-  // P1
-  [[2, 0, 0, false], [0, 2, 0, false], [0, 0, 2, true], [0, 1, 1, false]],
-  // P2
-  [[2, 0, 0, false], [0, 2, 0, false], [0, 1, 1, false], [0, 1, 1, false]],
-  // P3
-  [[1, 1, 0, false], [0, 2, 0, false], [0, 1, 1, false], [0, 0, 2, false]],
-  // P4
-  [[0, 0, 2, false], [0, 1, 0, false], [1, 0, 0, false]],
+// Scoring to determine if the user is anxious (needs human contact first)
+// [ignored, ignored, ignored, isAnxious]
+const SCORING_ANXIOUS: boolean[][] = [
+  [false, false, true, false],
+  [false, false, false, false],
+  [false, false, false, false],
+  [false, false, false],
 ];
 
-const PLAN_DATA: Record<Plan, { name: string; price: string; copy: string; slug: string }> = {
-  start: {
-    name: "BEBLOO Start",
-    price: "59 €/mes",
-    copy: "Quieres probar sin comprometerte. Start te da lo esencial durante 3 meses para que veas si Bebloo encaja en tu día a día. Sin permanencia, sin estrés.",
-    slug: "start",
+function calculateIsAnxious(answers: number[]): boolean {
+  return answers.some((answerIdx, questionIdx) => SCORING_ANXIOUS[questionIdx]?.[answerIdx]);
+}
+
+const RESULT_COPY = {
+  practical: {
+    title: "Tu selección personalizada te espera",
+    description:
+      "Según tus respuestas, lo que más valoras es simplicidad y ahorro de espacio. En nuestro configurador puedes elegir exactamente lo que necesitas, con la duración que mejor te venga para cada producto.",
   },
-  comfort: {
-    name: "BEBLOO Comfort",
-    price: "129 €/mes",
-    copy: "Buscas tranquilidad sin pensar. Comfort te entrega todo lo que necesitas en cada etapa, lo cambia automáticamente y lo recoge cuando ya no sirve. Sin decisiones, sin espacio perdido.",
-    slug: "comfort",
-  },
-  "total-peace": {
-    name: "BEBLOO Total Peace",
-    price: "149 €/mes",
-    copy: "Necesitas delegación absoluta. Total Peace incluye asesoría personalizada, cambios proactivos (nosotros anticipamos qué necesitas) y atención prioritaria. Es tu equipo de logística invisible.",
-    slug: "total-peace",
+  anxious: {
+    title: "Te recomendamos hablar con una asesora",
+    description:
+      "Según tus respuestas, la seguridad y la tranquilidad son lo más importante para ti. Una asesora de bebloo puede ayudarte a elegir exactamente lo que necesitas, sin presión.",
   },
 };
 
-function calculateResult(answers: number[]): { plan: Plan; isAnxious: boolean } {
-  let start = 0, comfort = 0, totalPeace = 0, isAnxious = false;
-
-  answers.forEach((answerIdx, questionIdx) => {
-    const entry = SCORING[questionIdx][answerIdx];
-    if (!entry) return;
-    start += entry[0];
-    comfort += entry[1];
-    totalPeace += entry[2];
-    if (entry[3]) isAnxious = true;
-  });
-
-  let plan: Plan = "comfort"; // default on tie
-  if (start > comfort && start > totalPeace) plan = "start";
-  else if (totalPeace > comfort && totalPeace > start) plan = "total-peace";
-  else if (comfort >= start && comfort >= totalPeace) plan = "comfort";
-
-  return { plan, isAnxious };
-}
-
-function buildCalendlyUrl(plan: Plan, isAnxious: boolean, name?: string, email?: string) {
+function buildCalendlyUrl(isAnxious: boolean, name?: string, email?: string) {
   const base = "https://calendly.com/martincabanaspaola/30min";
   const params = new URLSearchParams();
   if (name) params.set("name", name);
   if (email) params.set("email", email);
-  params.set("a1", `Lead desde Quiz - Perfil: ${PLAN_DATA[plan].name} - Alta ansiedad: ${isAnxious ? "Sí" : "No"}`);
+  params.set("a1", `Lead desde Quiz - Alta ansiedad: ${isAnxious ? "Sí" : "No"}`);
   return `${base}?${params.toString()}`;
 }
 
@@ -143,8 +112,7 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
 
   const handleBack = () => {
     if (step === 0) return;
-    const newAnswers = answers.slice(0, -1);
-    setAnswers(newAnswers);
+    setAnswers(answers.slice(0, -1));
     setCurrentAnswer("");
     setStep(step - 1);
   };
@@ -160,8 +128,8 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
     onOpenChange(val);
   };
 
-  const result = isResult ? calculateResult(answers) : null;
-  const planData = result ? PLAN_DATA[result.plan] : null;
+  const isAnxious = isResult ? calculateIsAnxious(answers) : false;
+  const resultCopy = isAnxious ? RESULT_COPY.anxious : RESULT_COPY.practical;
 
   const userName = profile?.full_name || user?.user_metadata?.full_name || undefined;
   const userEmail = user?.email || undefined;
@@ -180,7 +148,6 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
               </DialogTitle>
             </DialogHeader>
 
-            {/* Progress bar */}
             <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full transition-all duration-300"
@@ -228,57 +195,54 @@ export function PlanRecommenderDialog({ open, onOpenChange }: PlanRecommenderDia
             </div>
           </>
         ) : (
-          result && planData && (
-            <>
-              <DialogHeader>
-                <DialogDescription className="text-xs font-medium text-primary">
-                  Tu plan recomendado
-                </DialogDescription>
-                <DialogTitle className="text-2xl font-display">
-                  {planData.name}
-                </DialogTitle>
-              </DialogHeader>
+          <>
+            <DialogHeader>
+              <DialogDescription className="text-xs font-medium text-primary">
+                Tu recomendación
+              </DialogDescription>
+              <DialogTitle className="text-2xl font-display">
+                {resultCopy.title}
+              </DialogTitle>
+            </DialogHeader>
 
-              <p className="text-xl font-semibold text-primary">{planData.price}</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">{planData.copy}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{resultCopy.description}</p>
 
-              <div className="flex flex-col gap-2 mt-4">
-                {result.isAnxious ? (
-                  <>
-                    <Button onClick={() => openExternal(buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail))}>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Hablar con una asesora
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        handleOpenChange(false);
-                        navigate("/configurador");
-                      }}
-                    >
-                      Descubre qué necesitas
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      onClick={() => {
-                        handleOpenChange(false);
-                        navigate("/configurador");
-                      }}
-                    >
-                      Descubre qué necesitas
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                    <Button variant="outline" onClick={() => openExternal(buildCalendlyUrl(result.plan, result.isAnxious, userName, userEmail))}>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Prefiero hablar con una asesora primero
-                    </Button>
-                  </>
-                )}
-              </div>
-            </>
-          )
+            <div className="flex flex-col gap-2 mt-4">
+              {isAnxious ? (
+                <>
+                  <Button onClick={() => openExternal(buildCalendlyUrl(isAnxious, userName, userEmail))}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Hablar con una asesora
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      handleOpenChange(false);
+                      navigate("/configurador");
+                    }}
+                  >
+                    Descubre qué necesitas
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={() => {
+                      handleOpenChange(false);
+                      navigate("/configurador");
+                    }}
+                  >
+                    Descubre qué necesitas
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                  <Button variant="outline" onClick={() => openExternal(buildCalendlyUrl(isAnxious, userName, userEmail))}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Prefiero hablar con una asesora primero
+                  </Button>
+                </>
+              )}
+            </div>
+          </>
         )}
       </DialogContent>
     </Dialog>
