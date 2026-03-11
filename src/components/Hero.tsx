@@ -7,7 +7,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 const benefits = [
   "Equipamiento premium de marcas top",
   "Limpieza con estándares hospitalarios",
-  "Cambio de etapa sin complicaciones",
+  "Cambios cuando tu bebé crece",
 ];
 
 const Hero = () => {
