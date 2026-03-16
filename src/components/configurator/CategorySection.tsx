@@ -65,6 +65,7 @@ export default function CategorySection({
           duration={getDuration ? getDuration(selectedProduct.id) : 6}
           onDurationChange={setDuration ?? (() => {})}
           discountedPrice={getDiscountedPrice ? getDiscountedPrice(selectedProduct) : selectedProduct.pricePerMonth}
+          onPreview={onPreview}
         />
       )}
 
