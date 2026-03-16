@@ -6,6 +6,7 @@ import SelectionSidebar from "@/components/configurator/SelectionSidebar";
 import CategorySection from "@/components/configurator/CategorySection";
 import StickyMobileBar from "@/components/configurator/StickyMobileBar";
 import CheckoutOptionsDialog from "@/components/configurator/CheckoutOptionsDialog";
+import ProductDetailDialog from "@/components/catalog/ProductDetailDialog";
 import type { CheckoutProduct } from "@/components/configurator/CheckoutOptionsDialog";
 import { Button } from "@/components/ui/button";
 import { useSelection } from "@/hooks/useSelection";
@@ -43,6 +44,13 @@ export default function Selection() {
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const handlePreview = (product: Product) => {
+    setPreviewProduct(product);
+    setPreviewOpen(true);
+  };
 
   const state = location.state as {
     answers?: QuestionnaireAnswers;
@@ -164,6 +172,7 @@ export default function Selection() {
               getDuration={getDuration}
               setDuration={setDuration}
               getDiscountedPrice={getDiscountedPrice}
+              onPreview={handlePreview}
             />
           );
         })}
@@ -270,6 +279,18 @@ export default function Selection() {
         onOpenChange={setCheckoutOpen}
         items={checkoutItems}
         totalPrice={totalPrice}
+      />
+
+      <ProductDetailDialog
+        product={previewProduct}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        added={previewProduct ? isSelected(previewProduct.id) : false}
+        onAdd={() => {
+          if (previewProduct && !isSelected(previewProduct.id)) {
+            addProduct(previewProduct);
+          }
+        }}
       />
     </div>
   );

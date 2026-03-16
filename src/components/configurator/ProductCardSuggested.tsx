@@ -9,19 +9,27 @@ interface ProductCardSuggestedProps {
   onAdd: (product: Product) => void;
   onRemove: (productId: string) => void;
   stageBadge?: string;
+  onPreview?: (product: Product) => void;
 }
 
-export default function ProductCardSuggested({ product, isSelected, onAdd, onRemove, stageBadge }: ProductCardSuggestedProps) {
+export default function ProductCardSuggested({ product, isSelected, onAdd, onRemove, stageBadge, onPreview }: ProductCardSuggestedProps) {
   return (
     <div className={`rounded-xl border ${isSelected ? "border-primary/30 bg-card shadow-sm" : "border-dashed border-border/60 bg-background"} overflow-hidden transition-all`}>
       <div className="p-4 flex gap-4">
-        <ProductImagePlaceholder category={product.category} image={product.image} />
+        <div className={onPreview ? "cursor-pointer" : ""} onClick={() => onPreview?.(product)}>
+          <ProductImagePlaceholder category={product.category} image={product.image} />
+        </div>
 
         <div className="flex-1 min-w-0 flex flex-col justify-between">
           <div>
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="font-semibold text-base text-foreground">{product.name}</p>
+                <p
+                  className={`font-semibold text-base text-foreground ${onPreview ? "cursor-pointer hover:text-primary transition-colors" : ""}`}
+                  onClick={() => onPreview?.(product)}
+                >
+                  {product.name}
+                </p>
                 <span className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full mt-1">
                   {product.brand}
                 </span>
