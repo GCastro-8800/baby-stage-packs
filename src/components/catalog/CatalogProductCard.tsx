@@ -64,7 +64,8 @@ export default function CatalogProductCard({ product }: CatalogProductCardProps)
         <ProductImagePlaceholder
           category={product.category}
           image={product.image}
-          size="md"
+          name={product.name}
+          size="full"
           className="w-full h-full rounded-none"
         />
       </div>

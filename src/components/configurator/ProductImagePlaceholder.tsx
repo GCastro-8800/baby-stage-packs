@@ -14,14 +14,14 @@ interface ProductImagePlaceholderProps {
   category: ProductCategory;
   image?: string;
   name?: string;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "full";
   className?: string;
 }
 
 export default function ProductImagePlaceholder({ category, image, name, size = "md", className }: ProductImagePlaceholderProps) {
   const config = CATEGORY_CONFIG[category];
   const Icon = config.icon;
-  const sizeClasses = size === "sm" ? "w-16 h-16" : "w-20 h-20 md:w-24 md:h-24";
+  const sizeClasses = size === "full" ? "" : size === "sm" ? "w-16 h-16" : "w-20 h-20 md:w-24 md:h-24";
   const iconSize = size === "sm" ? "h-6 w-6" : "h-8 w-8";
 
   if (image) {
