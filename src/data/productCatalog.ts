@@ -112,6 +112,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 60, 3: 57, 6: 51, 12: 34, 24: 24 },
     description: "Minicuna ovalada en madera de haya FSC con ruedas giratorias. Solo 67 cm de ancho, perfecta para espacios pequeños. Garantía 7 años.",
     shortReason: "Diseño escandinavo premium",
+    image: imgSleepiMini,
     specs: { "Ancho": "67 cm", "Materiales": "Madera haya FSC", "Garantía": "7 años", "Edad": "0–6 meses" },
   },
   {
