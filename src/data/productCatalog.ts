@@ -8,6 +8,13 @@ import imgErgobaby from "@/assets/products/ergobaby-omni.png";
 import imgYoyo3 from "@/assets/products/babyzen-yoyo3.png";
 import imgDonkey3 from "@/assets/products/bugaboo-donkey-3.png";
 import imgDragonfly from "@/assets/products/bugaboo-dragonfly.png";
+import imgFox3 from "@/assets/products/bugaboo-fox-3.png";
+import imgJoolzAer2 from "@/assets/products/joolz-aer-2.png";
+import imgSleepiMini from "@/assets/products/stokke-sleepi-mini.png";
+import imgMoisesMimbre from "@/assets/products/moises-mimbre.png";
+import imgTrippTrapp from "@/assets/products/stokke-tripp-trapp.png";
+import imgGiraffeHamaca from "@/assets/products/bugaboo-giraffe-hamaca.png";
+import imgNunaLeaf from "@/assets/products/nuna-leaf-grow.png";
 
 export type ProductCategory = "movilidad" | "descanso" | "porteo" | "alimentacion" | "extras";
 export type ProductStage = "0-4" | "4-8" | "8-12" | "12-24" | "ambas";
