@@ -129,6 +129,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
     description: "Diseño icónico desde 1972 en madera de haya FSC. Evolutiva de bebé a adulto (136 kg). Garantía 7 años.",
     shortReason: "Icónica y evolutiva",
+    specs: { "Carga máxima": "136 kg", "Materiales": "Madera haya FSC", "Garantía": "7 años", "Edad": "Desde 6 meses" },
   },
   {
     id: "trona-bugaboo-giraffe",
