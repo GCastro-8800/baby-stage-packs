@@ -157,6 +157,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Balanceo natural con el movimiento del bebé. Tres posiciones, plegado plano de 11 cm. Solo 2.1 kg.",
     shortReason: "Clásica y fiable",
     image: imgBabybjornBliss,
+    specs: { "Peso": "2.1 kg", "Plegado": "11 cm plano", "Posiciones": "3", "Edad": "0–24 meses" },
   },
   {
     id: "bugaboo-giraffe-hamaca",
