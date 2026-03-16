@@ -194,6 +194,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
     description: "Balanceo silencioso hasta 2 min sin pilas ni motor. Evolutiva de recién nacido a 60 kg.",
     shortReason: "Hamaca que crece con tu hijo",
+    image: imgNunaLeaf,
     specs: { "Carga máxima": "60 kg", "Balanceo": "Hasta 2 min sin motor", "Edad": "0–36 meses" },
   },
   {
