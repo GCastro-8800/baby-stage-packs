@@ -172,6 +172,7 @@ export default function Selection() {
               getDuration={getDuration}
               setDuration={setDuration}
               getDiscountedPrice={getDiscountedPrice}
+              onPreview={handlePreview}
             />
           );
         })}
