@@ -64,6 +64,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Compacto premium con materiales bio-based (21 % menos CO₂). Plegado en una pieza con correa de transporte. 7.9 kg.",
     shortReason: "Ligero con sello Bugaboo",
     image: imgDragonfly,
+    specs: { "Peso": "7.9 kg", "Plegado": "Una pieza con correa", "Materiales": "Bio-based, −21 % CO₂", "Edad": "0–36 meses" },
   },
   {
     id: "joolz-aer-2",
