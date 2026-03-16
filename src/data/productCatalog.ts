@@ -51,6 +51,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Convertible de mono a dúo en segundos. Suspensión mejorada, capota XXL y doble cesta de 30 L. 12.5 kg.",
     shortReason: "Extensible mono/dúo",
     image: imgDonkey3,
+    specs: { "Peso": "12.5 kg", "Capacidad cesta": "Doble, 30 L", "Materiales": "Aluminio", "Edad": "0–36 meses" },
   },
   {
     id: "bugaboo-dragonfly",
