@@ -89,6 +89,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Respaldo mejorado de 47 cm y capota ampliada respecto al YOYO2. Plegado ultra-compacto para cabina. 6.2 kg.",
     shortReason: "El más compacto y económico",
     image: imgYoyo3,
+    specs: { "Peso": "6.2 kg", "Respaldo": "47 cm", "Cabina avión": "Sí", "Materiales": "Aluminio", "Edad": "0–36 meses" },
   },
 
   // === DESCANSO (2) ===
