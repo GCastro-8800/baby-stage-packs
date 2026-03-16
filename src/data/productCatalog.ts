@@ -84,6 +84,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 75, 3: 71, 6: 64, 12: 51, 24: 36 },
     description: "Ultraligero de 6.5 kg en aluminio aeroespacial y tejido reciclado REPREVE. Capota UPF 50+. Cabe en cabina.",
     shortReason: "Ultraligero (6.5 kg)",
+    image: imgJoolzAer2,
     specs: { "Peso": "6.5 kg", "Cabina avión": "Sí", "Materiales": "Aluminio aeroespacial, REPREVE", "Protección solar": "UPF 50+", "Edad": "0–36 meses" },
   },
   {
