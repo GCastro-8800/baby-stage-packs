@@ -142,6 +142,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "4 alturas regulables con pedal. Bandeja apta lavavajillas con bordes elevados. Plegable y compacta.",
     shortReason: "Diseño Bugaboo premium",
     image: imgTronaBugabooGiraffe,
+    specs: { "Alturas": "4 regulables con pedal", "Bandeja": "Apta lavavajillas", "Plegable": "Sí", "Edad": "Desde 6 meses" },
   },
 
   // === PORTEO Y CONFORT (7) ===
