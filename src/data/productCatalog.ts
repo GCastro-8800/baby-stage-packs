@@ -248,6 +248,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Cesta artesanal con colchoneta impermeable incluida y compartimentos para pañales. 1.8 kg.",
     shortReason: "Artesanal y funcional",
     image: imgCambiador,
+    specs: { "Peso": "1.8 kg", "Materiales": "Mimbre, colchoneta impermeable", "Edad": "0–12 meses" },
   },
 ];
 
