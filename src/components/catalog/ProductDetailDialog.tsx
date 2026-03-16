@@ -37,8 +37,8 @@ export default function ProductDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-sm sm:max-w-md max-h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="p-6 pb-3">
           <DialogTitle className="font-serif text-lg">
             {product.name}
           </DialogTitle>
@@ -47,17 +47,17 @@ export default function ProductDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-lg overflow-hidden bg-muted/30 aspect-square">
+        <div className="mx-4 rounded-xl overflow-hidden bg-muted/20 aspect-[4/3]">
           <ProductImagePlaceholder
             category={product.category}
             image={product.image}
             name={product.name}
             size="full"
-            className="w-full h-full rounded-none"
+            className="w-full h-full rounded-none object-contain"
           />
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 px-6 pb-6 pt-3">
           <div className="flex items-center justify-between gap-2">
             <Badge variant="secondary" className="text-xs font-medium">
               {product.brand}
