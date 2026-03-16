@@ -23,6 +23,7 @@ export interface Product {
   description: string;
   shortReason?: string;
   image?: string;
+  specs?: Record<string, string>;
 }
 
 export const PRODUCT_CATALOG: Product[] = [
