@@ -8,6 +8,13 @@ import imgErgobaby from "@/assets/products/ergobaby-omni.png";
 import imgYoyo3 from "@/assets/products/babyzen-yoyo3.png";
 import imgDonkey3 from "@/assets/products/bugaboo-donkey-3.png";
 import imgDragonfly from "@/assets/products/bugaboo-dragonfly.png";
+import imgFox3 from "@/assets/products/bugaboo-fox-3.png";
+import imgJoolzAer2 from "@/assets/products/joolz-aer-2.png";
+import imgSleepiMini from "@/assets/products/stokke-sleepi-mini.png";
+import imgMoisesMimbre from "@/assets/products/moises-mimbre.png";
+import imgTrippTrapp from "@/assets/products/stokke-tripp-trapp.png";
+import imgGiraffeHamaca from "@/assets/products/bugaboo-giraffe-hamaca.png";
+import imgNunaLeaf from "@/assets/products/nuna-leaf-grow.png";
 
 export type ProductCategory = "movilidad" | "descanso" | "porteo" | "alimentacion" | "extras";
 export type ProductStage = "0-4" | "4-8" | "8-12" | "12-24" | "ambas";
@@ -38,6 +45,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 70, 3: 67, 6: 60, 12: 48, 24: 34 },
     description: "Suspensión en 4 ruedas, capazo reversible y cesta XXL de 30 L. Chasis de aluminio con tejidos repelentes al agua. 9.9 kg.",
     shortReason: "Máxima calidad y confort",
+    image: imgFox3,
     specs: { "Peso": "9.9 kg", "Capacidad cesta": "30 L", "Materiales": "Aluminio, tejido repelente al agua", "Edad": "0–36 meses" },
   },
   {
@@ -76,6 +84,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 75, 3: 71, 6: 64, 12: 51, 24: 36 },
     description: "Ultraligero de 6.5 kg en aluminio aeroespacial y tejido reciclado REPREVE. Capota UPF 50+. Cabe en cabina.",
     shortReason: "Ultraligero (6.5 kg)",
+    image: imgJoolzAer2,
     specs: { "Peso": "6.5 kg", "Cabina avión": "Sí", "Materiales": "Aluminio aeroespacial, REPREVE", "Protección solar": "UPF 50+", "Edad": "0–36 meses" },
   },
   {
@@ -103,6 +112,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 60, 3: 57, 6: 51, 12: 34, 24: 24 },
     description: "Minicuna ovalada en madera de haya FSC con ruedas giratorias. Solo 67 cm de ancho, perfecta para espacios pequeños. Garantía 7 años.",
     shortReason: "Diseño escandinavo premium",
+    image: imgSleepiMini,
     specs: { "Ancho": "67 cm", "Materiales": "Madera haya FSC", "Garantía": "7 años", "Edad": "0–6 meses" },
   },
   {
@@ -115,6 +125,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 },
     description: "Artesanal en mimbre natural con asas de cuero y forro de algodón orgánico GOTS. Solo 2.5 kg.",
     shortReason: "Clásico y acogedor",
+    image: imgMoisesMimbre,
     specs: { "Peso": "2.5 kg", "Materiales": "Mimbre natural, algodón orgánico GOTS", "Edad": "0–4 meses" },
   },
 
@@ -129,6 +140,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
     description: "Diseño icónico desde 1972 en madera de haya FSC. Evolutiva de bebé a adulto (136 kg). Garantía 7 años.",
     shortReason: "Icónica y evolutiva",
+    image: imgTrippTrapp,
     specs: { "Carga máxima": "136 kg", "Materiales": "Madera haya FSC", "Garantía": "7 años", "Edad": "Desde 6 meses" },
   },
   {
@@ -169,6 +181,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
     description: "2 en 1: hamaca reclinable con 5 posiciones y trona con bandeja apta para lavavajillas.",
     shortReason: "Diseño Bugaboo integrado",
+    image: imgGiraffeHamaca,
     specs: { "Posiciones": "5 reclinables", "Función": "2 en 1: hamaca + trona", "Edad": "0–6 meses" },
   },
   {
@@ -181,6 +194,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
     description: "Balanceo silencioso hasta 2 min sin pilas ni motor. Evolutiva de recién nacido a 60 kg.",
     shortReason: "Hamaca que crece con tu hijo",
+    image: imgNunaLeaf,
     specs: { "Carga máxima": "60 kg", "Balanceo": "Hasta 2 min sin motor", "Edad": "0–36 meses" },
   },
   {
