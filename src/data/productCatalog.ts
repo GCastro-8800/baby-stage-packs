@@ -45,6 +45,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 70, 3: 67, 6: 60, 12: 48, 24: 34 },
     description: "Suspensión en 4 ruedas, capazo reversible y cesta XXL de 30 L. Chasis de aluminio con tejidos repelentes al agua. 9.9 kg.",
     shortReason: "Máxima calidad y confort",
+    image: imgFox3,
     specs: { "Peso": "9.9 kg", "Capacidad cesta": "30 L", "Materiales": "Aluminio, tejido repelente al agua", "Edad": "0–36 meses" },
   },
   {
