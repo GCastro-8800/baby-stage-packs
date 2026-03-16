@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar, CreditCard, MessageCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -12,6 +13,7 @@ import { DURATION_OPTIONS } from "@/lib/constants";
 import { openExternal } from "@/lib/openExternal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CheckoutProduct {
   product: Product;
