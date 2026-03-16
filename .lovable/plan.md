@@ -1,69 +1,38 @@
 
+# Panel de gestion de cesta en movil
 
-## Plan: Fichas de producto con especificaciones técnicas detalladas
+## Problema
 
-### Problema
-Actualmente no existe ningún lugar donde ver las especificaciones detalladas de un producto (peso, dimensiones, materiales, edad recomendada, certificaciones). La descripción en la tarjeta es un texto breve de 1-2 frases.
+En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
 
-### Solución: Dialog de detalle por producto
-Al hacer clic en la tarjeta de producto (o en un botón "Ver detalle"), se abre un Dialog con toda la información del producto: imagen grande, descripción, y una tabla de especificaciones técnicas.
+## Solucion
 
-Un hover card no funcionaría bien en móvil (no hay hover). Un Dialog es consistente con el patrón que ya se usa en la app (`ProductPreviewDialog` en packs) y funciona en todos los dispositivos.
+Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
 
-### Cambios
+## Cambios
 
-**1. `src/data/productCatalog.ts`** -- Añadir campo `specs` al tipo `Product`
+### 1. `src/components/configurator/StickyMobileBar.tsx`
 
-```typescript
-export interface Product {
-  // ... campos existentes
-  specs?: Record<string, string>; // ej: { "Peso": "9.9 kg", "Materiales": "Aluminio, tejido repelente" }
-}
-```
+- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
+- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
+- Dentro del Sheet mostrar:
+  - Lista de productos con nombre, marca, precio
+  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
+  - Boton de eliminar por producto
+  - Total mensual con ahorro
+  - Nota de "Compromiso minimo: 3 meses"
+  - Boton "Contratar ahora"
+- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
 
-Añadir datos de specs a cada uno de los 17 productos con los datos del Excel (peso, dimensiones, materiales, edad recomendada, certificaciones cuando aplique).
+### 2. `src/pages/Selection.tsx`
 
-**2. `src/components/catalog/ProductDetailDialog.tsx`** -- Nuevo componente
+- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
 
-Dialog que muestra:
-- Imagen del producto (grande, arriba)
-- Nombre, marca (badge), precio desde X€/mes
-- Descripción completa
-- Tabla de especificaciones (filas clave-valor con fondo alternado)
-- shortReason como badge
-- Botón "Añadir a mi selección" o "En tu selección"
+## Detalle tecnico
 
-**3. `src/components/catalog/CatalogProductCard.tsx`** -- Integrar el dialog
+El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
 
-- La tarjeta completa es clicable para abrir el dialog de detalle
-- El botón "Añadir" sigue funcionando con `stopPropagation` para no abrir el dialog al añadir
+## Archivos a modificar
 
-### Especificaciones por producto (datos del Excel)
-
-| Producto | Peso | Dimensiones / Datos clave | Materiales | Edad |
-|---|---|---|---|---|
-| Bugaboo Fox 3 | 9.9 kg | Cesta 30 L | Aluminio, tejido repelente | 0-36 m |
-| Bugaboo Donkey 3 | 12.5 kg | Doble cesta 30 L | Aluminio | 0-36 m |
-| Bugaboo Dragonfly | 7.9 kg | Plegado una pieza | Bio-based, -21% CO₂ | 0-36 m |
-| Joolz Aer 2 | 6.5 kg | Cabe en cabina | Aluminio aeroespacial, REPREVE | 0-36 m |
-| Babyzen YOYO3 | 6.2 kg | Respaldo 47 cm | Aluminio | 0-36 m |
-| Stokke Sleepi Mini | -- | 67 cm ancho | Madera haya FSC | 0-6 m |
-| Moisés mimbre | 2.5 kg | -- | Mimbre natural, algodón GOTS | 0-4 m |
-| Stokke Tripp Trapp | -- | Hasta 136 kg | Madera haya FSC | 6 m+ |
-| Bugaboo Giraffe | -- | 4 alturas, plegable | -- | 6 m+ |
-| BabyBjörn Bliss | 2.1 kg | Plegado 11 cm | -- | 0-24 m |
-| Bugaboo Giraffe Hamaca | -- | 5 posiciones | -- | 0-6 m |
-| Nuna LEAF Grow | -- | Hasta 60 kg | -- | 0-36 m |
-| BabyBjörn Balance Soft | 2.1 kg | -- | Jersey algodón 100% | 0-24 m |
-| BabyBjörn Harmony | 2.2 kg | -- | Malla 3D, cuero vegano | 0-24 m |
-| Ergobaby Omni | 0.79 kg | 4 posiciones | SoftFlex, UPF 50+ | 0-48 m |
-| Boba Wrap | 0.54 kg | Talla única | Algodón peinado 95%, spandex | 0-18 m |
-| Cambiador mimbre | 1.8 kg | -- | Mimbre, colchoneta impermeable | 0-12 m |
-
-### Archivos
-| Archivo | Acción |
-|---|---|
-| `src/data/productCatalog.ts` | Añadir `specs` a tipo e instancias |
-| `src/components/catalog/ProductDetailDialog.tsx` | Crear |
-| `src/components/catalog/CatalogProductCard.tsx` | Hacer tarjeta clicable, abrir dialog |
-
+1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
+2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar
