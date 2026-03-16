@@ -207,6 +207,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Edición premium con malla 3D transpirable y detalles en cuero vegano. Certificada Nordic Swan. 2.2 kg.",
     shortReason: "Porteo premium y ergonómico",
     image: imgBabybjornHarmony,
+    specs: { "Peso": "2.2 kg", "Materiales": "Malla 3D, cuero vegano", "Certificación": "Nordic Swan", "Edad": "0–24 meses" },
   },
   {
     id: "ergobaby-omni",
