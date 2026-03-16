@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar, CreditCard, MessageCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
@@ -12,6 +13,7 @@ import { DURATION_OPTIONS } from "@/lib/constants";
 import { openExternal } from "@/lib/openExternal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CheckoutProduct {
   product: Product;
@@ -70,6 +72,8 @@ export default function CheckoutOptionsDialog({
   totalPrice,
 }: CheckoutOptionsDialogProps) {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleOption = async (key: string) => {
     if (key === "whatsapp") {
@@ -78,6 +82,12 @@ export default function CheckoutOptionsDialog({
     } else if (key === "calendly") {
       openExternal("https://calendly.com/bebloo/asesoria");
     } else if (key === "online") {
+      if (!user) {
+        toast.error("Debes iniciar sesión para pagar con tarjeta");
+        onOpenChange(false);
+        navigate("/auth?returnTo=/mi-seleccion");
+        return;
+      }
       setLoading(true);
       try {
         const cartItems = items.map((i) => ({

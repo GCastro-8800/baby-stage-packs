@@ -8,6 +8,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { openExternal } from "@/lib/openExternal";
 import { getPlanById } from "@/data/planEquipment";
 import { DURATION_OPTIONS } from "@/lib/constants";
+import { useAuth } from "@/hooks/useAuth";
 
 const WHATSAPP_NUMBER = "34638706467";
 const CALENDLY_URL = "https://calendly.com/martincabanaspaola/30min";
@@ -24,6 +25,7 @@ const PackCheckout = () => {
   const { toast } = useToast();
   const { track } = useAnalytics();
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   const locationState = location.state as LocationState | null;
   const selectedItems = Object.entries(locationState?.selections || {})
@@ -48,6 +50,11 @@ const PackCheckout = () => {
   }
 
   const handleCheckout = async () => {
+    if (!user) {
+      toast({ variant: "destructive", title: "Inicia sesión", description: "Debes iniciar sesión para completar la compra." });
+      navigate("/auth?returnTo=" + encodeURIComponent(location.pathname));
+      return;
+    }
     setIsLoading(true);
     track("checkout_start", { plan: plan.name, product_count: productNames.length });
 
