@@ -181,6 +181,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
     description: "2 en 1: hamaca reclinable con 5 posiciones y trona con bandeja apta para lavavajillas.",
     shortReason: "Diseño Bugaboo integrado",
+    image: imgGiraffeHamaca,
     specs: { "Posiciones": "5 reclinables", "Función": "2 en 1: hamaca + trona", "Edad": "0–6 meses" },
   },
   {
