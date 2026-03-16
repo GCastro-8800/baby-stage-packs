@@ -40,6 +40,7 @@ export default function CategorySection({
   getDuration,
   setDuration,
   getDiscountedPrice,
+  onPreview,
 }: CategorySectionProps) {
   const Icon = CATEGORY_ICONS[category];
   const hasContent = selectedProduct || suggestedProducts.length > 0;
