@@ -280,6 +280,18 @@ export default function Selection() {
         items={checkoutItems}
         totalPrice={totalPrice}
       />
+
+      <ProductDetailDialog
+        product={previewProduct}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        added={previewProduct ? isSelected(previewProduct.id) : false}
+        onAdd={() => {
+          if (previewProduct && !isSelected(previewProduct.id)) {
+            addProduct(previewProduct);
+          }
+        }}
+      />
     </div>
   );
 }

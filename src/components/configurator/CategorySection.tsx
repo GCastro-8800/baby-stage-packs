@@ -77,6 +77,7 @@ export default function CategorySection({
           onAdd={onAdd}
           onRemove={onRemove}
           stageBadge={stageBadge}
+          onPreview={onPreview}
         />
       ))}
     </div>
