@@ -72,6 +72,8 @@ export default function CheckoutOptionsDialog({
   totalPrice,
 }: CheckoutOptionsDialogProps) {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleOption = async (key: string) => {
     if (key === "whatsapp") {
