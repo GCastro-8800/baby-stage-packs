@@ -8,6 +8,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { openExternal } from "@/lib/openExternal";
 import { getPlanById } from "@/data/planEquipment";
 import { DURATION_OPTIONS } from "@/lib/constants";
+import { useAuth } from "@/hooks/useAuth";
 
 const WHATSAPP_NUMBER = "34638706467";
 const CALENDLY_URL = "https://calendly.com/martincabanaspaola/30min";
