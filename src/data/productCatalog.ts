@@ -233,6 +233,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Fular elástico de algodón peinado (95 %) y spandex. Talla única, contacto piel con piel. Solo 0.54 kg.",
     shortReason: "Porteo natural desde el día 1",
     image: imgBobaWrap,
+    specs: { "Peso": "0.54 kg", "Talla": "Única", "Materiales": "Algodón peinado 95 %, spandex", "Edad": "0–18 meses" },
   },
 
   // === EXTRAS (1) ===
