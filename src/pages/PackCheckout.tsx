@@ -25,6 +25,7 @@ const PackCheckout = () => {
   const { toast } = useToast();
   const { track } = useAnalytics();
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   const locationState = location.state as LocationState | null;
   const selectedItems = Object.entries(locationState?.selections || {})
