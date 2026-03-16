@@ -7,15 +7,33 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ── Server-side product catalog (single source of truth for prices) ──
+const PRODUCT_PRICES: Record<string, { name: string; prices: Record<number, number> }> = {
+  "bugaboo-fox-3":        { name: "Bugaboo Fox 3",            prices: { 1: 70, 3: 67, 6: 60, 12: 48, 24: 34 } },
+  "bugaboo-donkey-3":     { name: "Bugaboo Donkey 3",         prices: { 1: 90, 3: 86, 6: 77, 12: 62, 24: 43 } },
+  "bugaboo-dragonfly":    { name: "Bugaboo Dragonfly",        prices: { 1: 80, 3: 76, 6: 68, 12: 55, 24: 38 } },
+  "joolz-aer-2":          { name: "Joolz Aer 2",             prices: { 1: 75, 3: 71, 6: 64, 12: 51, 24: 36 } },
+  "babyzen-yoyo3":        { name: "Babyzen YOYO3",           prices: { 1: 55, 3: 52, 6: 47, 12: 38, 24: 26 } },
+  "stokke-sleepi-mini":   { name: "Stokke Sleepi Mini",      prices: { 1: 60, 3: 57, 6: 51, 12: 34, 24: 24 } },
+  "moises-mimbre":        { name: "Moisés de mimbre",         prices: { 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 } },
+  "trona-stokke-tripp-trapp": { name: "Stokke Tripp Trapp",  prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 } },
+  "trona-bugaboo-giraffe": { name: "Bugaboo Giraffe",        prices: { 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 } },
+  "babybjorn-bliss":      { name: "BabyBjörn Bliss/Balance", prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
+  "bugaboo-giraffe-hamaca": { name: "Bugaboo Giraffe Hamaca", prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
+  "nuna-leaf-grow":       { name: "Nuna LEAF Grow",           prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 } },
+  "babybjorn-balance-soft": { name: "BabyBjörn Balance Soft", prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
+  "babybjorn-harmony":    { name: "BabyBjörn Harmony",       prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 } },
+  "ergobaby-omni":        { name: "Ergobaby Omni",            prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
+  "boba-wrap":            { name: "Boba Wrap",                prices: { 1: 25, 3: 24, 6: 21, 12: 17, 24: 12 } },
+  "cambiador":            { name: "Cambiador de mimbre",      prices: { 1: 35, 3: 33, 6: 30, 12: 24, 24: 17 } },
+};
+
+const ALLOWED_MONTHS = [1, 3, 6, 12, 24];
+
 interface CartItem {
   productId: string;
-  productName: string;
   months: number;
-  pricePerMonth: number; // in euros (e.g. 67)
 }
-
-// Always bill monthly to avoid Stripe's "different billing intervals" error.
-// The commitment length is tracked in metadata, not in the billing interval.
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -54,20 +72,32 @@ Deno.serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Build line items — all use monthly billing to avoid mixed-interval errors
+    // Build line items using SERVER-SIDE prices only
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => {
+      const product = PRODUCT_PRICES[item.productId];
+      if (!product) {
+        throw new Error(`Unknown product: ${item.productId}`);
+      }
+      if (!ALLOWED_MONTHS.includes(item.months)) {
+        throw new Error(`Invalid duration: ${item.months}. Allowed: ${ALLOWED_MONTHS.join(", ")}`);
+      }
+      const pricePerMonth = product.prices[item.months];
+      if (pricePerMonth == null) {
+        throw new Error(`No price for product ${item.productId} at ${item.months} months`);
+      }
+
       const periodLabel = item.months === 1 ? "1 mes" : `${item.months} meses`;
       return {
         price_data: {
           currency: "eur",
           product_data: {
-            name: `${item.productName} (${periodLabel})`,
+            name: `${product.name} (${periodLabel})`,
             metadata: {
               bebloo_product_id: item.productId,
               commitment_months: String(item.months),
             },
           },
-          unit_amount: Math.round(item.pricePerMonth * 100),
+          unit_amount: Math.round(pricePerMonth * 100),
           recurring: { interval: "month" as const, interval_count: 1 },
         },
         quantity: 1,
@@ -97,7 +127,7 @@ Deno.serve(async (req) => {
     console.error("stripe-checkout error:", error);
     const msg = error instanceof Error ? error.message : "Internal error";
     return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
+      status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
