@@ -26,6 +26,7 @@ export default function ProductCardSelected({
   duration,
   onDurationChange,
   discountedPrice,
+  onPreview,
 }: ProductCardSelectedProps) {
   const [open, setOpen] = useState(false);
   const hasDiscount = discountedPrice < product.pricePerMonth;
