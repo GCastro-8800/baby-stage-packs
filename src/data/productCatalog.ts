@@ -194,6 +194,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "Tejido jersey de algodón 100 % extra-suave. Balanceo ergonómico natural. Plegado compacto. 2.1 kg.",
     shortReason: "Máximo confort ergonómico",
     image: imgBabybjornBalanceSoft,
+    specs: { "Peso": "2.1 kg", "Materiales": "Jersey algodón 100 %", "Edad": "0–24 meses" },
   },
   {
     id: "babybjorn-harmony",
