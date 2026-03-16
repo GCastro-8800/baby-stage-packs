@@ -220,6 +220,7 @@ export const PRODUCT_CATALOG: Product[] = [
     description: "4 posiciones desde recién nacido sin inserto. Malla SoftFlex transpirable. Capucha solar UPF 50+. 0.79 kg.",
     shortReason: "Ergonómica y versátil",
     image: imgErgobaby,
+    specs: { "Peso": "0.79 kg", "Posiciones": "4 sin inserto", "Materiales": "SoftFlex", "Protección solar": "UPF 50+", "Edad": "0–48 meses" },
   },
   {
     id: "boba-wrap",
