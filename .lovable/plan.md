@@ -1,38 +1,30 @@
 
-# Panel de gestion de cesta en movil
 
-## Problema
+## Fix: Imágenes de producto demasiado pequeñas en el catálogo
 
-En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
+### Problema
+En `CatalogProductCard`, el contenedor de imagen es `aspect-square` (ocupa todo el ancho de la tarjeta), pero `ProductImagePlaceholder` aplica tamaños fijos internos (`w-20 h-20 md:w-24 md:h-24`) antes del `className` override. Tailwind no garantiza que `w-full h-full` sobreescriba esas clases fijas, así que la imagen queda pequeña y centrada en un espacio grande vacío.
 
-## Solucion
+### Solución
 
-Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
+**`src/components/configurator/ProductImagePlaceholder.tsx`**
+- Cuando se pasa `className` que contiene `w-full` o `h-full`, NO aplicar las `sizeClasses` fijas — dejar que el className externo controle el tamaño
+- Forma más limpia: añadir un tamaño `"full"` que no aplique restricciones de ancho/alto fijas
 
-## Cambios
+```text
+size="sm"  → w-16 h-16
+size="md"  → w-20 h-20 md:w-24 md:h-24
+size="full" → (sin restricción, usa className del padre)
+```
 
-### 1. `src/components/configurator/StickyMobileBar.tsx`
+Esto corrige el catálogo sin romper los demás usos (sidebar del configurador, selección) que usan `sm` o `md`.
 
-- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
-- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
-- Dentro del Sheet mostrar:
-  - Lista de productos con nombre, marca, precio
-  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
-  - Boton de eliminar por producto
-  - Total mensual con ahorro
-  - Nota de "Compromiso minimo: 3 meses"
-  - Boton "Contratar ahora"
-- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
+**`src/components/catalog/CatalogProductCard.tsx`**
+- Cambiar `size="md"` a `size="full"` para que la imagen ocupe todo el `aspect-square`
 
-### 2. `src/pages/Selection.tsx`
+### Archivos a modificar
+| Archivo | Cambio |
+|---|---|
+| `src/components/configurator/ProductImagePlaceholder.tsx` | Añadir `size="full"` que no aplica clases de tamaño fijas |
+| `src/components/catalog/CatalogProductCard.tsx` | Usar `size="full"` |
 
-- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
-
-## Detalle tecnico
-
-El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
-
-## Archivos a modificar
-
-1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
-2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar
