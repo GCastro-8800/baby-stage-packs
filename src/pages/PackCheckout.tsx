@@ -49,6 +49,11 @@ const PackCheckout = () => {
   }
 
   const handleCheckout = async () => {
+    if (!user) {
+      toast({ variant: "destructive", title: "Inicia sesión", description: "Debes iniciar sesión para completar la compra." });
+      navigate("/auth?returnTo=" + encodeURIComponent(location.pathname));
+      return;
+    }
     setIsLoading(true);
     track("checkout_start", { plan: plan.name, product_count: productNames.length });
 

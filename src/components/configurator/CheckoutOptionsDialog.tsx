@@ -82,6 +82,12 @@ export default function CheckoutOptionsDialog({
     } else if (key === "calendly") {
       openExternal("https://calendly.com/bebloo/asesoria");
     } else if (key === "online") {
+      if (!user) {
+        toast.error("Debes iniciar sesión para pagar con tarjeta");
+        onOpenChange(false);
+        navigate("/auth?returnTo=/mi-seleccion");
+        return;
+      }
       setLoading(true);
       try {
         const cartItems = items.map((i) => ({
