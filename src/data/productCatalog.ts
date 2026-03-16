@@ -1,3 +1,14 @@
+import imgBabybjornBliss from "@/assets/products/babybjorn-bliss.png";
+import imgBabybjornBalanceSoft from "@/assets/products/babybjorn-balance-soft.png";
+import imgBabybjornHarmony from "@/assets/products/babybjorn-harmony.png";
+import imgBobaWrap from "@/assets/products/boba-wrap.png";
+import imgTronaBugabooGiraffe from "@/assets/products/trona-bugaboo-giraffe.png";
+import imgCambiador from "@/assets/products/cambiador.png";
+import imgErgobaby from "@/assets/products/ergobaby-omni.png";
+import imgYoyo3 from "@/assets/products/babyzen-yoyo3.png";
+import imgDonkey3 from "@/assets/products/bugaboo-donkey-3.png";
+import imgDragonfly from "@/assets/products/bugaboo-dragonfly.png";
+
 export type ProductCategory = "movilidad" | "descanso" | "porteo" | "alimentacion" | "extras";
 export type ProductStage = "0-4" | "4-8" | "8-12" | "12-24" | "ambas";
 
@@ -24,7 +35,7 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 70,
     prices: { 1: 70, 3: 67, 6: 60, 12: 48, 24: 34 },
-    description: "El todoterreno premium. Suspensión avanzada, capazo amplio y reclinable.",
+    description: "Suspensión en 4 ruedas, capazo reversible y cesta XXL de 30 L. Chasis de aluminio con tejidos repelentes al agua. 9.9 kg.",
     shortReason: "Máxima calidad y confort",
   },
   {
@@ -35,8 +46,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 90,
     prices: { 1: 90, 3: 86, 6: 77, 12: 62, 24: 43 },
-    description: "Carrito extensible de mono a dúo. Ideal para familias que crecen.",
+    description: "Convertible de mono a dúo en segundos. Suspensión mejorada, capota XXL y doble cesta de 30 L. 12.5 kg.",
     shortReason: "Extensible mono/dúo",
+    image: imgDonkey3,
   },
   {
     id: "bugaboo-dragonfly",
@@ -46,8 +58,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 80,
     prices: { 1: 80, 3: 76, 6: 68, 12: 55, 24: 38 },
-    description: "Carrito ultraligero y compacto de Bugaboo, ideal para ciudad.",
+    description: "Compacto premium con materiales bio-based (21 % menos CO₂). Plegado en una pieza con correa de transporte. 7.9 kg.",
     shortReason: "Ligero con sello Bugaboo",
+    image: imgDragonfly,
   },
   {
     id: "joolz-aer-2",
@@ -57,19 +70,20 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 75,
     prices: { 1: 75, 3: 71, 6: 64, 12: 51, 24: 36 },
-    description: "Carrito urbano ultraligero con plegado compacto. Solo 6 kg.",
-    shortReason: "Ultraligero (6 kg)",
+    description: "Ultraligero de 6.5 kg en aluminio aeroespacial y tejido reciclado REPREVE. Capota UPF 50+. Cabe en cabina.",
+    shortReason: "Ultraligero (6.5 kg)",
   },
   {
-    id: "babyzen-yoyo2",
-    name: "Babyzen YOYO2",
+    id: "babyzen-yoyo3",
+    name: "Babyzen YOYO3",
     brand: "Babyzen",
     category: "movilidad",
     stage: "ambas",
     pricePerMonth: 55,
     prices: { 1: 55, 3: 52, 6: 47, 12: 38, 24: 26 },
-    description: "El carrito compacto por excelencia. Cabe en equipaje de mano.",
+    description: "Respaldo mejorado de 47 cm y capota ampliada respecto al YOYO2. Plegado ultra-compacto para cabina. 6.2 kg.",
     shortReason: "El más compacto y económico",
+    image: imgYoyo3,
   },
 
   // === DESCANSO (2) ===
@@ -81,18 +95,18 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "0-4",
     pricePerMonth: 60,
     prices: { 1: 60, 3: 57, 6: 51, 12: 34, 24: 24 },
-    description: "Minicuna ovalada en madera de haya. Diseño escandinavo que envuelve al bebé.",
+    description: "Minicuna ovalada en madera de haya FSC con ruedas giratorias. Solo 67 cm de ancho, perfecta para espacios pequeños. Garantía 7 años.",
     shortReason: "Diseño escandinavo premium",
   },
   {
     id: "moises-mimbre",
     name: "Moisés de mimbre",
-    brand: "Bebloo",
+    brand: "Artesanal",
     category: "descanso",
     stage: "0-4",
     pricePerMonth: 50,
     prices: { 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 },
-    description: "Moisés artesanal de mimbre natural con colchón incluido. Ligero y transportable.",
+    description: "Artesanal en mimbre natural con asas de cuero y forro de algodón orgánico GOTS. Solo 2.5 kg.",
     shortReason: "Clásico y acogedor",
   },
 
@@ -105,7 +119,7 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "4-8",
     pricePerMonth: 45,
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
-    description: "La trona icónica en madera. Crece con el niño hasta adulto.",
+    description: "Diseño icónico desde 1972 en madera de haya FSC. Evolutiva de bebé a adulto (136 kg). Garantía 7 años.",
     shortReason: "Icónica y evolutiva",
   },
   {
@@ -116,8 +130,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "4-8",
     pricePerMonth: 50,
     prices: { 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 },
-    description: "Trona evolutiva de diseño con ajuste en altura.",
+    description: "4 alturas regulables con pedal. Bandeja apta lavavajillas con bordes elevados. Plegable y compacta.",
     shortReason: "Diseño Bugaboo premium",
+    image: imgTronaBugabooGiraffe,
   },
 
   // === PORTEO Y CONFORT (7) ===
@@ -129,8 +144,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "0-4",
     pricePerMonth: 40,
     prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
-    description: "Hamaca con balanceo natural y tres posiciones. Tejido suave y transpirable.",
+    description: "Balanceo natural con el movimiento del bebé. Tres posiciones, plegado plano de 11 cm. Solo 2.1 kg.",
     shortReason: "Clásica y fiable",
+    image: imgBabybjornBliss,
   },
   {
     id: "bugaboo-giraffe-hamaca",
@@ -140,7 +156,7 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "0-4",
     pricePerMonth: 40,
     prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
-    description: "Set de hamaca para la silla Bugaboo Giraffe. Uso desde recién nacido.",
+    description: "2 en 1: hamaca reclinable con 5 posiciones y trona con bandeja apta para lavavajillas.",
     shortReason: "Diseño Bugaboo integrado",
   },
   {
@@ -151,7 +167,7 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 45,
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
-    description: "Hamaca evolutiva con balanceo natural. Crece desde recién nacido hasta 60 kg.",
+    description: "Balanceo silencioso hasta 2 min sin pilas ni motor. Evolutiva de recién nacido a 60 kg.",
     shortReason: "Hamaca que crece con tu hijo",
   },
   {
@@ -162,8 +178,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "0-4",
     pricePerMonth: 40,
     prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
-    description: "Hamaca ergonómica con asiento envolvente de algodón/jersey. Diseño suave y natural.",
+    description: "Tejido jersey de algodón 100 % extra-suave. Balanceo ergonómico natural. Plegado compacto. 2.1 kg.",
     shortReason: "Máximo confort ergonómico",
+    image: imgBabybjornBalanceSoft,
   },
   {
     id: "babybjorn-harmony",
@@ -173,8 +190,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 45,
     prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 },
-    description: "Mochila portabebé premium con soporte lumbar acolchado y malla transpirable.",
+    description: "Edición premium con malla 3D transpirable y detalles en cuero vegano. Certificada Nordic Swan. 2.2 kg.",
     shortReason: "Porteo premium y ergonómico",
+    image: imgBabybjornHarmony,
   },
   {
     id: "ergobaby-omni",
@@ -184,8 +202,9 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "ambas",
     pricePerMonth: 40,
     prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
-    description: "Mochila portabebé con malla transpirable SoftFlex. Todas las posiciones desde recién nacido.",
+    description: "4 posiciones desde recién nacido sin inserto. Malla SoftFlex transpirable. Capucha solar UPF 50+. 0.79 kg.",
     shortReason: "Ergonómica y versátil",
+    image: imgErgobaby,
   },
   {
     id: "boba-wrap",
@@ -195,21 +214,23 @@ export const PRODUCT_CATALOG: Product[] = [
     stage: "0-4",
     pricePerMonth: 25,
     prices: { 1: 25, 3: 24, 6: 21, 12: 17, 24: 12 },
-    description: "Fular elástico de algodón orgánico. Contacto piel con piel desde el nacimiento.",
+    description: "Fular elástico de algodón peinado (95 %) y spandex. Talla única, contacto piel con piel. Solo 0.54 kg.",
     shortReason: "Porteo natural desde el día 1",
+    image: imgBobaWrap,
   },
 
   // === EXTRAS (1) ===
   {
     id: "cambiador",
     name: "Cambiador de mimbre",
-    brand: "Bebloo",
+    brand: "Artesanal",
     category: "extras",
     stage: "0-4",
     pricePerMonth: 35,
     prices: { 1: 35, 3: 33, 6: 30, 12: 24, 24: 17 },
-    description: "Cambiador artesanal de mimbre natural. Práctico y elegante.",
+    description: "Cesta artesanal con colchoneta impermeable incluida y compartimentos para pañales. 1.8 kg.",
     shortReason: "Artesanal y funcional",
+    image: imgCambiador,
   },
 ];
 
@@ -231,10 +252,10 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
 };
 
 export const STAGE_LABELS: Record<string, string> = {
-  "0-4": "Etapa 0–4 meses",
-  "4-8": "Etapa 4–8 meses",
-  "8-12": "Etapa 8–12 meses",
-  "12-24": "Etapa 12–24 meses",
+  "0-4": "De 0 a 4 meses",
+  "4-8": "De 4 a 8 meses",
+  "8-12": "De 8 a 12 meses",
+  "12-24": "De 12 a 24 meses",
 };
 
 export const ALL_STAGES = ["0-4", "4-8", "8-12", "12-24"] as const;

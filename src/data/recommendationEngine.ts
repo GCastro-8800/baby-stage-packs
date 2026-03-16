@@ -20,7 +20,7 @@ export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
   if (wantsBest && !smallSpace) {
     selected.push(findProduct("bugaboo-fox-3")!);
   } else if (budgetTight) {
-    selected.push(findProduct("babyzen-yoyo2")!);
+    selected.push(findProduct("babyzen-yoyo3")!);
   } else if (smallSpace) {
     selected.push(findProduct("joolz-aer-2")!);
   } else {
