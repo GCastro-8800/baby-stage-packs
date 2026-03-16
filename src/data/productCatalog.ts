@@ -115,6 +115,7 @@ export const PRODUCT_CATALOG: Product[] = [
     prices: { 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 },
     description: "Artesanal en mimbre natural con asas de cuero y forro de algodón orgánico GOTS. Solo 2.5 kg.",
     shortReason: "Clásico y acogedor",
+    specs: { "Peso": "2.5 kg", "Materiales": "Mimbre natural, algodón orgánico GOTS", "Edad": "0–4 meses" },
   },
 
   // === ALIMENTACIÓN (2) ===
