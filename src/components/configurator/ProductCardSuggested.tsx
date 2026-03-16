@@ -9,6 +9,7 @@ interface ProductCardSuggestedProps {
   onAdd: (product: Product) => void;
   onRemove: (productId: string) => void;
   stageBadge?: string;
+  onPreview?: (product: Product) => void;
 }
 
 export default function ProductCardSuggested({ product, isSelected, onAdd, onRemove, stageBadge }: ProductCardSuggestedProps) {

@@ -15,6 +15,7 @@ interface ProductCardSelectedProps {
   duration: number;
   onDurationChange: (productId: string, months: number) => void;
   discountedPrice: number;
+  onPreview?: (product: Product) => void;
 }
 
 export default function ProductCardSelected({

@@ -24,6 +24,7 @@ interface CategorySectionProps {
   getDuration?: (productId: string) => number;
   setDuration?: (productId: string, months: number) => void;
   getDiscountedPrice?: (product: Product) => number;
+  onPreview?: (product: Product) => void;
 }
 
 export default function CategorySection({
