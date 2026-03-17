@@ -29,16 +29,14 @@ interface CheckoutOptionsDialogProps {
   totalPrice: number;
 }
 
-function buildWhatsAppMessage(items: CheckoutProduct[], totalPrice: number): string {
+function buildWhatsAppMessage(items: CheckoutProduct[], upfrontTotal: number): string {
   const lines = items.map((i) => {
     const dur = DURATION_OPTIONS.find((o) => o.months === i.months);
     const label = dur?.label ?? `${i.months} meses`;
-    if (i.discountedPrice < i.originalPrice) {
-      return `• ${i.product.name} – ${label} (${i.originalPrice}€ → ${i.discountedPrice}€/mes)`;
-    }
-    return `• ${i.product.name} – ${label} (${i.discountedPrice}€/mes)`;
+    const itemTotal = i.discountedPrice * i.months;
+    return `• ${i.product.name} – ${label} (${i.discountedPrice}€/mes × ${i.months} = ${itemTotal}€)`;
   });
-  return `¡Hola! Me gustaría contratar estos productos:\n\n${lines.join("\n")}\n\nTotal: ${totalPrice}€/mes`;
+  return `¡Hola! Me gustaría contratar estos productos:\n\n${lines.join("\n")}\n\nTotal a pagar: ${upfrontTotal}€`;
 }
 
 const OPTIONS: { key: string; icon: typeof Calendar; title: string; description: string; cta: string; disabled?: boolean }[] = [
@@ -60,7 +58,7 @@ const OPTIONS: { key: string; icon: typeof Calendar; title: string; description:
     key: "online",
     icon: CreditCard,
     title: "Pagar online",
-    description: "Pago seguro con tarjeta — facturación según duración elegida",
+    description: "Pago único seguro con tarjeta — se cobra el importe total del compromiso",
     cta: "Pagar con tarjeta",
   },
 ];
@@ -75,9 +73,12 @@ export default function CheckoutOptionsDialog({
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Calculate upfront total
+  const upfrontTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.months, 0);
+
   const handleOption = async (key: string) => {
     if (key === "whatsapp") {
-      const msg = encodeURIComponent(buildWhatsAppMessage(items, totalPrice));
+      const msg = encodeURIComponent(buildWhatsAppMessage(items, upfrontTotal));
       openExternal(`https://wa.me/34638706467?text=${msg}`);
     } else if (key === "calendly") {
       openExternal("https://calendly.com/bebloo/asesoria");
@@ -92,9 +93,7 @@ export default function CheckoutOptionsDialog({
       try {
         const cartItems = items.map((i) => ({
           productId: i.product.id,
-          productName: i.product.name,
           months: i.months,
-          pricePerMonth: i.discountedPrice,
         }));
 
         const { data, error } = await supabase.functions.invoke("stripe-checkout", {
@@ -122,9 +121,31 @@ export default function CheckoutOptionsDialog({
         <DialogHeader>
           <DialogTitle className="font-serif text-xl">¿Cómo quieres continuar?</DialogTitle>
           <DialogDescription>
-            Elige la opción que prefieras para finalizar tu selección de {totalPrice}€/mes
+            Tu selección: {upfrontTotal}€ (pago único)
           </DialogDescription>
         </DialogHeader>
+
+        {/* Breakdown */}
+        <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+          {items.map((i) => {
+            const itemTotal = i.discountedPrice * i.months;
+            const periodLabel = i.months === 1 ? "1 mes" : `${i.months} meses`;
+            return (
+              <div key={i.product.id} className="flex justify-between text-xs">
+                <span className="text-muted-foreground">
+                  {i.product.name} — {periodLabel}
+                </span>
+                <span className="font-medium">
+                  {i.discountedPrice}€ × {i.months} = {itemTotal}€
+                </span>
+              </div>
+            );
+          })}
+          <div className="flex justify-between text-sm font-semibold border-t border-border pt-1.5 mt-1.5">
+            <span>Total a pagar</span>
+            <span>{upfrontTotal}€</span>
+          </div>
+        </div>
 
         <div className="space-y-3 pt-2">
           {OPTIONS.map((opt) => (
