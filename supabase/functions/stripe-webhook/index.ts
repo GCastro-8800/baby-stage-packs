@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
         return new Response("Error creating subscription", { status: 500 });
       }
 
-      // Create first shipment
+      // Create first shipment with product details
       const { error: shipError } = await serviceClient
         .from("shipments")
         .insert({
@@ -156,7 +156,7 @@ Deno.serve(async (req) => {
           status: "scheduled",
           stage: "prenatal",
           scheduled_date: scheduledDate,
-          items: [],
+          items: shipmentItems,
         });
 
       if (shipError) {
