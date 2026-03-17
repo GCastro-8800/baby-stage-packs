@@ -1,54 +1,38 @@
 
+# Panel de gestion de cesta en movil
 
-## Estado actual de bebloo y próximos pasos
+## Problema
 
-### Lo que ya está construido
-- **Homepage** completa (hero, cómo funciona, precios, FAQ, testimonios, comparación, marcas)
-- **Configurador** (`/configurador`) con selección de productos por categoría
-- **Mi Selección** (`/mi-seleccion`) con sidebar, gestión de duración, checkout a Stripe
-- **Catálogo** (`/catalogo`) con fichas de producto detalladas
-- **Auth** (login, signup, Google OAuth)
-- **Onboarding** (flujo de 4 pasos: situación, fecha, experiencia, completado)
-- **Dashboard** (`/app`) con etapa del bebé, suscripción, envíos, feedback, tips
-- **Settings** con gestión de hijos
-- **Admin** con pestañas de leads, suscripciones, envíos
-- **Páginas legales** (privacidad, condiciones)
-- **Quiénes somos**
-- **ChatBot**, WhatsApp, FloatingCTA
-- **Seguridad**: RLS, guards de auth en checkout, protección de admin_credentials
+En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
 
-### Lo que falta o se puede mejorar
+## Solucion
 
-**1. Historias / Testimonios (página dedicada)** — Prioridad alta
-El masterplan menciona `/stories` como página independiente con mini-diarios de padres, filtrados por etapa. Actualmente solo hay una sección de testimonios en la homepage, pero no existe la página dedicada.
+Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
 
-**2. SEO y meta tags** — Prioridad alta
-No hay meta tags dinámicos (Open Graph, Twitter cards, description) en las páginas. Importante para compartir en redes y posicionamiento.
+## Cambios
 
-**3. Página de "Cómo funciona" dedicada** — Prioridad media
-Existe como sección en la homepage pero no como página standalone para enlaces directos.
+### 1. `src/components/configurator/StickyMobileBar.tsx`
 
-**4. Email de confirmación post-suscripción** — Prioridad alta
-Existe la edge function `send-confirmation-email` pero no está claro si se integra correctamente tras el pago exitoso.
+- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
+- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
+- Dentro del Sheet mostrar:
+  - Lista de productos con nombre, marca, precio
+  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
+  - Boton de eliminar por producto
+  - Total mensual con ahorro
+  - Nota de "Compromiso minimo: 3 meses"
+  - Boton "Contratar ahora"
+- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
 
-**5. Google OAuth** — Prioridad media
-El código tiene `signInWithGoogle` implementado. Verificar que funciona correctamente.
+### 2. `src/pages/Selection.tsx`
 
-**6. Gestión de suscripción desde el dashboard** — Prioridad media
-Pausar, reprogramar envío, cambiar fecha — el dashboard muestra datos pero las acciones de gestión podrían no estar conectadas al backend real.
+- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
 
-**7. Responsive / Mobile polish** — Prioridad media
-El plan de la barra móvil con Sheet para gestión de cesta ya se implementó, pero puede haber más pulido mobile pendiente.
+## Detalle tecnico
 
-**8. Performance** — Prioridad baja
-Las imágenes de producto no parecen estar optimizadas (formatos modernos, lazy loading, srcset).
+El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
 
-### Recomendación de siguiente paso
+## Archivos a modificar
 
-Los items con más impacto inmediato para un MVP funcional serían:
-1. **SEO y meta tags** — necesario para lanzamiento público
-2. **Página de Historias** — diferenciador emocional del producto
-3. **Verificar el flujo completo de pago end-to-end** — asegurar que Stripe webhook → suscripción en DB → dashboard funciona
-
-¿Cuál de estas áreas te gustaría abordar primero?
-
+1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
+2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar

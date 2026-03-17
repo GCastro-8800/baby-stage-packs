@@ -112,10 +112,15 @@ Deno.serve(async (req) => {
       line_items: lineItems,
       mode: "subscription",
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/seleccion`,
+      cancel_url: `${origin}/mi-seleccion`,
       metadata: {
         user_id: user.id,
         item_count: String(items.length),
+        product_ids: items.map((i) => i.productId).join(","),
+        product_names: items.map((i) => {
+          const product = PRODUCT_PRICES[i.productId];
+          return product?.name ?? i.productId;
+        }).join("|"),
       },
     });
 
