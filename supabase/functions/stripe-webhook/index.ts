@@ -97,6 +97,17 @@ Deno.serve(async (req) => {
       // Extract line items info from session
       const itemCount = parseInt(session.metadata?.item_count || "0");
       const customerEmail = session.customer_email || session.customer_details?.email;
+      const productIds = (session.metadata?.product_ids || "").split(",").filter(Boolean);
+      const productNames = (session.metadata?.product_names || "").split("|").filter(Boolean);
+
+      // Build shipment items from metadata
+      const shipmentItems = productIds.map((id: string, idx: number) => ({
+        key: id,
+        name: productNames[idx] || id,
+        brand: "",
+        model: "",
+        category: "",
+      }));
 
       console.log(`[WEBHOOK] Checkout completed for user ${userId}, items: ${itemCount}, email: ${customerEmail}`);
 
