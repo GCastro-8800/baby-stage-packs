@@ -94,22 +94,26 @@ Deno.serve(async (req) => {
         return new Response("Missing user_id", { status: 400 });
       }
 
-      // Extract line items info from session
       const itemCount = parseInt(session.metadata?.item_count || "0");
-      const customerEmail = session.customer_email || session.customer_details?.email;
       const productIds = (session.metadata?.product_ids || "").split(",").filter(Boolean);
       const productNames = (session.metadata?.product_names || "").split("|").filter(Boolean);
+      const commitmentDetails = (session.metadata?.commitment_details || "").split(",").filter(Boolean);
+
+      // Parse commitment months per product
+      const commitmentMap: Record<string, number> = {};
+      for (const detail of commitmentDetails) {
+        const [pid, months] = detail.split(":");
+        if (pid && months) commitmentMap[pid] = parseInt(months);
+      }
 
       // Build shipment items from metadata
       const shipmentItems = productIds.map((id: string, idx: number) => ({
         key: id,
         name: productNames[idx] || id,
-        brand: "",
-        model: "",
-        category: "",
+        months: commitmentMap[id] || 3,
       }));
 
-      console.log(`[WEBHOOK] Checkout completed for user ${userId}, items: ${itemCount}, email: ${customerEmail}`);
+      console.log(`[WEBHOOK] One-time payment completed for user ${userId}, items: ${itemCount}`);
 
       // Store stripe_customer_id on profile if available
       if (session.customer) {
@@ -123,12 +127,17 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Calculate max commitment to set subscription end
+      const maxMonths = Math.max(...Object.values(commitmentMap), 3);
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + maxMonths);
+
       // Calculate first shipment date (7 days from now)
       const shipmentDate = new Date();
       shipmentDate.setDate(shipmentDate.getDate() + 7);
       const scheduledDate = shipmentDate.toISOString().split("T")[0];
 
-      // Create subscription
+      // Create subscription record for internal tracking
       const planName = `Suscripción bebloo (${itemCount} producto${itemCount !== 1 ? "s" : ""})`;
       const { data: subscription, error: subError } = await serviceClient
         .from("subscriptions")
@@ -163,49 +172,7 @@ Deno.serve(async (req) => {
         console.error("Error creating shipment:", shipError);
       }
 
-      console.log(`[WEBHOOK] Subscription ${subscription.id} created for user ${userId}`);
-    }
-
-    if (event.type === "customer.subscription.deleted") {
-      const subscription = event.data.object;
-      const customerId = subscription.customer;
-
-      const { data: profile } = await serviceClient
-        .from("profiles")
-        .select("id")
-        .eq("stripe_customer_id", customerId)
-        .single();
-
-      if (profile) {
-        await serviceClient
-          .from("subscriptions")
-          .update({ status: "cancelled" })
-          .eq("user_id", profile.id)
-          .eq("status", "active");
-
-        console.log(`[WEBHOOK] Subscription cancelled for user ${profile.id}`);
-      }
-    }
-
-    if (event.type === "customer.subscription.paused") {
-      const subscription = event.data.object;
-      const customerId = subscription.customer;
-
-      const { data: profile } = await serviceClient
-        .from("profiles")
-        .select("id")
-        .eq("stripe_customer_id", customerId)
-        .single();
-
-      if (profile) {
-        await serviceClient
-          .from("subscriptions")
-          .update({ status: "paused" })
-          .eq("user_id", profile.id)
-          .eq("status", "active");
-
-        console.log(`[WEBHOOK] Subscription paused for user ${profile.id}`);
-      }
+      console.log(`[WEBHOOK] Subscription ${subscription.id} created for user ${userId} (paid upfront)`);
     }
 
     return new Response(JSON.stringify({ received: true }), {

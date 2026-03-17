@@ -1,40 +1,38 @@
 
+# Panel de gestion de cesta en movil
 
-## Plan: Cambiar facturación de mensual a pago adelantado por compromiso
+## Problema
 
-### Problema actual
-El checkout de Stripe crea una **suscripción mensual** (`mode: "subscription"`, `recurring: { interval: "month" }`). Si alguien elige 12 meses, paga 48€/mes cada mes durante 12 meses. Esto no tiene sentido para el negocio: el cliente podría cancelar tras el primer mes pagando solo 48€ en vez de 576€.
+En desktop existe el `SelectionSidebar` a la derecha que muestra todos los productos seleccionados con controles para eliminar, cambiar duracion y ver precios. En movil, este sidebar esta oculto y solo se muestra una barra fija inferior (`StickyMobileBar`) con el numero de productos, precio total y boton de contratar. No hay forma de ver ni gestionar los productos seleccionados en movil.
 
-### Solución
-Cambiar a **pago único adelantado** (`mode: "payment"`) donde el cliente paga el importe total del compromiso de una sola vez.
+## Solucion
 
-Ejemplo con la selección actual:
-- Bugaboo Fox 3 (12 meses): 48€ × 12 = **576€**
-- Babyzen YOYO3 (3 meses): 52€ × 3 = **156€**
-- Bugaboo Donkey 3 (3 meses): 86€ × 3 = **258€**
-- **Total cobrado: 990€** (pago único)
+Convertir la barra movil inferior en un punto de acceso al carrito completo, usando un **Sheet** (drawer inferior) que muestre el mismo contenido que el sidebar de desktop.
 
-### Cambios técnicos
+## Cambios
 
-**1. `supabase/functions/stripe-checkout/index.ts`**
-- Cambiar `mode` de `"subscription"` a `"payment"`
-- Eliminar `recurring` de `price_data`
-- Calcular `unit_amount` como `pricePerMonth × months × 100` (total del compromiso, no mensual)
-- Actualizar el nombre del producto para reflejar el total (ej. "Bugaboo Fox 3 — 12 meses · 576€")
+### 1. `src/components/configurator/StickyMobileBar.tsx`
 
-**2. `supabase/functions/stripe-webhook/index.ts`**
-- Adaptar el handler de `checkout.session.completed` para funcionar con pagos únicos en vez de suscripciones
-- Eliminar los handlers de `customer.subscription.deleted` / `paused` (ya no aplican)
-- Seguir creando registros en `subscriptions` y `shipments` para tracking interno
+- Anadir un boton "Ver cesta" o hacer que la zona de texto (count + precio) sea clicable
+- Al pulsar, abrir un Sheet (drawer) con el listado completo de productos
+- Dentro del Sheet mostrar:
+  - Lista de productos con nombre, marca, precio
+  - Selectores de duracion por producto (chips de 3/6/9/12 meses)
+  - Boton de eliminar por producto
+  - Total mensual con ahorro
+  - Nota de "Compromiso minimo: 3 meses"
+  - Boton "Contratar ahora"
+- Reutilizar la logica del `SelectionSidebar` adaptada al formato Sheet
 
-**3. `supabase/functions/check-subscription/index.ts`**
-- Actualizar para verificar pagos completados en vez de suscripciones activas de Stripe
-- O basarse directamente en la tabla `subscriptions` de la base de datos
+### 2. `src/pages/Selection.tsx`
 
-**4. UI — Sidebar y Checkout Dialog**
-- Mostrar precio total del compromiso además del desglose mensual (ej. "48€/mes × 12 = 576€")
-- En el diálogo de checkout, mostrar el total a cobrar claramente
+- Pasar las props necesarias al `StickyMobileBar`: `products`, `onRemove`, `getDuration`, `setDuration`, `getDiscountedPrice` (las mismas que recibe el sidebar)
 
-### Pregunta de negocio importante
-Antes de implementar, necesito confirmar: ¿quieres cobrar **siempre todo el compromiso de golpe**, o prefieres otra opción como cobrar en cuotas (ej. 12 meses = 4 pagos trimestrales)?
+## Detalle tecnico
 
+El componente `StickyMobileBar` pasara de recibir solo `count`, `totalPrice` y `onCheckout` a recibir tambien la lista de productos y las funciones de gestion. Internamente usara el componente `Sheet` de shadcn/ui para el drawer. El contenido del drawer sera esencialmente el mismo markup que `SelectionSidebar` pero dentro de un `SheetContent` con scroll.
+
+## Archivos a modificar
+
+1. `src/components/configurator/StickyMobileBar.tsx` - Anadir Sheet con gestion completa de cesta
+2. `src/pages/Selection.tsx` - Pasar props adicionales al StickyMobileBar

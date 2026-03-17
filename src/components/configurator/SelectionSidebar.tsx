@@ -29,8 +29,12 @@ export default function SelectionSidebar({
   setDuration,
   getDiscountedPrice
 }: SelectionSidebarProps) {
-  const originalTotal = products.reduce((s, p) => s + (p.prices?.[1] ?? p.pricePerMonth), 0);
-  const savings = originalTotal - totalPrice;
+  // Calculate upfront total (sum of price × months for each product)
+  const upfrontTotal = products.reduce((sum, p) => {
+    const months = getDuration(p.id);
+    const price = getDiscountedPrice(p);
+    return sum + price * months;
+  }, 0);
 
   return (
     <aside className="sticky top-28 space-y-5">
@@ -53,6 +57,7 @@ export default function SelectionSidebar({
             const discounted = getDiscountedPrice(p);
             const basePrice = p.prices?.[1] ?? p.pricePerMonth;
             const hasDiscount = discounted < basePrice;
+            const itemTotal = discounted * months;
             return (
               <li key={p.id} className="space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
@@ -61,30 +66,33 @@ export default function SelectionSidebar({
                       {hasDiscount &&
                     <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
                     }
-                      <span className="text-sm font-medium">{discounted}€</span>
+                      <span className="text-sm font-medium">{discounted}€/mes</span>
                       <button
                       onClick={() => onRemove(p.id)}
                       className="text-muted-foreground/60 hover:text-destructive transition-colors ml-1"
                       aria-label={`Quitar ${p.name}`}>
-                      
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    {DURATION_OPTIONS.map((opt) =>
-                  <button
-                    key={opt.months}
-                    onClick={() => setDuration(p.id, opt.months)}
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                    months === opt.months ?
-                    "bg-primary text-primary-foreground" :
-                    "bg-muted text-muted-foreground hover:text-foreground"}`
-                    }>
-                    
-                        {opt.months}m
-                      </button>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-1">
+                      {DURATION_OPTIONS.map((opt) =>
+                    <button
+                      key={opt.months}
+                      onClick={() => setDuration(p.id, opt.months)}
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-medium transition-colors ${
+                      months === opt.months ?
+                      "bg-primary text-primary-foreground" :
+                      "bg-muted text-muted-foreground hover:text-foreground"}`
+                      }>
+                          {opt.months}m
+                        </button>
+                    )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      = {itemTotal}€
+                    </span>
                   </div>
                 </li>);
 
@@ -92,20 +100,18 @@ export default function SelectionSidebar({
           </ul>
         }
 
-        <div className="border-t pt-4 space-y-1">
+        <div className="border-t pt-4 space-y-2">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-medium">Total mensual</span>
+            <span className="text-sm font-medium">Pago único</span>
             <div className="text-right">
-              <span className="text-3xl font-serif font-semibold">{totalPrice}€</span>
-              <span className="text-sm text-muted-foreground">/mes</span>
+              <span className="text-3xl font-serif font-semibold">{upfrontTotal}€</span>
             </div>
           </div>
-          {savings > 0 &&
-          <p className="text-xs text-primary">
-              Ahorro por compromiso: {savings}€/mes
+          {products.length > 0 && (
+            <p className="text-[11px] text-muted-foreground">
+              Se cobra el importe total del compromiso de una sola vez
             </p>
-          }
-          
+          )}
         </div>
 
         <Button className="w-full cta-tension" size="lg" onClick={onCheckout}>
