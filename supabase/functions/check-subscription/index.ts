@@ -1,4 +1,3 @@
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -26,9 +25,6 @@ Deno.serve(async (req) => {
   try {
     logStep("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
 
@@ -40,59 +36,39 @@ Deno.serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const customers = await stripe.customers.list({
-      email: user.email,
-      limit: 1,
-    });
+    // Check subscription status from our database (not Stripe)
+    const { data: subscriptions, error: subError } = await supabaseClient
+      .from("subscriptions")
+      .select("id, status, plan_name, created_at, next_shipment_date")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-    if (customers.data.length === 0) {
-      logStep("No Stripe customer found");
+    if (subError) {
+      logStep("Error querying subscriptions", { error: subError.message });
+      throw new Error("Error checking subscription status");
+    }
+
+    const hasActiveSub = subscriptions && subscriptions.length > 0;
+
+    if (hasActiveSub) {
+      const sub = subscriptions[0];
+      logStep("Active subscription found", { subscriptionId: sub.id, plan: sub.plan_name });
+
       return new Response(
-        JSON.stringify({ subscribed: false }),
+        JSON.stringify({
+          subscribed: true,
+          plan_name: sub.plan_name,
+          next_shipment_date: sub.next_shipment_date,
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
 
-    const customerId = customers.data[0].id;
-    logStep("Found Stripe customer", { customerId });
-
-    // Also update stripe_customer_id on profile if missing
-    await supabaseClient
-      .from("profiles")
-      .update({ stripe_customer_id: customerId })
-      .eq("id", user.id)
-      .is("stripe_customer_id", null);
-
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
-
-    const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionEnd = null;
-    let items: { name: string; amount: number; interval: string }[] = [];
-
-    if (hasActiveSub) {
-      const sub = subscriptions.data[0];
-      subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-      items = sub.items.data.map((item) => ({
-        name: typeof item.price.product === "string" ? item.price.product : "",
-        amount: (item.price.unit_amount || 0) / 100,
-        interval: `${item.price.recurring?.interval_count || 1} ${item.price.recurring?.interval || "month"}`,
-      }));
-      logStep("Active subscription found", { subscriptionId: sub.id, endDate: subscriptionEnd, itemCount: items.length });
-    } else {
-      logStep("No active subscription found");
-    }
-
+    logStep("No active subscription found");
     return new Response(
-      JSON.stringify({
-        subscribed: hasActiveSub,
-        subscription_end: subscriptionEnd,
-        items,
-      }),
+      JSON.stringify({ subscribed: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {

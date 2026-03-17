@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
-    // Build line items using SERVER-SIDE prices only
+    // Build line items — one-time payment, full commitment upfront
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => {
       const product = PRODUCT_PRICES[item.productId];
       if (!product) {
@@ -86,19 +86,21 @@ Deno.serve(async (req) => {
         throw new Error(`No price for product ${item.productId} at ${item.months} months`);
       }
 
+      const totalPrice = pricePerMonth * item.months;
       const periodLabel = item.months === 1 ? "1 mes" : `${item.months} meses`;
+
       return {
         price_data: {
           currency: "eur",
           product_data: {
             name: `${product.name} (${periodLabel})`,
+            description: `${pricePerMonth}€/mes × ${item.months} = ${totalPrice}€`,
             metadata: {
               bebloo_product_id: item.productId,
               commitment_months: String(item.months),
             },
           },
-          unit_amount: Math.round(pricePerMonth * 100),
-          recurring: { interval: "month" as const, interval_count: 1 },
+          unit_amount: Math.round(totalPrice * 100),
         },
         quantity: 1,
       };
@@ -106,11 +108,17 @@ Deno.serve(async (req) => {
 
     const origin = req.headers.get("origin") || "";
 
+    // Build metadata with commitment details per product
+    const commitmentDetails = items.map((i) => {
+      const product = PRODUCT_PRICES[i.productId];
+      return `${i.productId}:${i.months}`;
+    });
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
-      mode: "subscription",
+      mode: "payment",
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/mi-seleccion`,
       metadata: {
@@ -121,6 +129,7 @@ Deno.serve(async (req) => {
           const product = PRODUCT_PRICES[i.productId];
           return product?.name ?? i.productId;
         }).join("|"),
+        commitment_details: commitmentDetails.join(","),
       },
     });
 
