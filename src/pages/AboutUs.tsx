@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import SEO from "@/components/SEO";
 import { CheckCircle, Sparkles, Truck, Shield, ArrowRight, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -130,6 +131,11 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Quiénes Somos | bebloo — Equipamiento Premium para Bebés"
+        description="Conoce al equipo detrás de bebloo. Expertos en economía circular y sostenibilidad, restauramos equipamiento premium para tu bebé en Madrid."
+        path="/quienes-somos"
+      />
       <Header />
 
       {/* ─── 1. Hero Full-Width ──────────────────────────── */}
