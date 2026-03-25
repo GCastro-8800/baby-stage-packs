@@ -67,6 +67,11 @@ const Catalog = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Catálogo de Equipamiento para Bebés"
+        description="Explora nuestro catálogo de cochecitos, cunas, portabebés y más de marcas premium como Bugaboo, Babyzen y Stokke. Alquila solo lo que necesitas."
+        path="/catalogo"
+      />
       <Header />
       <main className="container max-w-6xl px-4 pt-24 pb-20">
         {/* Header */}

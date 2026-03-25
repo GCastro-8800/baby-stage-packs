@@ -131,6 +131,11 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Quiénes Somos | bebloo — Equipamiento Premium para Bebés"
+        description="Conoce al equipo detrás de bebloo. Expertos en economía circular y sostenibilidad, restauramos equipamiento premium para tu bebé en Madrid."
+        path="/quienes-somos"
+      />
       <Header />
 
       {/* ─── 1. Hero Full-Width ──────────────────────────── */}
