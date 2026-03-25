@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import SEO from "@/components/SEO";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import BrandLogosSection from "@/components/BrandLogosSection";
