@@ -14,7 +14,7 @@ const DurationSelector = ({ selected, onChange }: DurationSelectorProps) => {
           <button
             key={opt.months}
             onClick={() => onChange(opt.months)}
-            className={`flex flex-col items-center px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            className={`flex flex-col items-center px-3 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               isActive
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
