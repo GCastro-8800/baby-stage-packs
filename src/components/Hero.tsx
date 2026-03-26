@@ -20,7 +20,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="hero-section min-h-[auto] lg:min-h-[85vh] flex items-center px-4 pt-20 pb-8 md:px-6 md:pt-24 md:pb-12 lg:pt-28 lg:pb-16">
+    <section className="hero-section min-h-[auto] lg:min-h-[75vh] flex items-center px-4 pt-20 pb-8 md:px-6 md:pt-24 md:pb-12 lg:pt-24 lg:pb-12">
       <div className="container max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
           {/* Left column - Content */}
