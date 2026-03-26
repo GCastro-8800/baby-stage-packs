@@ -40,8 +40,9 @@ const BrandLogosSection = () => {
                   <div className="w-24 md:w-32 h-10 md:h-12 flex items-center justify-center">
                     <img 
                       src={brand.logo} 
-                      alt={brand.name} 
+                      alt={`Logo ${brand.name} — marca premium de equipamiento infantil en alquiler`}
                       className="w-full h-full object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                      loading="lazy"
                     />
                   </div>
                 </div>
