@@ -79,7 +79,7 @@ const Hero = () => {
               <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-secondary shadow-xl">
                 <img
                   src={heroImage}
-                  alt="Familia paseando con cochecito de bebé"
+                  alt="Madre con cochecito de bebé premium en alquiler — servicio bebloo"
                   className="w-full h-full object-cover"
                 />
               </div>
