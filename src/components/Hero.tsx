@@ -37,7 +37,7 @@ const Hero = () => {
 
             {/* Headline */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4 md:mb-6 text-balance leading-tight">
-              Equipamiento para tu bebé. Curado por expertos.
+              Alquiler de equipamiento premium para tu bebé
             </h1>
 
             {/* Subheadline */}
