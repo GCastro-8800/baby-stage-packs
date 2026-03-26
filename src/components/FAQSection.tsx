@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import {
   Accordion,
   AccordionContent,
@@ -32,9 +33,26 @@ const faqs = [
   },
 ];
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
+
 const FAQSection = () => {
   return (
     <section id="faq" className="py-16 px-4 md:py-24 md:px-6 bg-background scroll-mt-20">
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+      </Helmet>
+
       <div className="container max-w-3xl">
         <div className="text-center mb-10 md:mb-14">
           <span className="inline-block px-4 py-1.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold tracking-wide uppercase mb-4">
