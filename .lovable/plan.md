@@ -1,65 +1,48 @@
 
 
-## Plan: Implementar mejoras de consultoría web — Quick Wins priorizados
+## Estado actual y siguiente paso
 
-Excelente análisis. Voy a mapear cada recomendación a cambios concretos, priorizados por impacto.
+### Completado
+1. ✅ Flujo de pago único adelantado con Stripe
+2. ✅ SEO y meta tags (Open Graph, Twitter Cards, react-helmet-async)
+3. ✅ Quick Wins de consultoría (contraste WCAG, JSON-LD FAQ, Hero compactado, badge de ahorro)
 
----
+### Pendiente (por orden de impacto)
 
-### Fase 1 — Prioridad Alta (Impacto inmediato)
+**→ Siguiente: Email de confirmación post-pago** — Prioridad alta
+- Configurar la infraestructura de emails de la app
+- Crear template de confirmación de pedido con desglose de productos, duraciones y total pagado
+- Disparar el envío desde el webhook de Stripe tras pago exitoso
+- El usuario recibe un email profesional con todo el detalle de su contratación
 
-**1. Contraste de textos (Accesibilidad WCAG AA)**
-- `src/index.css`: Oscurecer `--muted-foreground` de `hsl(205 20% 45%)` a ~`hsl(205 20% 38%)` para cumplir ratio 4.5:1
-- Revisar textos grises en HowItWorksSection, FAQ y testimonios
+**Después:**
+- Página `/historias` — mini-diarios de padres con tarjetas tipo Moleskine, filtro por etapa
+- Página `/como-funciona` — timeline visual detallado, ejemplos de packs
+- Pulido mobile y performance — responsive audit, lazy loading, WebP
 
-**2. JSON-LD de FAQ (SEO)**
-- `src/components/FAQSection.tsx`: Añadir un `<script type="application/ld+json">` con el schema FAQPage de Google, generado dinámicamente desde el array `faqs`
-- Esto hace que las preguntas aparezcan directamente en resultados de Google
+### Cambios técnicos para el email post-pago
 
-**3. Optimización de imágenes**
-- Añadir `loading="lazy"` a todas las imágenes debajo del hero (BrandLogos, testimonios, catálogo)
-- Añadir atributos `alt` descriptivos y orientados a SEO (ej. "Cochecito Bugaboo Fox en alquiler para bebés")
+**1. Infraestructura de email**
+- Configurar dominio de email y setup de infraestructura via herramientas internas
+- Scaffold de email transaccional (Edge Functions de envío, supresión, unsubscribe)
 
-**4. H1 SEO-friendly**
-- `src/components/Hero.tsx`: Cambiar el `<h1>` de "Equipamiento para tu bebé. Curado por expertos." a algo más transaccional como "Alquiler de equipamiento premium para tu bebé" manteniendo el tono de marca
+**2. Template `order-confirmation.tsx`**
+- React Email component en `_shared/transactional-email-templates/`
+- Contenido: saludo, tabla con productos contratados (nombre, duración, precio unitario, subtotal), total pagado, mensaje de bienvenida
+- Estilo alineado con la marca bebloo (colores, tipografía, tono emocional)
 
----
+**3. Trigger desde webhook de Stripe**
+- En `stripe-webhook/index.ts`, tras crear la suscripción y envíos en BD, invocar `send-transactional-email` con template `order-confirmation`
+- Pasar `templateData` con el desglose de productos y total
+- Usar `idempotencyKey` basado en el session ID de Stripe
 
-### Fase 2 — Prioridad Media
-
-**5. Compactar Hero para mostrar logos sin scroll**
-- Reducir padding vertical del hero en desktop (`lg:min-h-[85vh]` → `lg:min-h-[75vh]`)
-- Reducir `gap-6 lg:gap-12` del grid para que los logos de marca sean visibles al cargar
-
-**6. Ahorro real en ComparisonSection**
-- `src/components/ComparisonSection.tsx`: Añadir un dato destacado tipo badge: "Ahorra hasta un 60% frente a la compra directa" como subtítulo o badge visual
-
-**7. Mejorar alt texts de todas las imágenes**
-- Auditar y actualizar textos alt en Hero, catálogo y tarjetas de producto con descripciones orientadas a SEO
-
----
-
-### Fase 3 — Prioridad Baja (Optimización continua)
-
-**8. Microinteracciones**
-- Verificar hover states en FAQ accordion y carrusel de testimonios
-- Añadir `transition-colors` donde falte
-
-**9. Navegación por teclado**
-- Verificar focus visible en CTAs y links del header
-- Asegurar que el selector de duración sea navegable con Tab
-
----
+**4. Página de unsubscribe**
+- Crear página en la ruta disponible (ej. `/unsubscribe`) con diseño consistente con bebloo
 
 ### Archivos afectados
-- `src/index.css` — contraste
-- `src/components/FAQSection.tsx` — JSON-LD
-- `src/components/Hero.tsx` — H1 SEO + compactar
-- `src/components/ComparisonSection.tsx` — dato de ahorro
-- `src/components/BrandLogosSection.tsx` — lazy loading
-- `src/components/TestimonialsSection.tsx` — lazy loading, alt texts
-
-### Lo que NO cambia
-- El CTA "Descubre qué necesitas" se mantiene por ahora (el A/B testing requiere herramientas externas tipo Posthog)
-- No se cambia el modelo de negocio en la UI (ya se aclaró en la iteración anterior)
+- `supabase/functions/_shared/transactional-email-templates/order-confirmation.tsx` — nuevo
+- `supabase/functions/_shared/transactional-email-templates/registry.ts` — actualizar
+- `supabase/functions/stripe-webhook/index.ts` — añadir trigger de email
+- Nueva página de unsubscribe en `src/pages/`
+- `src/App.tsx` — ruta de unsubscribe
 
