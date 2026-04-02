@@ -108,10 +108,11 @@ Deno.serve(async (req) => {
 
     const origin = req.headers.get("origin") || "";
 
-    // Build metadata with commitment details per product
-    const commitmentDetails = items.map((i) => {
+    // Build metadata with commitment details and price details per product
+    const commitmentDetails = items.map((i) => `${i.productId}:${i.months}`);
+    const priceDetails = items.map((i) => {
       const product = PRODUCT_PRICES[i.productId];
-      return `${i.productId}:${i.months}`;
+      return `${i.productId}:${product.prices[i.months]}`;
     });
 
     const session = await stripe.checkout.sessions.create({
@@ -130,6 +131,7 @@ Deno.serve(async (req) => {
           return product?.name ?? i.productId;
         }).join("|"),
         commitment_details: commitmentDetails.join(","),
+        price_details: priceDetails.join(","),
       },
     });
 
