@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
     if (upsertError) {
       console.error("Error saving credential:", upsertError);
       return new Response(
-        JSON.stringify({ error: upsertError.message }),
+        JSON.stringify({ error: "Error al guardar la contraseña" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

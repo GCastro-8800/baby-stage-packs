@@ -7,9 +7,40 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Rate limiting: 5 attempts per 15 minutes per IP
+const ipRequests = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 15 * 60 * 1000;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const record = ipRequests.get(ip);
+  if (!record || now > record.resetAt) {
+    ipRequests.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+  record.count++;
+  return record.count > RATE_LIMIT;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (isRateLimited(ip)) {
+    return new Response(
+      JSON.stringify({ error: "Demasiados intentos. Inténtalo más tarde." }),
+      {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": "900",
+        },
+      }
+    );
   }
 
   try {
@@ -101,11 +132,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Extract token hash from the generated link
-    const url = new URL(linkData.properties.action_link);
-    const tokenHash = url.searchParams.get("token") ?? url.hash?.replace("#", "");
-
-    // The hashed_token is available directly
     return new Response(
       JSON.stringify({
         token_hash: linkData.properties.hashed_token,
