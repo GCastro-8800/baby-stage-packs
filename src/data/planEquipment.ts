@@ -1,3 +1,6 @@
+// CANONICAL PRICE SOURCE — planEquipment.ts is the source of truth for equipment pricing.
+// If prices differ in packStages.ts, update packStages.ts to match this file.
+
 export interface EquipmentOption {
   brand: string;
   model: string;
