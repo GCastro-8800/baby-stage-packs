@@ -173,6 +173,62 @@ Deno.serve(async (req) => {
       }
 
       console.log(`[WEBHOOK] Subscription ${subscription.id} created for user ${userId} (paid upfront)`);
+
+      // --- Send order confirmation email ---
+      try {
+        // Get user email from auth
+        const { data: { user: authUser }, error: authError } = await serviceClient.auth.admin.getUserById(userId);
+        
+        if (authError || !authUser?.email) {
+          console.error("Could not fetch user email for confirmation:", authError);
+        } else {
+          // Get user profile for name
+          const { data: profileData } = await serviceClient
+            .from("profiles")
+            .select("full_name")
+            .eq("id", userId)
+            .single();
+
+          // Parse prices from metadata
+          const priceDetails = (session.metadata?.price_details || "").split(",").filter(Boolean);
+          const priceMap: Record<string, number> = {};
+          for (const detail of priceDetails) {
+            const [pid, price] = detail.split(":");
+            if (pid && price) priceMap[pid] = parseFloat(price);
+          }
+
+          const emailItems = productIds.map((id: string, idx: number) => {
+            const months = commitmentMap[id] || 3;
+            const pricePerMonth = priceMap[id] || 0;
+            return {
+              name: productNames[idx] || id,
+              months,
+              pricePerMonth,
+              subtotal: pricePerMonth * months,
+            };
+          });
+
+          const totalPaid = (session.amount_total || 0) / 100;
+
+          await serviceClient.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "order-confirmation",
+              recipientEmail: authUser.email,
+              idempotencyKey: `order-confirm-${session.id}`,
+              templateData: {
+                customerName: profileData?.full_name || undefined,
+                items: emailItems,
+                totalPaid,
+              },
+            },
+          });
+
+          console.log(`[WEBHOOK] Order confirmation email enqueued for ${authUser.email}`);
+        }
+      } catch (emailError) {
+        // Non-fatal: log but don't fail the webhook
+        console.error("Failed to send order confirmation email:", emailError);
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {
