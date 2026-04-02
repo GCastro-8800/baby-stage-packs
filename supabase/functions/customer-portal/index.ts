@@ -21,7 +21,13 @@ Deno.serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    if (!stripeKey) {
+      console.error("STRIPE_SECRET_KEY is not set");
+      return new Response(
+        JSON.stringify({ error: "Error de configuración del servidor" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
+    }
 
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -30,14 +36,24 @@ Deno.serve(async (req) => {
     );
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No autorizado" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } =
       await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError || !userData.user?.email) {
+      console.error("Auth error:", userError);
+      return new Response(
+        JSON.stringify({ error: "No autorizado" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
@@ -47,7 +63,10 @@ Deno.serve(async (req) => {
     });
 
     if (customers.data.length === 0) {
-      throw new Error("No se encontró un cliente de Stripe para este usuario");
+      return new Response(
+        JSON.stringify({ error: "No se encontró un cliente asociado a tu cuenta" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+      );
     }
 
     const customerId = customers.data[0].id;
@@ -66,10 +85,9 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    console.error("[CUSTOMER-PORTAL] ERROR:", error);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Error inesperado. Inténtalo de nuevo." }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }

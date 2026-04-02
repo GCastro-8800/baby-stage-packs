@@ -141,9 +141,8 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     console.error("stripe-checkout error:", error);
-    const msg = error instanceof Error ? error.message : "Internal error";
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 400,
+    return new Response(JSON.stringify({ error: "Error al procesar el pago. Inténtalo de nuevo." }), {
+      status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

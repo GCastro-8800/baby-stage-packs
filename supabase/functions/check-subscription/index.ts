@@ -26,17 +26,26 @@ Deno.serve(async (req) => {
     logStep("Function started");
 
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "No autorizado" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } =
       await supabaseClient.auth.getUser(token);
-    if (userError) throw new Error(`Authentication error: ${userError.message}`);
+    if (userError || !userData.user?.email) {
+      console.error("Auth error:", userError);
+      return new Response(
+        JSON.stringify({ error: "No autorizado" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
     const user = userData.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Check subscription status from our database (not Stripe)
     const { data: subscriptions, error: subError } = await supabaseClient
       .from("subscriptions")
       .select("id, status, plan_name, created_at, next_shipment_date")
@@ -46,8 +55,11 @@ Deno.serve(async (req) => {
       .limit(1);
 
     if (subError) {
-      logStep("Error querying subscriptions", { error: subError.message });
-      throw new Error("Error checking subscription status");
+      console.error("Error querying subscriptions:", subError);
+      return new Response(
+        JSON.stringify({ error: "Error al consultar suscripción" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
     }
 
     const hasActiveSub = subscriptions && subscriptions.length > 0;
@@ -72,10 +84,9 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    console.error("[CHECK-SUBSCRIPTION] ERROR:", error);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Error inesperado. Inténtalo de nuevo." }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
