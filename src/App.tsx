@@ -80,6 +80,7 @@ const App = () => (
             <Route path="/configurador" element={<Configurator />} />
             <Route path="/catalogo" element={<Catalog />} />
             <Route path="/mi-seleccion" element={<Selection />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
