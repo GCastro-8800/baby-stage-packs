@@ -22,6 +22,7 @@ import AboutUs from "./pages/AboutUs";
 import Configurator from "./pages/Configurator";
 import Selection from "./pages/Selection";
 import NotFound from "./pages/NotFound";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
