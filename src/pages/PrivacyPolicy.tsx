@@ -1,11 +1,17 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
 import logo from "@/assets/logo-bebloo.png";
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Política de Privacidad"
+        description="Conoce cómo bebloo protege tus datos personales. Cumplimiento RGPD, derechos de acceso, rectificación y supresión."
+        path="/privacidad"
+      />
       {/* Header */}
       <header className="p-4 md:p-6 border-b border-border">
         <div className="container max-w-4xl flex items-center justify-between">

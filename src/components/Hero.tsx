@@ -20,9 +20,9 @@ const Hero = () => {
   };
 
   return (
-    <section className="hero-section min-h-[auto] lg:min-h-[85vh] flex items-center px-4 pt-20 pb-8 md:px-6 md:pt-24 md:pb-12 lg:pt-28 lg:pb-16">
+    <section className="hero-section min-h-[auto] lg:min-h-[75vh] flex items-center px-4 pt-20 pb-8 md:px-6 md:pt-24 md:pb-12 lg:pt-24 lg:pb-12">
       <div className="container max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Left column - Content */}
           <div className="order-2 lg:order-1 text-center lg:text-left">
             {/* Trust badge with stars */}
@@ -37,7 +37,7 @@ const Hero = () => {
 
             {/* Headline */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4 md:mb-6 text-balance leading-tight">
-              Equipamiento para tu bebé. Curado por expertos.
+              Alquiler de equipamiento premium para tu bebé
             </h1>
 
             {/* Subheadline */}
@@ -79,7 +79,7 @@ const Hero = () => {
               <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-secondary shadow-xl">
                 <img
                   src={heroImage}
-                  alt="Familia paseando con cochecito de bebé"
+                  alt="Madre con cochecito de bebé premium en alquiler — servicio bebloo"
                   className="w-full h-full object-cover"
                 />
               </div>

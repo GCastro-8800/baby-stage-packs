@@ -23,9 +23,12 @@ const ComparisonSection = () => {
     <section className="py-16 px-4 md:py-24 md:px-6 bg-mint">
       <div className="container max-w-5xl">
         <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-3">
             ¿Por qué alquilar?
           </h2>
+          <span className="inline-block px-4 py-1.5 rounded-full bg-accent/15 text-accent text-sm font-semibold mb-3">
+            Ahorra hasta un 60% frente a la compra directa
+          </span>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
             Compara y decide qué tiene más sentido para tu familia.
           </p>

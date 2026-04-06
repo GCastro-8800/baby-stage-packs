@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SEO from "@/components/SEO";
 import { ArrowLeft, ArrowRight, Baby, Home, ShieldCheck, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -82,6 +83,11 @@ export default function Configurator() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Configurador de Equipamiento para Bebés"
+        description="Responde 4 preguntas y descubre qué equipamiento necesitas para tu bebé. Recomendaciones personalizadas sin compromiso."
+        path="/configurador"
+      />
       <Header />
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="container max-w-lg mx-auto">

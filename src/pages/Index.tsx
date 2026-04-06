@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import SEO from "@/components/SEO";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import BrandLogosSection from "@/components/BrandLogosSection";
@@ -27,6 +28,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <SEO
+        title="bebloo — Equipamiento premium de bebé en alquiler"
+        description="Alquila el mejor equipamiento para tu bebé: cochecitos, cunas y más de marcas premium. Sin acumular, sin compromiso largo. Desde 48€/mes."
+        path="/"
+      />
       <Header />
       <Hero />
       <BrandLogosSection />

@@ -33,7 +33,14 @@ Deno.serve(async (req) => {
   if (!checkRateLimit(req)) {
     return new Response(
       JSON.stringify({ error: "Demasiados intentos. Inténtalo más tarde." }),
-      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      {
+        status: 429,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": "900",
+        },
+      }
     );
   }
 
@@ -126,11 +133,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Extract token hash from the generated link
-    const url = new URL(linkData.properties.action_link);
-    const tokenHash = url.searchParams.get("token") ?? url.hash?.replace("#", "");
-
-    // The hashed_token is available directly
     return new Response(
       JSON.stringify({
         token_hash: linkData.properties.hashed_token,

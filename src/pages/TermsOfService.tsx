@@ -1,11 +1,17 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
 import logo from "@/assets/logo-bebloo.png";
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Condiciones del Servicio"
+        description="Consulta las condiciones generales de uso del servicio de alquiler de equipamiento para bebés de bebloo."
+        path="/condiciones"
+      />
       {/* Header */}
       <header className="p-4 md:p-6 border-b border-border">
         <div className="container max-w-4xl flex items-center justify-between">
