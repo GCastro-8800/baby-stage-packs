@@ -1,35 +1,36 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { compareSync } from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
 // Rate limiting: 5 attempts per 15 minutes per IP
-const ipRequests = new Map<string, { count: number; resetAt: number }>();
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 5;
-const RATE_WINDOW_MS = 15 * 60 * 1000;
+const RATE_WINDOW = 15 * 60 * 1000;
 
-function isRateLimited(ip: string): boolean {
+function checkRateLimit(req: Request): boolean {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("cf-connecting-ip")
+    || "unknown";
   const now = Date.now();
-  const record = ipRequests.get(ip);
-  if (!record || now > record.resetAt) {
-    ipRequests.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
+    return true;
   }
-  record.count++;
-  return record.count > RATE_LIMIT;
+
+  entry.count++;
+  return entry.count <= RATE_LIMIT;
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (isRateLimited(ip)) {
+  if (!checkRateLimit(req)) {
     return new Response(
       JSON.stringify({ error: "Demasiados intentos. Inténtalo más tarde." }),
       {

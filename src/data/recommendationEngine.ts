@@ -18,47 +18,52 @@ export function getRecommendation(answers: QuestionnaireAnswers): Product[] {
 
   // — CARRITO —
   if (wantsBest && !smallSpace) {
-    selected.push(findProduct("bugaboo-fox-3")!);
-  } else if (budgetTight) {
-    selected.push(findProduct("babyzen-yoyo3")!);
-  } else if (smallSpace) {
-    selected.push(findProduct("joolz-aer-2")!);
+    const product = findProduct("bugaboo-fox-3");
+    if (product) selected.push(product);
+  } else if (budgetTight || smallSpace) {
+    const product = findProduct("babyzen-yoyo3");
+    if (product) selected.push(product);
   } else {
-    selected.push(findProduct("joolz-aer-2")!);
+    const product = findProduct("joolz-aer-2");
+    if (product) selected.push(product);
   }
 
   // — CUNA —
   if (wantsBest) {
-    selected.push(findProduct("stokke-sleepi-mini")!);
+    const product = findProduct("stokke-sleepi-mini");
+    if (product) selected.push(product);
   } else {
-    selected.push(findProduct("moises-mimbre")!);
+    const product = findProduct("moises-mimbre");
+    if (product) selected.push(product);
   }
 
   // — PORTEO —
   if (startFromZero) {
     if (wantsBest) {
-      selected.push(findProduct("nuna-leaf-grow")!);
-    } else if (budgetTight) {
-      selected.push(findProduct("ergobaby-omni")!);
+      const product = findProduct("nuna-leaf-grow");
+      if (product) selected.push(product);
     } else {
-      selected.push(findProduct("ergobaby-omni")!);
+      const product = findProduct("ergobaby-omni");
+      if (product) selected.push(product);
     }
-  } else if (!hasSome) {
-    // "specific" — skip
-  } else {
-    selected.push(findProduct("ergobaby-omni")!);
+  } else if (hasSome) {
+    const product = findProduct("ergobaby-omni");
+    if (product) selected.push(product);
   }
+  // "specific" → skip (no porteo recommendation)
 
   // — CAMBIADOR (only if starting from zero) —
   if (startFromZero) {
-    selected.push(findProduct("cambiador")!);
+    const product = findProduct("cambiador");
+    if (product) selected.push(product);
   }
 
-  return selected.filter(Boolean);
+  return selected;
 }
 
-export function getStageSuggestions(): Product[] {
-  return PRODUCT_CATALOG.filter((p) => p.stage === "4-8");
+export function getStageSuggestions(stage?: string): Product[] {
+  if (!stage) return [];
+  return PRODUCT_CATALOG.filter((p) => p.stage === stage);
 }
 
 function findProduct(id: string): Product | undefined {

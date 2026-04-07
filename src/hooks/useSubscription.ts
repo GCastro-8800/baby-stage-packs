@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -123,13 +124,19 @@ export function useSubscription() {
   });
 
   // Get the next upcoming shipment
-  const nextShipment = shipmentsQuery.data?.find(
-    (s) => s.status === "scheduled" || s.status === "packed"
+  const nextShipment = useMemo(
+    () => shipmentsQuery.data?.find(
+      (s) => s.status === "scheduled" || s.status === "packed"
+    ),
+    [shipmentsQuery.data]
   );
 
   // Get the most recent delivered shipment
-  const lastDelivered = shipmentsQuery.data?.find(
-    (s) => s.status === "delivered"
+  const lastDelivered = useMemo(
+    () => shipmentsQuery.data?.find(
+      (s) => s.status === "delivered"
+    ),
+    [shipmentsQuery.data]
   );
 
   return {

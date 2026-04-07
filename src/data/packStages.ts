@@ -129,7 +129,7 @@ export const packStages: Record<string, PackConfig> = {
             category: "Cuna",
             type: "fixed",
             options: [
-              { brand: "Chicco", model: "Next2Me", precio_en_pack: 31.58, precio_individual: 94.74, description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres." },
+              { brand: "Chicco", model: "Next2Me", precio_en_pack: 24.10, precio_individual: 72.30, description: "Cuna de colecho segura y práctica. Se acopla a la cama de los padres." },
             ],
           },
           {

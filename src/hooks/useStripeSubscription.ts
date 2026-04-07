@@ -19,9 +19,9 @@ export function useStripeSubscription() {
       return data as StripeSubscriptionStatus;
     },
     enabled: !!user && !!session,
-    refetchInterval: 60_000, // every minute
+    refetchInterval: false,
     refetchOnWindowFocus: true,
-    staleTime: 30_000,
+    staleTime: 5 * 60_000,
   });
 
   return {

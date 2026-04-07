@@ -1,10 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, stripe-signature",
-};
+import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
 async function verifyStripeSignature(
   payload: string,
@@ -52,6 +47,8 @@ function constantTimeEqual(a: string, b: string): boolean {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -84,6 +81,25 @@ Deno.serve(async (req) => {
     );
 
     console.log(`[WEBHOOK] Processing event: ${event.type}`);
+
+    // Idempotency check — skip if already processed
+    const { data: existing } = await serviceClient
+      .from("processed_stripe_events")
+      .select("id")
+      .eq("event_id", event.id)
+      .maybeSingle();
+
+    if (existing) {
+      console.log(`[WEBHOOK] Event ${event.id} already processed, skipping`);
+      return new Response(JSON.stringify({ received: true, duplicate: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Record the event as processed before handling
+    await serviceClient
+      .from("processed_stripe_events")
+      .insert({ event_id: event.id, event_type: event.type });
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
