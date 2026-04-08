@@ -442,6 +442,15 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_inactive_customers: {
+        Args: { _months?: number }
+        Returns: {
+          full_name: string
+          id: string
+          last_activity: string
+          last_status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
