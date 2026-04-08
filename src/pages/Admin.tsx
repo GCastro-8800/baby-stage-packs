@@ -25,6 +25,7 @@ export default function Admin() {
           <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
           <TabsTrigger value="shipments">Envíos</TabsTrigger>
           <TabsTrigger value="leads">Leads</TabsTrigger>
+          <TabsTrigger value="inactive">Inactivos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="subscriptions">
@@ -35,6 +36,9 @@ export default function Admin() {
         </TabsContent>
         <TabsContent value="leads">
           <LeadsTab />
+        </TabsContent>
+        <TabsContent value="inactive">
+          <InactiveCustomersTab />
         </TabsContent>
       </Tabs>
     </div>
