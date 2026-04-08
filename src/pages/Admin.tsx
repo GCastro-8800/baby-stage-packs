@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionsTab } from "@/components/admin/SubscriptionsTab";
 import { ShipmentsTab } from "@/components/admin/ShipmentsTab";
 import { LeadsTab } from "@/components/admin/LeadsTab";
+import { InactiveCustomersTab } from "@/components/admin/InactiveCustomersTab";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
