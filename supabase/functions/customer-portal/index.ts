@@ -1,5 +1,5 @@
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
 const logStep = (step: string, details?: any) => {
