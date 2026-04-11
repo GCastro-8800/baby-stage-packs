@@ -1,16 +1,18 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { getCorsHeaders, handleCors } from '../_shared/cors.ts'
 
-function jsonResponse(req: Request, data: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' },
-  })
-}
-
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req)
   if (corsResponse) return corsResponse
+
+  const corsHeaders = getCorsHeaders(req)
+
+  function jsonResponse(data: Record<string, unknown>, status = 200): Response {
+    return new Response(JSON.stringify(data), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
 
   if (req.method !== 'GET' && req.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405)
