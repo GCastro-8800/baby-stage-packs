@@ -1,44 +1,37 @@
 
 
-## Plan: Migrar de Lovable Emails a Resend
+## Plan: Completar tareas pendientes de la semana actual
 
-### Resumen
-Desactivar el sistema de emails integrado (que requiere delegación NS incompatible con Hostinger) y reemplazarlo con Resend, que solo necesita registros TXT/CNAME que Hostinger sí soporta.
+### Contexto
+La tarea 1 (DNS/emails) está resuelta tras la migración a Resend. Quedan 3 tareas.
 
-### Pasos
+### Tarea 2 — Brandear emails de auth (~1-2h)
+- Aplicar colores, logo y tono de bebloo a las 6 plantillas de email en `supabase/functions/_shared/email-templates/`
+- Extraer paleta de `src/index.css` (primary, foreground, muted-foreground, radius)
+- Subir logo al storage y añadirlo a cada plantilla
+- Asegurar que todo el copy está en español y con el tono calmado de bebloo
+- Redesplegar `auth-email-hook`
 
-**1. Desactivar Lovable Emails y conectar Resend**
-- Desactivar los emails integrados del proyecto
-- Conectar el conector de Resend (te pedirá crear una cuenta en resend.com si no la tienes y vincular tu API key)
-- Una vez conectado, verificar tu dominio `bebloo.es` en Resend (solo necesitas añadir registros TXT y CNAME en Hostinger — esto sí lo soporta)
+### Tarea 3 — Restringir CORS (~1h)
+- Reemplazar `Access-Control-Allow-Origin: *` por los dominios reales en todas las Edge Functions:
+  - `https://bebloo.lovable.app`
+  - `https://www.bebloo.es`
+  - `https://bebloo.es`
+  - El preview URL de desarrollo
+- Actualizar el archivo `supabase/functions/_shared/cors.ts` centralizado
+- Redesplegar todas las funciones afectadas
 
-**2. Reescribir `send-confirmation-email` para usar Resend vía gateway**
-- Eliminar la dependencia directa de Resend npm y usar el connector gateway en su lugar
-- Mantener la misma lógica de validación, rate limiting y verificación de lead
-- Mantener el mismo HTML del email
+### Tarea 4 — Reemplazar placeholders (~2-3h)
+- Sustituir imágenes placeholder de Unsplash en `src/data/packsByStage.ts` y otros archivos de datos por fotos reales de producto
+- Requiere que tú proporciones las imágenes reales de los productos/packs
 
-**3. Reescribir `auth-email-hook` para usar Resend vía gateway**
-- Cambiar el envío de emails de autenticación (signup, recovery, magic-link, etc.) para que use Resend a través del gateway en lugar del sistema de colas integrado
-- Mantener las mismas plantillas React Email con el branding bebloo
-- Envío directo vía Resend en lugar de encolar en pgmq
-
-**4. Reescribir `send-transactional-email` para usar Resend vía gateway**
-- Mantener la verificación de supresión y el logging en `email_send_log`
-- Reemplazar el encolado pgmq por envío directo vía Resend gateway
-- Mantener las plantillas React Email existentes
-
-**5. Eliminar registros NS de notify.bebloo.es**
-- Una vez todo funcione con Resend, eliminar los registros NS de `notify.bebloo.es` en Hostinger (si los llegaste a añadir)
-
-### Lo que necesitarás hacer tú
-- Crear una cuenta en [resend.com](https://resend.com) (gratis hasta 3,000 emails/mes)
-- Verificar el dominio `bebloo.es` en Resend añadiendo los registros DNS que te indique (TXT y CNAME — compatibles con Hostinger)
-- Vincular tu conexión de Resend cuando te lo pida el sistema
+### Orden sugerido
+1. CORS (rápido, mejora seguridad inmediata)
+2. Brandear emails (independiente, se puede probar con un registro)
+3. Placeholders (depende de que tengas las imágenes listas)
 
 ### Detalles técnicos
-- Se usará el connector gateway de Resend (`connector-gateway.lovable.dev/resend`) para todos los envíos
-- Las plantillas React Email existentes se mantienen intactas
-- El from address será `bebloo <noreply@bebloo.es>` (o el subdominio que configures en Resend)
-- Se mantiene el logging en `email_send_log` para auditoría
-- Se simplifica la arquitectura eliminando las colas pgmq (Resend gestiona reintentos internamente)
+- CORS: se modificará `_shared/cors.ts` para exportar un helper que valide el `Origin` contra una whitelist y devuelva el header correcto
+- Emails: se usarán los estilos CSS del proyecto (HSL custom properties) convertidos a valores inline para email
+- Se redesplegarán todas las Edge Functions modificadas
 
