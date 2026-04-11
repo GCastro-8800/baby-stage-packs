@@ -1,9 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "resend";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const GATEWAY_URL = 'https://connector-gateway.lovable.dev/resend';
 
 // Rate limiting
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -136,45 +135,71 @@ const handler = async (req: Request): Promise<Response> => {
         </div>`
       : "";
 
-    const { data, error } = await resend.emails.send({
-      from: "bebloo <onboarding@resend.dev>",
-      to: [email],
-      subject: "¡Estás en la lista de bebloo! 🍼",
-      html: `
-        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #ffffff;">
-          <h1 style="color: #1a1a1a; font-size: 28px; margin-bottom: 20px; font-weight: normal;">
-            ¡Hola! Ya estás dentro 💚
-          </h1>
-          <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
-            Gracias por tu interés en <strong>bebloo</strong>. Has elegido el pack 
-            <strong>${safePlan}</strong> — excelente elección.
-          </p>
-          ${productsHtml}
-          <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
-            ${safePostalCode ? `Hemos anotado tu código postal (${safePostalCode}) para avisarte en cuanto lleguemos.` : 'Te escribiremos en cuanto estemos disponibles en tu área.'}
-          </p>
-          <div style="background: #f8f7f5; border-radius: 8px; padding: 20px; margin: 30px 0;">
-            <p style="color: #1a1a1a; font-size: 14px; margin: 0; line-height: 1.6;">
-              <strong>Mientras tanto:</strong> Respira hondo. Los primeros meses son intensos, 
-              pero no tienes que resolverlo todo hoy. Cuando estemos listos, el equipamiento 
-              será la menor de tus preocupaciones.
-            </p>
-          </div>
-          <p style="color: #888888; font-size: 14px; line-height: 1.5;">
-            Con cariño,<br/>
-            El equipo de bebloo
-          </p>
-          <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 30px 0;" />
-          <p style="color: #aaaaaa; font-size: 12px; text-align: center;">
-            Este email fue enviado porque te registraste en bebloo.com
+    const htmlContent = `
+      <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #ffffff;">
+        <h1 style="color: #1a1a1a; font-size: 28px; margin-bottom: 20px; font-weight: normal;">
+          ¡Hola! Ya estás dentro 💚
+        </h1>
+        <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
+          Gracias por tu interés en <strong>bebloo</strong>. Has elegido el pack 
+          <strong>${safePlan}</strong> — excelente elección.
+        </p>
+        ${productsHtml}
+        <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
+          ${safePostalCode ? `Hemos anotado tu código postal (${safePostalCode}) para avisarte en cuanto lleguemos.` : 'Te escribiremos en cuanto estemos disponibles en tu área.'}
+        </p>
+        <div style="background: #f8f7f5; border-radius: 8px; padding: 20px; margin: 30px 0;">
+          <p style="color: #1a1a1a; font-size: 14px; margin: 0; line-height: 1.6;">
+            <strong>Mientras tanto:</strong> Respira hondo. Los primeros meses son intensos, 
+            pero no tienes que resolverlo todo hoy. Cuando estemos listos, el equipamiento 
+            será la menor de tus preocupaciones.
           </p>
         </div>
-      `,
+        <p style="color: #888888; font-size: 14px; line-height: 1.5;">
+          Con cariño,<br/>
+          El equipo de bebloo
+        </p>
+        <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 30px 0;" />
+        <p style="color: #aaaaaa; font-size: 12px; text-align: center;">
+          Este email fue enviado porque te registraste en bebloo.com
+        </p>
+      </div>
+    `;
+
+    // Send via Resend connector gateway
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || Deno.env.get('RESEND_API_KEY_1');
+
+    if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
+      console.error('Missing LOVABLE_API_KEY or RESEND_API_KEY');
+      return new Response(JSON.stringify({ error: "Server configuration error" }), {
+        status: 500, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const resendResponse = await fetch(`${GATEWAY_URL}/emails`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'X-Connection-Api-Key': RESEND_API_KEY,
+      },
+      body: JSON.stringify({
+        from: 'bebloo <noreply@bebloo.es>',
+        to: [email],
+        subject: '¡Estás en la lista de bebloo! 🍼',
+        html: htmlContent,
+      }),
     });
 
-    if (error) throw error;
+    const resendData = await resendResponse.json();
 
-    return new Response(JSON.stringify({ success: true, data }), {
+    if (!resendResponse.ok) {
+      console.error('Resend API error:', resendData);
+      throw new Error(`Resend API error [${resendResponse.status}]: ${JSON.stringify(resendData)}`);
+    }
+
+    return new Response(JSON.stringify({ success: true, data: resendData }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
