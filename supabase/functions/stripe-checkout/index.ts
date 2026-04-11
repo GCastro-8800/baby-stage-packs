@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
       };
     });
 
-    const origin = req.headers.get("origin") || "";
+    const origin = req.headers.get("origin") || "https://www.bebloo.es";
 
     // Build metadata with commitment details and price details per product
     const commitmentDetails = items.map((i) => `${i.productId}:${i.months}`);
