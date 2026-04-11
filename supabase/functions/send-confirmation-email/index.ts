@@ -168,7 +168,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send via Resend connector gateway
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || Deno.env.get('RESEND_API_KEY_1');
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY_1');
 
     if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
       console.error('Missing LOVABLE_API_KEY or RESEND_API_KEY');

@@ -125,7 +125,7 @@ async function handlePreview(req: Request): Promise<Response> {
 // Send email via Resend gateway
 async function sendViaResend(to: string, subject: string, html: string, text: string): Promise<{ success: boolean; error?: string }> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
-  const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || Deno.env.get('RESEND_API_KEY_1')
+  const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY_1')
 
   if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
     return { success: false, error: 'Missing API keys' }

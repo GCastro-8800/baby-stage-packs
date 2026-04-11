@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
-  const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') || Deno.env.get('RESEND_API_KEY_1')
+  const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY_1')
 
   if (!supabaseUrl || !supabaseServiceKey || !LOVABLE_API_KEY || !RESEND_API_KEY) {
     console.error('Missing required environment variables')
