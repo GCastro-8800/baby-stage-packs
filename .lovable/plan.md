@@ -1,37 +1,46 @@
 
 
-## Plan: Completar tareas pendientes de la semana actual
+## Plan: Test end-to-end completo
 
-### Contexto
-La tarea 1 (DNS/emails) está resuelta tras la migración a Resend. Quedan 3 tareas.
+### Sobre el panel de emails
+Lo que ves ("Emails disabled") es correcto y esperado. El sistema integrado de emails de Lovable está desactivado porque migramos todo a Resend. Tus emails funcionan independientemente de ese panel. No hay que hacer nada al respecto.
 
-### Tarea 2 — Brandear emails de auth (~1-2h)
-- Aplicar colores, logo y tono de bebloo a las 6 plantillas de email en `supabase/functions/_shared/email-templates/`
-- Extraer paleta de `src/index.css` (primary, foreground, muted-foreground, radius)
-- Subir logo al storage y añadirlo a cada plantilla
-- Asegurar que todo el copy está en español y con el tono calmado de bebloo
-- Redesplegar `auth-email-hook`
+### Test E2E: Registro → Onboarding → Pago → Email → Dashboard
 
-### Tarea 3 — Restringir CORS (~1h)
-- Reemplazar `Access-Control-Allow-Origin: *` por los dominios reales en todas las Edge Functions:
-  - `https://bebloo.lovable.app`
-  - `https://www.bebloo.es`
-  - `https://bebloo.es`
-  - El preview URL de desarrollo
-- Actualizar el archivo `supabase/functions/_shared/cors.ts` centralizado
-- Redesplegar todas las funciones afectadas
+Voy a recorrer el flujo completo usando las herramientas del navegador para verificar cada paso:
 
-### Tarea 4 — Reemplazar placeholders (~2-3h)
-- Sustituir imágenes placeholder de Unsplash en `src/data/packsByStage.ts` y otros archivos de datos por fotos reales de producto
-- Requiere que tú proporciones las imágenes reales de los productos/packs
+**1. Registro (Auth)**
+- Navegar a `/auth`
+- Verificar que el formulario de registro carga correctamente
+- Verificar que "Continuar con Google" funciona
+- Intentar crear cuenta con email (verificar que el email de confirmación se envía via Resend)
 
-### Orden sugerido
-1. CORS (rápido, mejora seguridad inmediata)
-2. Brandear emails (independiente, se puede probar con un registro)
-3. Placeholders (depende de que tengas las imágenes listas)
+**2. Onboarding**
+- Verificar que tras login el usuario sin onboarding completado es redirigido a `/onboarding`
+- Recorrer los pasos del flujo de onboarding
+- Confirmar que al completar se redirige a `/app`
 
-### Detalles técnicos
-- CORS: se modificará `_shared/cors.ts` para exportar un helper que valide el `Origin` contra una whitelist y devuelva el header correcto
-- Emails: se usarán los estilos CSS del proyecto (HSL custom properties) convertidos a valores inline para email
-- Se redesplegarán todas las Edge Functions modificadas
+**3. Pago (Stripe Checkout)**
+- Desde el dashboard o packs, iniciar un checkout
+- Verificar que la Edge Function `stripe-checkout` responde correctamente
+- Confirmar que tras el pago se redirige a la página de éxito
+- Verificar que el email de confirmación de pedido se dispara
+
+**4. Email**
+- Revisar los logs de la Edge Function `send-transactional-email` para confirmar envíos exitosos
+- Revisar los logs de `auth-email-hook` para emails de auth
+- Verificar entradas en `email_send_log`
+
+**5. Dashboard**
+- Confirmar que `/app` carga con los datos del usuario
+- Verificar que la suscripción aparece correctamente
+
+### Metodología
+- Usaré el navegador integrado para navegar por la app
+- Revisaré logs de Edge Functions para verificar el backend
+- Consultaré la base de datos para confirmar registros
+- Documentaré cualquier error encontrado y lo corregiré
+
+### Nota importante
+El registro con email real requiere verificación (el email debe llegar vía Resend). Para el test, puedo verificar que el flujo se ejecuta correctamente hasta donde sea posible sin crear usuarios reales, y complementar con revisión de logs y Edge Functions.
 
