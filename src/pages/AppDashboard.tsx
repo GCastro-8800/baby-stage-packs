@@ -59,11 +59,19 @@ export default function AppDashboard() {
               <Button variant="ghost" size="icon" onClick={() => navigate("/app/settings")}>
                 <Settings className="h-5 w-5" />
               </Button>
-              <Button variant="outline" onClick={handleSignOut} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Cerrar sesión</span>
-              </Button>
-            </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={handleSignOut} className="gap-2">
+                      <LogOut className="h-4 w-4" />
+                      <span className="hidden sm:inline">Cerrar sesión</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cerrar sesión</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
           </div>
         </div>
       </header>
