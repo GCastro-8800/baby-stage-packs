@@ -73,6 +73,7 @@ export default function AppDashboard() {
                 </Tooltip>
               </TooltipProvider>
             </div>
+          </div>
         </div>
       </header>
 
