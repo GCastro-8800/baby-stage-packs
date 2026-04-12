@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, Settings } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -58,10 +59,19 @@ export default function AppDashboard() {
               <Button variant="ghost" size="icon" onClick={() => navigate("/app/settings")}>
                 <Settings className="h-5 w-5" />
               </Button>
-              <Button variant="outline" onClick={handleSignOut} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Cerrar sesión</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={handleSignOut} className="gap-2">
+                      <LogOut className="h-4 w-4" />
+                      <span className="hidden sm:inline">Cerrar sesión</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cerrar sesión</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>

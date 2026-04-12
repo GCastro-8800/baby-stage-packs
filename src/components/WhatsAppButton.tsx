@@ -24,7 +24,7 @@ const WhatsAppButton = () => {
           <button
             onClick={handleClick}
             aria-label="Contactar por WhatsApp"
-            className="fixed bottom-24 left-4 md:bottom-6 md:left-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform duration-200 hover:scale-110 animate-scale-in"
+            className="fixed bottom-[7rem] left-4 md:bottom-6 md:left-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-transform duration-200 hover:scale-110 animate-scale-in"
             style={{ backgroundColor: "#25D366" }}
           >
             <svg
