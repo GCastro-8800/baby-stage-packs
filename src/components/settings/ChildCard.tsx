@@ -23,7 +23,7 @@ export function ChildCard({ child, onEdit, onDelete, onSetActive, isOnly }: Chil
   return (
     <Card className={child.is_active ? "border-primary/50 bg-primary/5" : ""}>
       <CardContent className="py-4">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2 rounded-full bg-muted">
               <Baby className="h-4 w-4 text-muted-foreground" />
