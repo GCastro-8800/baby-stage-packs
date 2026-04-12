@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 import type { PackConfig } from "@/data/packStages";
 
 interface StageSelections {
@@ -30,7 +30,7 @@ function getSnapshot() {
 
 export function usePackSelections(packId: string) {
   const state = useSyncExternalStore(subscribe, getSnapshot);
-  const packState = state[packId] || {};
+  const packState = useMemo(() => state[packId] || {}, [state, packId]);
 
   const initStageIfNeeded = useCallback(
     (stageId: string, fixedKeys: string[], choiceKeys: string[], products: { category: string; type: string }[]) => {

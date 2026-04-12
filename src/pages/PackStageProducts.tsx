@@ -55,9 +55,9 @@ const PackStageProducts = () => {
 
   // Read selections from global store
   const stageSelections = stageId ? getStageSelections(stageId) : undefined;
-  const selectedFixed = stageSelections?.selectedFixed || new Set(fixedKeys);
-  const selectedChoice = stageSelections?.selectedChoice || new Set(choiceKeys);
-  const variantChoices = stageSelections?.variantChoices || {};
+  const selectedFixed = useMemo(() => stageSelections?.selectedFixed || new Set(fixedKeys), [stageSelections, fixedKeys]);
+  const selectedChoice = useMemo(() => stageSelections?.selectedChoice || new Set(choiceKeys), [stageSelections, choiceKeys]);
+  const variantChoices = useMemo(() => stageSelections?.variantChoices || {}, [stageSelections]);
 
   const [pendingDeselect, setPendingDeselect] = useState<{ category: string; product: EquipmentOption; type: "fixed" | "choice" } | null>(null);
   const [previewProduct, setPreviewProduct] = useState<EquipmentOption | null>(null);

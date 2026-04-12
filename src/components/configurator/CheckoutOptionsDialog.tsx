@@ -106,9 +106,9 @@ export default function CheckoutOptionsDialog({
         } else {
           throw new Error("No checkout URL returned");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Checkout error:", err);
-        toast.error(err?.message || "Error al iniciar el pago. Inténtalo de nuevo.");
+        toast.error(err instanceof Error ? err.message : "Error al iniciar el pago. Inténtalo de nuevo.");
       } finally {
         setLoading(false);
       }

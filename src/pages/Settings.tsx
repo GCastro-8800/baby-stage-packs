@@ -68,8 +68,8 @@ export default function Settings() {
       }
       setFormOpen(false);
       setEditingChild(null);
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Error desconocido", variant: "destructive" });
     }
   };
 
@@ -84,8 +84,8 @@ export default function Settings() {
         if (remaining) await setActiveChild.mutateAsync(remaining.id);
       }
       toast({ title: "Hijo/a eliminado" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Error desconocido", variant: "destructive" });
     }
     setDeletingChild(null);
   };

@@ -29,7 +29,7 @@ const PackDetail = () => {
   const pack = packId ? getPackConfig(packId) : undefined;
 
   // Duration state — may come from PricingSection navigation
-  const incomingDuration = (location.state as any)?.durationMonths;
+  const incomingDuration = (location.state as { durationMonths?: number } | null)?.durationMonths;
   const [selectedMonths, setSelectedMonths] = useState<number>(incomingDuration || 6);
   const durationOption = DURATION_OPTIONS.find((d) => d.months === selectedMonths) || DURATION_OPTIONS[0];
 
@@ -252,7 +252,7 @@ const PackDetail = () => {
 
 interface StagePanelProps {
   stage: PackStage;
-  getStageSelections: (stageId: string) => any;
+  getStageSelections: (stageId: string) => { selectedFixed: Set<string>; selectedChoice: Set<string>; variantChoices: Record<string, number> } | undefined;
   onToggle: (stageId: string, category: string, type: "fixed" | "choice") => void;
   onVariantChange: (stageId: string, category: string, idx: number) => void;
   onPreview: (product: EquipmentOption) => void;

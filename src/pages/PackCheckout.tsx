@@ -68,9 +68,9 @@ const PackCheckout = () => {
       } else {
         throw new Error("No checkout URL returned");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Checkout error:", err);
-      const message = err?.message || "";
+      const message = err instanceof Error ? err.message : "";
       if (message.includes("Stripe not configured")) {
         toast({ variant: "destructive", title: "Pago no disponible todavía", description: "El sistema de pago está en proceso de configuración. Puedes contactarnos directamente mientras tanto." });
       } else {

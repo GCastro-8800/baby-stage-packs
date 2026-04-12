@@ -40,7 +40,7 @@ const Header = () => {
   }, []);
 
   const handleNavClick = (link: typeof navLinks[number]) => {
-    if ((link as any).isRoute) {
+    if ("isRoute" in link && link.isRoute) {
       navigate(link.href);
     } else if (!isHome) {
       navigate("/" + link.href);

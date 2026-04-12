@@ -48,7 +48,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
       } else {
         throw new Error("No portal URL returned");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Portal error:", err);
       toast.error("No se pudo abrir el portal de gestión. Inténtalo de nuevo.");
     } finally {
