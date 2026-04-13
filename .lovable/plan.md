@@ -1,17 +1,18 @@
 
 
-## Plan: Reemplazar imágenes de productos
+## Plan: Eliminar BabyBjörn Balance Soft del catálogo
 
-Mapeo de las 4 imágenes subidas a los archivos existentes:
+Eliminar el producto "BabyBjörn Balance Soft" de todos los lugares donde aparece:
 
-| Imagen subida | Reemplaza a | Producto |
-|---|---|---|
-| `babybjorn_bliss-balance.png` | `src/assets/products/babybjorn-bliss.png` | BabyBjörn Bliss/Balance |
-| `Bugaboo_dragonfly.png` | `src/assets/products/bugaboo-dragonfly.png` | Bugaboo Dragonfly |
-| `bugaboo_fox_5.png` | `src/assets/products/bugaboo-fox-3.png` | Bugaboo Fox 3 |
-| `bugaboo_giraffe.png` | `src/assets/products/trona-bugaboo-giraffe.png` | Bugaboo Giraffe (trona) |
+### Archivos a modificar
 
-### Implementacion
+1. **`src/data/productCatalog.ts`** — Eliminar el import de la imagen y el objeto del producto del array `PRODUCT_CATALOG`
+2. **`supabase/functions/stripe-checkout/index.ts`** — Eliminar la entrada del mapa de precios
+3. **`src/data/packStages.ts`** — Eliminar la opción "Balance Soft" del array `comfortHamacas`
 
-Copiar cada imagen subida sobre el archivo existente en `src/assets/products/`, manteniendo el mismo nombre de archivo para que los imports en `productCatalog.ts` sigan funcionando sin cambios de codigo.
+### Limpieza
+
+4. **Eliminar el archivo de imagen** `src/assets/products/babybjorn-balance-soft.png` (ya no se necesita)
+
+No hay referencias en defaults ni en el recommendation engine, por lo que la eliminación es limpia.
 
