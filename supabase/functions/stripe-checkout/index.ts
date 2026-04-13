@@ -16,7 +16,7 @@ const PRODUCT_PRICES: Record<string, { name: string; prices: Record<number, numb
   "babybjorn-bliss":      { name: "BabyBjörn Bliss/Balance", prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
   "bugaboo-giraffe-hamaca": { name: "Bugaboo Giraffe Hamaca", prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
   "nuna-leaf-grow":       { name: "Nuna LEAF Grow",           prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 } },
-  "babybjorn-balance-soft": { name: "BabyBjörn Balance Soft", prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
+  
   "babybjorn-harmony":    { name: "BabyBjörn Harmony",       prices: { 1: 45, 3: 43, 6: 38, 12: 31, 24: 22 } },
   "ergobaby-omni":        { name: "Ergobaby Omni",            prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 } },
   "boba-wrap":            { name: "Boba Wrap",                prices: { 1: 25, 3: 24, 6: 21, 12: 17, 24: 12 } },

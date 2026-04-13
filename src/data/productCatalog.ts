@@ -1,5 +1,5 @@
 import imgBabybjornBliss from "@/assets/products/babybjorn-bliss.png";
-import imgBabybjornBalanceSoft from "@/assets/products/babybjorn-balance-soft.png";
+
 import imgBabybjornHarmony from "@/assets/products/babybjorn-harmony.png";
 import imgBobaWrap from "@/assets/products/boba-wrap.png";
 import imgTronaBugabooGiraffe from "@/assets/products/trona-bugaboo-giraffe.png";
@@ -196,19 +196,6 @@ export const PRODUCT_CATALOG: Product[] = [
     shortReason: "Hamaca que crece con tu hijo",
     image: imgNunaLeaf,
     specs: { "Carga máxima": "60 kg", "Balanceo": "Hasta 2 min sin motor", "Edad": "0–36 meses" },
-  },
-  {
-    id: "babybjorn-balance-soft",
-    name: "BabyBjörn Balance Soft",
-    brand: "BabyBjörn",
-    category: "porteo",
-    stage: "0-4",
-    pricePerMonth: 40,
-    prices: { 1: 40, 3: 38, 6: 34, 12: 27, 24: 19 },
-    description: "Tejido jersey de algodón 100 % extra-suave. Balanceo ergonómico natural. Plegado compacto. 2.1 kg.",
-    shortReason: "Máximo confort ergonómico",
-    image: imgBabybjornBalanceSoft,
-    specs: { "Peso": "2.1 kg", "Materiales": "Jersey algodón 100 %", "Edad": "0–24 meses" },
   },
   {
     id: "babybjorn-harmony",

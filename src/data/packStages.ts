@@ -48,7 +48,7 @@ const comfortCarritos: EquipmentOption[] = [
 
 const comfortHamacas: EquipmentOption[] = [
   { brand: "BabyBjörn", model: "Bliss", precio_en_pack: 17.56, precio_individual: 52.68, description: "Hamaca con balanceo natural. Tejido suave y transpirable." },
-  { brand: "BabyBjörn", model: "Balance Soft", precio_en_pack: 16.20, precio_individual: 48.60, description: "Hamaca ergonómica con asiento acolchado y balanceo suave." },
+  
   { brand: "Bugaboo", model: "Giraffe hamaca", precio_en_pack: 18.96, precio_individual: 56.88, description: "Hamaca ergonómica compatible con trona Giraffe." },
   { brand: "Nuna", model: "LEAF Grow", precio_en_pack: 20.50, precio_individual: 61.50, description: "Hamaca de balanceo silencioso que crece con el bebé." },
 ];
