@@ -256,6 +256,27 @@ export type Database = {
         }
         Relationships: []
       }
+      processed_stripe_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          id: string
+          processed_at: string | null
+        }
+        Insert: {
+          event_id: string
+          event_type: string
+          id?: string
+          processed_at?: string | null
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          id?: string
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
