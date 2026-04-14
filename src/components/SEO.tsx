@@ -8,7 +8,7 @@ interface SEOProps {
   type?: string;
 }
 
-const BASE_URL = "https://bebloo.lovable.app";
+const BASE_URL = "https://www.bebloo.es";
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 const SITE_NAME = "bebloo";
 
