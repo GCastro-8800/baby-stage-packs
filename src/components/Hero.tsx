@@ -32,7 +32,7 @@ const Hero = () => {
                   <Star key={i} className="w-3 h-3 fill-accent text-accent" />
                 ))}
               </div>
-              <span>50+ familias ya confían en nosotros</span>
+              <span>Primeras familias ya confían en nosotros</span>
             </div>
 
             {/* Headline */}
