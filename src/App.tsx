@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,21 +9,23 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import Index from "./pages/Index";
-import Admin from "./pages/Admin";
-import AdminLogin from "./pages/AdminLogin";
-import Auth from "./pages/Auth";
-import Onboarding from "./pages/Onboarding";
-import AppDashboard from "./pages/AppDashboard";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Catalog from "./pages/Catalog";
-import CheckoutSuccess from "@/pages/CheckoutSuccess";
-import Settings from "./pages/Settings";
-import AboutUs from "./pages/AboutUs";
-import Configurator from "./pages/Configurator";
-import Selection from "./pages/Selection";
-import NotFound from "./pages/NotFound";
-import Unsubscribe from "./pages/Unsubscribe";
+
+// Lazy-loaded routes — split into separate chunks to reduce initial bundle
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const AppDashboard = lazy(() => import("./pages/AppDashboard"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Catalog = lazy(() => import("./pages/Catalog"));
+const CheckoutSuccess = lazy(() => import("@/pages/CheckoutSuccess"));
+const Settings = lazy(() => import("./pages/Settings"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const Configurator = lazy(() => import("./pages/Configurator"));
+const Selection = lazy(() => import("./pages/Selection"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,7 @@ const App = () => (
       <BrowserRouter>
         <ErrorBoundary>
         <AuthProvider>
+          <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -84,6 +88,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </AuthProvider>
         </ErrorBoundary>
       </BrowserRouter>
