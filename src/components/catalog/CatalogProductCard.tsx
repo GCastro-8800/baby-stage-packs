@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { DEFAULT_DURATION } from "@/lib/constants";
 
 const STORAGE_KEY = "bebloo_selection";
+const SELECTION_CHANGED_EVENT = "bebloo:selection-changed";
 
 function addToStoredSelection(product: Product): number {
   let stored: { productIds: string[]; durations: Record<string, number> };
@@ -25,6 +26,7 @@ function addToStoredSelection(product: Product): number {
     stored.durations[product.id] = DEFAULT_DURATION;
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+  window.dispatchEvent(new Event(SELECTION_CHANGED_EVENT));
   return stored.productIds.length;
 }
 
