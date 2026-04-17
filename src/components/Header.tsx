@@ -203,7 +203,8 @@ const Header = () => {
                   </Button>
                 </nav>
               </SheetContent>
-            </Sheet>
+              </Sheet>
+            </div>
           )}
         </div>
       </div>
