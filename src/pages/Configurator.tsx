@@ -63,7 +63,7 @@ export default function Configurator() {
         .select("questionnaire_answers")
         .eq("id", user.id)
         .maybeSingle();
-      const saved = (prof?.questionnaire_answers as QuestionnaireAnswers | null) ?? null;
+      const saved = (prof?.questionnaire_answers as unknown as QuestionnaireAnswers | null) ?? null;
       if (saved) {
         // Stash to localStorage so banner shows
         localStorage.setItem(QUESTIONNAIRE_KEY, JSON.stringify(saved));
