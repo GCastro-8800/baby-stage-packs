@@ -20,11 +20,34 @@ interface OnboardingData {
 
 const TOTAL_STEPS = 4;
 
+const QUESTIONNAIRE_KEY = "bebloo_questionnaire";
+
+function readQuestionnairePrefill(): Partial<OnboardingData> {
+  try {
+    const raw = localStorage.getItem(QUESTIONNAIRE_KEY);
+    if (!raw) return {};
+    const a = JSON.parse(raw);
+    if (a.dueDate === "already-born") {
+      return { situation: "born" };
+    }
+    if (typeof a.dueDate === "string" && a.dueDate.length > 0) {
+      const d = new Date(a.dueDate);
+      if (!Number.isNaN(d.getTime())) {
+        return { situation: "expecting", date: d };
+      }
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
 export function OnboardingFlow() {
-  const [step, setStep] = useState(1);
+  const prefill = readQuestionnairePrefill();
+  const [step, setStep] = useState(prefill.date ? 3 : 1);
   const [data, setData] = useState<OnboardingData>({
-    situation: null,
-    date: null,
+    situation: prefill.situation ?? null,
+    date: prefill.date ?? null,
     isFirstChild: null,
   });
   const [isLoading, setIsLoading] = useState(false);
