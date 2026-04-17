@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Trash2, ArrowLeftRight } from "lucide-react";
+import { ChevronDown, Trash2, ArrowLeftRight, Sparkles } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/data/productCatalog";
@@ -16,6 +16,7 @@ interface ProductCardSelectedProps {
   onDurationChange: (productId: string, months: number) => void;
   discountedPrice: number;
   onPreview?: (product: Product) => void;
+  reasons?: string[];
 }
 
 export default function ProductCardSelected({
@@ -27,6 +28,7 @@ export default function ProductCardSelected({
   onDurationChange,
   discountedPrice,
   onPreview,
+  reasons,
 }: ProductCardSelectedProps) {
   const [open, setOpen] = useState(false);
   const hasDiscount = discountedPrice < product.pricePerMonth;
@@ -86,6 +88,31 @@ export default function ProductCardSelected({
               <p className="text-xs text-primary-foreground/80 bg-primary/15 inline-block px-2 py-0.5 rounded-full mt-2">
                 {product.shortReason}
               </p>
+            )}
+
+            {reasons && reasons.length > 0 && (
+              <div className="mt-3 rounded-lg bg-primary/5 border border-primary/15 p-2.5">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary-foreground mt-0.5 shrink-0" />
+                  <div className="text-xs text-foreground/90">
+                    <p className="font-medium mb-1">Por qué te lo recomendamos</p>
+                    <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                      {reasons.map((r, i) => (
+                        <li key={i}>{r}</li>
+                      ))}
+                    </ul>
+                    {onPreview && (
+                      <button
+                        type="button"
+                        onClick={() => onPreview(product)}
+                        className="mt-1.5 text-primary-foreground underline underline-offset-2 hover:opacity-80 text-xs font-medium"
+                      >
+                        Ver ficha completa
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
