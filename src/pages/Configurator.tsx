@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { ArrowLeft, ArrowRight, Baby, Home, ShieldCheck, Package } from "lucide-react";
+import { ArrowLeft, ArrowRight, Baby, Home, ShieldCheck, Package, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,10 +10,17 @@ import { Input } from "@/components/ui/input";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
 import Header from "@/components/Header";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { QuestionnaireAnswers, getRecommendation, buildSituationSummary } from "@/data/recommendationEngine";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  QuestionnaireAnswers,
+  getRecommendation,
+  buildSituationSummary,
+} from "@/data/recommendationEngine";
 import { cn } from "@/lib/utils";
 
 const TOTAL_STEPS = 4;
+const QUESTIONNAIRE_KEY = "bebloo_questionnaire";
 
 const CONCERN_OPTIONS = [
   { id: "dont-know", label: "No sé qué productos necesito" },
@@ -22,10 +29,22 @@ const CONCERN_OPTIONS = [
   { id: "best-quality", label: "Quiero lo mejor sin investigar" },
 ];
 
+function readSavedAnswers(): QuestionnaireAnswers | null {
+  try {
+    const raw = localStorage.getItem(QUESTIONNAIRE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as QuestionnaireAnswers;
+  } catch {
+    return null;
+  }
+}
+
 export default function Configurator() {
   const navigate = useNavigate();
   const { track } = useAnalytics();
+  const { user, profile } = useAuth();
   const [step, setStep] = useState(1);
+  const [reuseBannerDismissed, setReuseBannerDismissed] = useState(false);
 
   // Answers state
   const [dueDateType, setDueDateType] = useState<"not-born" | "already-born" | "">("");
@@ -33,6 +52,61 @@ export default function Configurator() {
   const [housing, setHousing] = useState("");
   const [concerns, setConcerns] = useState<string[]>([]);
   const [existingEquipment, setExistingEquipment] = useState("");
+
+  // Pre-fill from profile/child if user is authenticated and has answered before via onboarding
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      // Check profile.questionnaire_answers first
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("questionnaire_answers")
+        .eq("id", user.id)
+        .maybeSingle();
+      const saved = (prof?.questionnaire_answers as QuestionnaireAnswers | null) ?? null;
+      if (saved) {
+        // Stash to localStorage so banner shows
+        localStorage.setItem(QUESTIONNAIRE_KEY, JSON.stringify(saved));
+        return;
+      }
+      // Fallback: prefill date/situation from active child
+      const { data: child } = await supabase
+        .from("children")
+        .select("situation, due_date, birth_date")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (child) {
+        if (child.situation === "born") {
+          setDueDateType("already-born");
+        } else if (child.situation === "expecting" && child.due_date) {
+          setDueDateType("not-born");
+          setDueDateValue(child.due_date);
+        }
+      }
+    })();
+  }, [user]);
+
+  const savedAnswers = readSavedAnswers();
+  const showReuseBanner = !!savedAnswers && !reuseBannerDismissed && step === 1;
+
+  const reuseSaved = () => {
+    if (!savedAnswers) return;
+    track("cta_click", { source: "configurator", action: "reuse_answers" });
+    const recommended = getRecommendation(savedAnswers);
+    navigate("/mi-seleccion", {
+      state: { answers: savedAnswers, recommended: recommended.map((p) => p.id) },
+    });
+  };
+
+  const startFresh = () => {
+    setReuseBannerDismissed(true);
+    setDueDateType("");
+    setDueDateValue("");
+    setHousing("");
+    setConcerns([]);
+    setExistingEquipment("");
+  };
 
   const canProceed = (): boolean => {
     switch (step) {
