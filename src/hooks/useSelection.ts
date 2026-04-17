@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Product, getProductById } from "@/data/productCatalog";
 import { QuestionnaireAnswers } from "@/data/recommendationEngine";
 import { DEFAULT_DURATION } from "@/lib/constants";
+import { SELECTION_CHANGED_EVENT } from "@/hooks/useSelectionCount";
 
 const STORAGE_KEY = "bebloo_selection";
 
@@ -26,6 +27,8 @@ function saveToStorage(products: Map<string, Product>, durations: Map<string, nu
     durations: Object.fromEntries(durations),
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  // Notify any listeners (cart badge, sync hook, etc.)
+  window.dispatchEvent(new Event(SELECTION_CHANGED_EVENT));
 }
 
 export interface SelectionState {

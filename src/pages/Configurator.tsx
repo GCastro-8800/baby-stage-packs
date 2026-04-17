@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SEO from "@/components/SEO";
-import { ArrowLeft, ArrowRight, Baby, Home, ShieldCheck, Package } from "lucide-react";
+import { ArrowLeft, ArrowRight, Baby, Home, ShieldCheck, Package, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,10 +10,17 @@ import { Input } from "@/components/ui/input";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
 import Header from "@/components/Header";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { QuestionnaireAnswers, getRecommendation, buildSituationSummary } from "@/data/recommendationEngine";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  QuestionnaireAnswers,
+  getRecommendation,
+  buildSituationSummary,
+} from "@/data/recommendationEngine";
 import { cn } from "@/lib/utils";
 
 const TOTAL_STEPS = 4;
+const QUESTIONNAIRE_KEY = "bebloo_questionnaire";
 
 const CONCERN_OPTIONS = [
   { id: "dont-know", label: "No sé qué productos necesito" },
@@ -22,10 +29,22 @@ const CONCERN_OPTIONS = [
   { id: "best-quality", label: "Quiero lo mejor sin investigar" },
 ];
 
+function readSavedAnswers(): QuestionnaireAnswers | null {
+  try {
+    const raw = localStorage.getItem(QUESTIONNAIRE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as QuestionnaireAnswers;
+  } catch {
+    return null;
+  }
+}
+
 export default function Configurator() {
   const navigate = useNavigate();
   const { track } = useAnalytics();
+  const { user, profile } = useAuth();
   const [step, setStep] = useState(1);
+  const [reuseBannerDismissed, setReuseBannerDismissed] = useState(false);
 
   // Answers state
   const [dueDateType, setDueDateType] = useState<"not-born" | "already-born" | "">("");
@@ -33,6 +52,61 @@ export default function Configurator() {
   const [housing, setHousing] = useState("");
   const [concerns, setConcerns] = useState<string[]>([]);
   const [existingEquipment, setExistingEquipment] = useState("");
+
+  // Pre-fill from profile/child if user is authenticated and has answered before via onboarding
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      // Check profile.questionnaire_answers first
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("questionnaire_answers")
+        .eq("id", user.id)
+        .maybeSingle();
+      const saved = (prof?.questionnaire_answers as unknown as QuestionnaireAnswers | null) ?? null;
+      if (saved) {
+        // Stash to localStorage so banner shows
+        localStorage.setItem(QUESTIONNAIRE_KEY, JSON.stringify(saved));
+        return;
+      }
+      // Fallback: prefill date/situation from active child
+      const { data: child } = await supabase
+        .from("children")
+        .select("situation, due_date, birth_date")
+        .eq("user_id", user.id)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (child) {
+        if (child.situation === "born") {
+          setDueDateType("already-born");
+        } else if (child.situation === "expecting" && child.due_date) {
+          setDueDateType("not-born");
+          setDueDateValue(child.due_date);
+        }
+      }
+    })();
+  }, [user]);
+
+  const savedAnswers = readSavedAnswers();
+  const showReuseBanner = !!savedAnswers && !reuseBannerDismissed && step === 1;
+
+  const reuseSaved = () => {
+    if (!savedAnswers) return;
+    track("cta_click", { source: "configurator", action: "reuse_answers" });
+    const recommended = getRecommendation(savedAnswers);
+    navigate("/mi-seleccion", {
+      state: { answers: savedAnswers, recommended: recommended.map((p) => p.id) },
+    });
+  };
+
+  const startFresh = () => {
+    setReuseBannerDismissed(true);
+    setDueDateType("");
+    setDueDateValue("");
+    setHousing("");
+    setConcerns([]);
+    setExistingEquipment("");
+  };
 
   const canProceed = (): boolean => {
     switch (step) {
@@ -49,7 +123,7 @@ export default function Configurator() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
@@ -60,6 +134,19 @@ export default function Configurator() {
         concerns,
         existingEquipment: existingEquipment as QuestionnaireAnswers["existingEquipment"],
       };
+
+      // Persist answers to localStorage (and DB if logged in) so we don't ask again
+      try {
+        localStorage.setItem(QUESTIONNAIRE_KEY, JSON.stringify(answers));
+      } catch {
+        /* ignore */
+      }
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ questionnaire_answers: answers as never })
+          .eq("id", user.id);
+      }
 
       const recommended = getRecommendation(answers);
       track("cta_click", { source: "configurator", action: "configurator_complete" });
@@ -91,6 +178,32 @@ export default function Configurator() {
       <Header />
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="container max-w-lg mx-auto">
+          {/* Reuse banner */}
+          {showReuseBanner && (
+            <div className="mb-6 rounded-xl bg-primary/10 border border-primary/20 p-4">
+              <div className="flex items-start gap-3">
+                <RefreshCw className="h-5 w-5 text-primary-foreground shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Ya respondiste antes
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                    {buildSituationSummary(savedAnswers!)}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={reuseSaved} className="gap-1.5">
+                      Usar las mismas respuestas
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={startFresh}>
+                      Volver a empezar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Progress */}
           <div className="mb-2">
             <p className="text-xs font-medium text-muted-foreground text-center mb-3">

@@ -25,6 +25,7 @@ interface CategorySectionProps {
   setDuration?: (productId: string, months: number) => void;
   getDiscountedPrice?: (product: Product) => number;
   onPreview?: (product: Product) => void;
+  selectedReasons?: string[];
 }
 
 export default function CategorySection({
@@ -41,6 +42,7 @@ export default function CategorySection({
   setDuration,
   getDiscountedPrice,
   onPreview,
+  selectedReasons,
 }: CategorySectionProps) {
   const Icon = CATEGORY_ICONS[category];
   const hasContent = selectedProduct || suggestedProducts.length > 0;
@@ -66,6 +68,7 @@ export default function CategorySection({
           onDurationChange={setDuration ?? (() => {})}
           discountedPrice={getDiscountedPrice ? getDiscountedPrice(selectedProduct) : selectedProduct.pricePerMonth}
           onPreview={onPreview}
+          reasons={selectedReasons}
         />
       )}
 

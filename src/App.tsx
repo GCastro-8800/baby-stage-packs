@@ -23,8 +23,14 @@ import Configurator from "./pages/Configurator";
 import Selection from "./pages/Selection";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
+import { useSelectionSync } from "@/hooks/useSelectionSync";
 
 const queryClient = new QueryClient();
+
+function SelectionSyncBoot() {
+  useSelectionSync();
+  return null;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -34,6 +40,7 @@ const App = () => (
       <BrowserRouter>
         <ErrorBoundary>
         <AuthProvider>
+          <SelectionSyncBoot />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

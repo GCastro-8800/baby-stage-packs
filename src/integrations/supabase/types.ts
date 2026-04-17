@@ -289,6 +289,7 @@ export type Database = {
           is_first_child: boolean | null
           onboarding_completed: boolean | null
           parent_situation: string | null
+          questionnaire_answers: Json | null
           stripe_customer_id: string | null
           updated_at: string
         }
@@ -303,6 +304,7 @@ export type Database = {
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          questionnaire_answers?: Json | null
           stripe_customer_id?: string | null
           updated_at?: string
         }
@@ -317,6 +319,7 @@ export type Database = {
           is_first_child?: boolean | null
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          questionnaire_answers?: Json | null
           stripe_customer_id?: string | null
           updated_at?: string
         }
@@ -446,6 +449,27 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_selections: {
+        Row: {
+          durations: Json
+          product_ids: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          durations?: Json
+          product_ids?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          durations?: Json
+          product_ids?: string[]
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

@@ -16,6 +16,7 @@ import {
   QuestionnaireAnswers,
   buildSituationSummary,
   getStageSuggestions,
+  getRecommendationDetailed,
 } from "@/data/recommendationEngine";
 import {
   Product,
@@ -97,6 +98,16 @@ export default function Selection() {
 
   const stageSuggestions = useMemo(() => getStageSuggestions(), []);
 
+  // Map of productId -> reasons (only when coming from questionnaire)
+  const reasonsByProductId = useMemo(() => {
+    if (!hasState || !state?.answers) return new Map<string, string[]>();
+    const map = new Map<string, string[]>();
+    getRecommendationDetailed(state.answers).forEach((r) => {
+      map.set(r.product.id, r.reasons);
+    });
+    return map;
+  }, [hasState, state?.answers]);
+
   const allProductsByCategory = useMemo(() => {
     const map: Record<ProductCategory, Product[]> = {
       movilidad: [],
@@ -173,6 +184,7 @@ export default function Selection() {
               setDuration={setDuration}
               getDiscountedPrice={getDiscountedPrice}
               onPreview={handlePreview}
+              selectedReasons={isSelectedInStage && selected ? reasonsByProductId.get(selected.id) : undefined}
             />
           );
         })}
