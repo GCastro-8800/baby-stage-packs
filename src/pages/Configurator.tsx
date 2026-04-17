@@ -123,7 +123,7 @@ export default function Configurator() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
@@ -134,6 +134,19 @@ export default function Configurator() {
         concerns,
         existingEquipment: existingEquipment as QuestionnaireAnswers["existingEquipment"],
       };
+
+      // Persist answers to localStorage (and DB if logged in) so we don't ask again
+      try {
+        localStorage.setItem(QUESTIONNAIRE_KEY, JSON.stringify(answers));
+      } catch {
+        /* ignore */
+      }
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ questionnaire_answers: answers as never })
+          .eq("id", user.id);
+      }
 
       const recommended = getRecommendation(answers);
       track("cta_click", { source: "configurator", action: "configurator_complete" });
@@ -165,6 +178,32 @@ export default function Configurator() {
       <Header />
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="container max-w-lg mx-auto">
+          {/* Reuse banner */}
+          {showReuseBanner && (
+            <div className="mb-6 rounded-xl bg-primary/10 border border-primary/20 p-4">
+              <div className="flex items-start gap-3">
+                <RefreshCw className="h-5 w-5 text-primary-foreground shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Ya respondiste antes
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                    {buildSituationSummary(savedAnswers!)}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" onClick={reuseSaved} className="gap-1.5">
+                      Usar las mismas respuestas
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={startFresh}>
+                      Volver a empezar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Progress */}
           <div className="mb-2">
             <p className="text-xs font-medium text-muted-foreground text-center mb-3">
