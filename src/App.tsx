@@ -24,11 +24,17 @@ import Selection from "./pages/Selection";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import { useSelectionSync } from "@/hooks/useSelectionSync";
+import { useGTMPageView } from "@/hooks/useGTMPageView";
 
 const queryClient = new QueryClient();
 
 function SelectionSyncBoot() {
   useSelectionSync();
+  return null;
+}
+
+function GTMPageViewBoot() {
+  useGTMPageView();
   return null;
 }
 
