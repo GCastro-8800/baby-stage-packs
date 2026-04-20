@@ -1,62 +1,67 @@
 
 
-## Instalar CookieYes + Google Consent Mode v2
+## Instalar Hotjar (Site ID 6694632) con respeto a Consent Mode
 
-Instalación correcta del banner de CookieYes con tu nuevo `client_data` y conexión real con la etiqueta GA4 ya instalada (`G-G2070NPYMS`), de forma que GA respete el consentimiento del usuario desde el primer pageview.
+Añadir el Tracking Code de Hotjar en el `<head>` de `index.html`. Como bebloo es una SPA (React + Vite) con un único `index.html`, pegarlo ahí equivale a instalarlo en todas las páginas del sitio.
 
-### Cambios en `index.html`
+Para cumplir RGPD y no romper la configuración de CookieYes + Consent Mode v2 ya instalada, el snippet se envuelve en un wrapper que lo carga **solo** cuando el usuario acepta la categoría `analytics` en el banner.
 
-El orden importa. Quedará así dentro de `<head>`, justo después de `<meta charset>`:
+### Cambio en `index.html`
 
-1. **Consent Mode v2 — defaults `denied`** (debe ir ANTES de cargar gtag para que el primer hit ya respete el consentimiento):
-   ```html
-   <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('consent', 'default', {
-       ad_storage: 'denied',
-       ad_user_data: 'denied',
-       ad_personalization: 'denied',
-       analytics_storage: 'denied',
-       functionality_storage: 'granted',
-       security_storage: 'granted',
-       wait_for_update: 500
-     });
-   </script>
-   ```
+Insertar tras el bloque de CookieYes y antes del cierre de `</head>`:
 
-2. **CookieYes** (carga el banner y, al aceptar, dispara `consent update` automáticamente porque detecta que existe `gtag`):
-   ```html
-   <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/57a9019cf00b96663b195463/script.js"></script>
-   ```
+```html
+<!-- Hotjar Tracking Code for Bebloo (carga condicional según consentimiento) -->
+<script>
+  (function () {
+    function loadHotjar() {
+      if (window.__hjLoaded) return;
+      window.__hjLoaded = true;
+      (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:6694632,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    }
 
-3. **Google Analytics 4** (queda como está, ya cargado y configurado con `G-G2070NPYMS`). Solo se elimina la línea duplicada `function gtag(){...}` y `window.dataLayer = ...` del bloque actual de GA, porque ya quedan declaradas en el bloque de Consent Mode de arriba.
+    function hasAnalyticsConsent() {
+      try {
+        var c = (window.getCkyConsent && window.getCkyConsent()) || {};
+        return !!(c.categories && c.categories.analytics);
+      } catch (e) { return false; }
+    }
 
-### Resultado de comportamiento
+    if (hasAnalyticsConsent()) loadHotjar();
+    document.addEventListener('cookieyes_consent_update', function () {
+      if (hasAnalyticsConsent()) loadHotjar();
+    });
+  })();
+</script>
+```
 
-- Primer pageview: GA4 dispara pero **sin cookies de analítica** (porque `analytics_storage: denied`). Consent Mode v2 envía pings anónimos = Google puede modelar conversiones sin violar RGPD.
-- Banner CookieYes aparece con Aceptar / Rechazar / Configurar.
-- Si el usuario acepta analytics → CookieYes llama a `gtag('consent', 'update', {analytics_storage: 'granted'})` → GA empieza a usar cookies normales.
-- Si rechaza → todo sigue en modo anónimo.
+### Comportamiento
 
-### Lo que NO se toca
+- Visitante nuevo → banner CookieYes → Hotjar **no** carga.
+- Acepta analytics → CookieYes emite `cookieyes_consent_update` → Hotjar se inyecta y empieza a grabar sesiones / heatmaps / encuestas.
+- Rechaza analytics → Hotjar nunca se carga.
+- Visitante recurrente que ya aceptó → Hotjar carga inmediatamente en el primer pageview.
 
-- `G-G2070NPYMS` se mantiene.
-- Google Tag Manager: sigue eliminado (no se reintroduce).
-- Analítica propia (`useAnalytics` → tabla `analytics_events`): no usa cookies de tracking publicitario, no necesita consentimiento previo bajo AEPD (interés legítimo / función necesaria), se queda igual.
-- `PrivacyPolicy.tsx`: sigue siendo coherente. Más adelante conviene actualizar la sección de cookies para mencionar CookieYes + GA4 + Consent Mode, pero no es bloqueante.
+### Alcance "cada página"
+
+bebloo es SPA con un único `index.html` servido en todas las rutas (`/`, `/catalog`, `/configurator`, `/app`, etc.). Al pegar el snippet en ese `<head>` queda activo en todas las vistas automáticamente. Hotjar detecta los cambios de ruta de React Router vía History API y registra los pageviews virtuales sin configuración extra.
 
 ### Verificación posterior (tras Publish)
 
-1. Incógnito en `bebloo.es` → debe aparecer el banner CookieYes.
-2. DevTools → Network filtro `gtag`: debe cargar `gtag/js?id=G-G2070NPYMS`.
-3. DevTools → Network filtro `collect`: debe haber requests con parámetro `gcs=G100` (denied) antes de aceptar y `gcs=G111` (granted) tras aceptar analytics.
-4. CookieYes dashboard → ver el primer registro de consentimiento entrante.
+1. Abrir `bebloo.es` en incógnito → DevTools Network filtro `hotjar`: **0 requests** mientras el banner esté visible o si se rechaza.
+2. Aceptar analytics en el banner → debe cargar `https://static.hotjar.com/c/hotjar-6694632.js?sv=6`.
+3. Panel Hotjar → *Sites & Organizations* → indicador pasa a **Tracking code installed**.
+4. Hotjar → *Recordings*: la sesión aparece en 2–5 minutos.
 
-### Detalle técnico
+### Lo que NO se toca
 
-- El bloque actual de GA4 en `index.html` declara `window.dataLayer` y `function gtag` ANTES de definir Consent Mode. Si dejamos los dos bloques, `function gtag` se redeclara sin problema (mismo cuerpo), pero es más limpio dejar la declaración una sola vez en el bloque de Consent Mode (que va primero) y eliminarla del bloque GA4.
-- `wait_for_update: 500` da 500 ms al CMP para inyectar el estado real antes de que GA envíe el primer hit, evitando un hit "denied" innecesario si el usuario ya tenía consentimiento previo guardado.
-- CookieYes detecta automáticamente GA4 vía `gtag` global y mapea sus categorías (`analytics_storage`, `ad_storage`, etc.) sin configuración adicional por nuestra parte.
-- No hay cambios en componentes React, hooks, edge functions, migraciones ni dependencias npm. Todo es HTML estático.
+- GA4 (`G-G2070NPYMS`), Consent Mode v2 y CookieYes siguen igual.
+- Sin nuevas dependencias npm, sin componentes React, sin migraciones, sin edge functions.
 
