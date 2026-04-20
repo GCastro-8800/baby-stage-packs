@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 declare global {
@@ -9,13 +9,19 @@ declare global {
 
 /**
  * Pushes a `page_view` event to GTM's dataLayer on every SPA route change.
- * GTM only fires automatically on initial HTML load, so SPAs need this manual push.
+ * Skips the first render because GTM already fires an automatic page_view
+ * when `gtm.js` loads on initial HTML load. This avoids duplicate pageviews.
  */
 export function useGTMPageView() {
   const location = useLocation();
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "page_view",
