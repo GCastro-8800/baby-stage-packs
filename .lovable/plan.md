@@ -1,51 +1,42 @@
 
 
-## Diagnóstico
+## Eliminar por completo Google Analytics, Google Tag Manager, Consent Mode y CookieYes
 
-**El mensaje "No se ha detectado su etiqueta de Google" es un FALSO NEGATIVO.**
+Borrado total de cualquier rastro de Google/CookieYes en el código. Se conserva la analítica interna propia (`useAnalytics` → tabla `analytics_events`), que no toca Google. Tras esto, el sitio publicado no cargará ningún script de `googletagmanager.com`, `google-analytics.com` ni `cookieyes.com`, dejándote partir de cero con tu nueva cuenta de Google.
 
-La pantalla "Instalar manualmente" de GA4 solo busca el snippet literal `gtag/js?id=G-LCPNHMW3DG` en el HTML. Tú no usas gtag.js directo: usas **Google Tag Manager** (`GTM-PR9NKCJH`) que carga GA4 desde dentro. Esa pantalla no entiende esa arquitectura. Por eso da error aunque el tracking funcione.
+### Cambios en código
 
-**Lo que sí importa de esa captura:** GA te está mostrando como ID a pegar `G-LCPNHMW3DG`, lo que significa que estás logueado/mirando una property GA4 que **NO es** la oficial (`G-DG23NL3Q5B`). Esa property `G-LCPNHMW3DG` es una de las 3 "fantasma" que ya identificamos en la auditoría anterior y que estaban configuradas dentro de GTM disparando tráfico a destinos equivocados.
+**1. `index.html`** — Eliminar 3 bloques del `<head>` y 1 del `<body>`:
+- Bloque `<script>` de Google Consent Mode v2 (defaults `denied` + función `gtag`).
+- `<script id="cookieyes" ...>` (banner CookieYes).
+- `<script>` snippet de Google Tag Manager (`GTM-PR9NKCJH`).
+- `<noscript><iframe src="googletagmanager.com/ns.html?...">` del `<body>`.
 
-## Acciones (todas externas — no requieren tocar código)
+Resultado: `<head>` queda solo con meta tags (charset, viewport, title, description, OG, Twitter, favicon) y `<body>` solo con `#root` y el script de `main.tsx`.
 
-**1. Verificar correctamente la instalación de GTM** (no GA4 directo)
-- Instala la extensión de Chrome **"Tag Assistant Companion"** o entra a `https://tagassistant.google.com`.
-- Añade el dominio `https://www.bebloo.es` y conecta.
-- Debe detectar `GTM-PR9NKCJH`. Si lo detecta, la base está bien.
+**2. `src/hooks/useGTMPageView.ts`** — Borrar el archivo completo.
 
-**2. Confirmar en GTM que solo queda 1 tag GA4 con el ID correcto**
-- Entra a `tagmanager.google.com` → contenedor `GTM-PR9NKCJH` → Tags.
-- Debe haber **un solo tag GA4 Configuration** con Measurement ID = `G-DG23NL3Q5B`.
-- Si todavía aparecen tags con `G-LCPNHMW3DG`, `G-6G4G9QZBX1` o `G-0T07X0ZGWQ`: bórralos.
-- Pulsa **Submit → Publish** para crear una nueva versión del contenedor. Sin Publish, los borrados NO surten efecto en producción.
+**3. `src/App.tsx`** — Quitar:
+- `import { useGTMPageView } from "@/hooks/useGTMPageView";`
+- Componente interno `GTMPageViewBoot`.
+- Su uso `<GTMPageViewBoot />` dentro de `<AuthProvider>`.
 
-**3. Confirmar que estás auditando la property GA4 correcta**
-- Entra a `analytics.google.com` → Admin → Data Streams.
-- Busca el stream con Measurement ID `G-DG23NL3Q5B`.
-- Si NO existe en tu cuenta GA4, hay que crearlo (data stream Web apuntando a `https://www.bebloo.es`) y luego asegurarse de que el tag dentro de GTM use ese ID.
-- La property que te muestra `G-LCPNHMW3DG` en la captura es DISTINTA y muy probablemente no es la que quieres conservar.
+### Lo que NO se toca
 
-**4. Validación final (después de los pasos 1–3)**
-- Abrir `https://www.bebloo.es` en ventana incógnita.
-- DevTools → Network → filtro `collect`.
-- Aceptar cookies en el banner de CookieYes.
-- Debe aparecer **una sola** request a `google-analytics.com/g/collect` con `tid=G-DG23NL3Q5B`.
-- En GA4 → Reports → Realtime, debe aparecer 1 usuario activo en `G-DG23NL3Q5B`.
+- `src/hooks/useAnalytics.ts` y la tabla `analytics_events` → analítica propia, no Google.
+- Todos los `track(...)` en componentes → siguen funcionando contra Supabase.
+- `PrivacyPolicy.tsx` → la sección 8 ya dice "no usamos cookies de seguimiento publicitario de terceros", queda coherente.
+- Edge functions, migraciones, configuración Supabase: sin cambios.
 
-## Lo que NO hay que hacer
+### Tras aplicar
 
-- **No** pegar el snippet `gtag.js` que GA te ofrece en "Instalar manualmente". Duplicaría el tracking y entraría en conflicto con GTM.
-- **No** tocar `index.html`, `useGTMPageView.ts` ni `App.tsx`. La instalación técnica del lado código está bien.
-- **No** fiarse del verificador "Probar" de GA4 para validar GTM: usa Tag Assistant.
+1. Pulsa **Publish → Update** para que la nueva versión sin Google quede en `bebloo.es`.
+2. Verifica en incógnito (DevTools → Network): no debe haber ninguna request a `googletagmanager.com`, `google-analytics.com/g/collect` ni `cookieyes.com`.
+3. En tu cuenta de Google nueva, cuando quieras volver a instalar: pídeme reinstalar GTM con el nuevo container ID y, si quieres, CookieYes con el nuevo site key.
 
-## Si tras los pasos 1–4 sigue sin funcionar
+### Detalle técnico
 
-Vuelve aquí con captura de:
-- Tag Assistant mostrando qué detecta en bebloo.es.
-- Lista de tags activos dentro del contenedor GTM-PR9NKCJH.
-- Network request a `/g/collect` (URL completa con el `tid=...`).
-
-Con eso podré decirte si el fallo está en GTM, en la property GA4, o en CookieYes bloqueando indebidamente el disparo.
+- No hay dependencias npm de Google/CookieYes que desinstalar (todo va por scripts inline en `index.html`).
+- El tipo global `declare global { interface Window { dataLayer } }` desaparece junto con el archivo `useGTMPageView.ts`. Ningún otro fichero referencia `dataLayer`, así que no hay errores de TypeScript residuales.
+- Ningún componente importa `useGTMPageView` salvo `App.tsx`.
 
