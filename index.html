@@ -4,22 +4,22 @@
     <!-- 1. CookieYes (consent banner) - TEMPORALMENTE DESACTIVADO para pruebas de analytics -->
     <!-- <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/a84a1c10553663081741fdce/script.js"></script> -->
 
-    <!-- 2. Google Consent Mode v2 - valores por defecto (denied) ANTES de cargar GA -->
+    <!-- 2. Google Consent Mode v2 -
+         TEMPORAL: defaults en 'granted' para pruebas con Tag Assistant (CookieYes desactivado).
+         IMPORTANTE: al reactivar CookieYes hay que volver TODOS los valores a 'denied' para cumplir RGPD. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'analytics_storage': 'denied',
-        'wait_for_update': 500
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted'
       });
       gtag('js', new Date());
-      gtag('config', 'G-DG23NL3Q5B');
     </script>
 
-    <!-- 3. Google Tag Manager -->
+    <!-- 3. Google Tag Manager (única fuente de carga de GA4 G-DG23NL3Q5B) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -27,8 +27,6 @@
     })(window,document,'script','dataLayer','GTM-PR9NKCJH');</script>
     <!-- End Google Tag Manager -->
 
-    <!-- 4. Google tag (gtag.js) - librería async al final -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DG23NL3Q5B"></script>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
