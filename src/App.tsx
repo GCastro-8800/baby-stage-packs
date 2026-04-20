@@ -24,11 +24,17 @@ import Selection from "./pages/Selection";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import { useSelectionSync } from "@/hooks/useSelectionSync";
+import { useGA4PageView } from "@/hooks/useGA4PageView";
 
 const queryClient = new QueryClient();
 
 function SelectionSyncBoot() {
   useSelectionSync();
+  return null;
+}
+
+function GA4PageViewBoot() {
+  useGA4PageView();
   return null;
 }
 
@@ -41,6 +47,7 @@ const App = () => (
         <ErrorBoundary>
         <AuthProvider>
           <SelectionSyncBoot />
+          <GA4PageViewBoot />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
