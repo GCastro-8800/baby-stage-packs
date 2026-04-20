@@ -4,16 +4,16 @@
     <!-- 1. CookieYes (consent banner) -->
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/a84a1c10553663081741fdce/script.js"></script>
 
-    <!-- 2. Google Consent Mode v2 - defaults en 'denied' para cumplir RGPD.
-         CookieYes actualizará el consentimiento cuando el usuario acepte/rechace en el banner. -->
+    <!-- 2. Google Consent Mode v2 - TEMPORAL: defaults en 'granted' SOLO para diagnóstico de Tag Assistant.
+         IMPORTANTE: revertir a 'denied' tras la prueba para cumplir RGPD. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied',
-        'analytics_storage': 'denied'
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted'
       });
       gtag('js', new Date());
     </script>
