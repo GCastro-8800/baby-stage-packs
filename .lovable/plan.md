@@ -1,35 +1,38 @@
 
+GTM `GTM-PR9NKCJH` no está instalado. Solo está GA4 (`G-DG23NL3Q5B`) directo. Voy a añadir GTM **manteniendo** el orden de consentimiento existente.
 
-La etiqueta de **Google Analytics** está instalada pero **duplicada y en orden incorrecto**. Actualmente hay dos inicializaciones de gtag que pueden causar conflictos.
+**Cambios en `index.html`:**
 
-**Problemas encontrados:**
-
-| Línea | Problema |
-|-------|----------|
-| 16-17 | `gtag('js', ...)` y `gtag('config', ...)` en script inline → **redundante** |
-| 19 | Script async de gtag.js cargado **después** del inline (incorrecto) |
-
-**Orden correcto requerido:**
+1. **En `<head>`** — añadir el loader de GTM **después** del bloque de Consent Mode v2 (línea 20) y **antes** del loader de gtag.js, para que GTM herede los defaults `denied`:
 
 ```html
-<head>
-  <!-- 1. Google tag - script async primero -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DG23NL3Q5B"></script>
-  
-  <!-- 2. Configuración inline después -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-DG23NL3Q5B');
-  </script>
-  
-  <!-- 3. CookieYes (consent banner) -->
-  <script id="cookieyes" ...></script>
-  ...
-</head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PR9NKCJH');</script>
+<!-- End Google Tag Manager -->
 ```
 
-**Acción:** Reemplazar las líneas 4-19 de `index.html` con la estructura correcta de la etiqueta Google, eliminando el bloque `consent default` redundante (CookieYes lo inyecta automáticamente).
+2. **Justo después de `<body>`** (línea 43) — añadir el fallback noscript:
 
-**Archivo:** `index.html`
+```html
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PR9NKCJH"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+```
+
+**Orden final en `<head>`:**
+1. CookieYes
+2. Consent Mode v2 defaults (denied) + gtag config GA4
+3. **GTM loader (nuevo)**
+4. gtag.js async loader
+
+**Notas importantes:**
+- Mantengo GA4 directo (`G-DG23NL3Q5B`) además de GTM. Si en el futuro mueves GA4 dentro de GTM como tag, hay que quitar el config directo para evitar doble conteo.
+- El `noscript` va en `<body>`, no en `<head>` (restricción HTML5).
+- Ambos comparten el mismo `dataLayer`, así que el Consent Mode aplica a los dos.
+
+**Archivo:** `index.html` (2 inserciones, sin borrados).
