@@ -1,38 +1,29 @@
 
-GTM `GTM-PR9NKCJH` no está instalado. Solo está GA4 (`G-DG23NL3Q5B`) directo. Voy a añadir GTM **manteniendo** el orden de consentimiento existente.
+GTM ya está instalado correctamente en `index.html` y, como es una **SPA con React Router**, el `index.html` es la única página HTML real que sirve toda la app. Cualquier ruta (`/`, `/configurador`, `/dashboard`, etc.) carga este mismo `index.html`, así que GTM se ejecuta en **todas las páginas** automáticamente. No hace falta repetirlo.
 
-**Cambios en `index.html`:**
+**Verificación actual:**
+- `<head>` línea 22-28: GTM loader `GTM-PR9NKCJH` ✅
+- `<body>` línea 52-55: noscript fallback ✅
+- Aplica a todas las rutas por la naturaleza SPA ✅
 
-1. **En `<head>`** — añadir el loader de GTM **después** del bloque de Consent Mode v2 (línea 20) y **antes** del loader de gtag.js, para que GTM herede los defaults `denied`:
+**Lo que falta (importante para SPA):**
+GTM por defecto solo dispara `gtm.js` una vez al cargar el HTML inicial. Cuando el usuario navega entre rutas con React Router (`/`, `/configurador`, etc.), **no se dispara un nuevo pageview** automáticamente. Hay que empujar manualmente un evento al `dataLayer` en cada cambio de ruta.
 
-```html
-<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-PR9NKCJH');</script>
-<!-- End Google Tag Manager -->
+**Plan propuesto:**
+
+1. Crear hook `src/hooks/useGTMPageView.ts` que escuche cambios de `useLocation()` y haga push:
+```ts
+window.dataLayer.push({
+  event: 'page_view',
+  page_path: location.pathname + location.search,
+  page_title: document.title,
+});
 ```
 
-2. **Justo después de `<body>`** (línea 43) — añadir el fallback noscript:
+2. Invocar el hook una vez en `src/App.tsx` dentro del `<BrowserRouter>` para que cubra todas las rutas.
 
-```html
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PR9NKCJH"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-```
+Esto garantiza que GTM (y GA4 vía GTM o directo) reciban un pageview en cada navegación SPA, equivalente a "pegar el código en cada página" que pide Google.
 
-**Orden final en `<head>`:**
-1. CookieYes
-2. Consent Mode v2 defaults (denied) + gtag config GA4
-3. **GTM loader (nuevo)**
-4. gtag.js async loader
-
-**Notas importantes:**
-- Mantengo GA4 directo (`G-DG23NL3Q5B`) además de GTM. Si en el futuro mueves GA4 dentro de GTM como tag, hay que quitar el config directo para evitar doble conteo.
-- El `noscript` va en `<body>`, no en `<head>` (restricción HTML5).
-- Ambos comparten el mismo `dataLayer`, así que el Consent Mode aplica a los dos.
-
-**Archivo:** `index.html` (2 inserciones, sin borrados).
+**Archivos:**
+- nuevo: `src/hooks/useGTMPageView.ts`
+- editar: `src/App.tsx` (1 import + 1 llamada de hook)
