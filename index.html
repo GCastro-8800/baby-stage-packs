@@ -1,11 +1,8 @@
 <!doctype html>
 <html lang="es">
   <head>
-    <!-- 1. CookieYes (consent banner) -->
-    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/a84a1c10553663081741fdce/script.js"></script>
-
-    <!-- 2. Google Consent Mode v2 - Defaults en 'denied' para cumplir RGPD.
-         CookieYes actualizará a 'granted' cuando el usuario acepte. -->
+    <!-- 1. Google Consent Mode v2 — defaults en 'denied' para cumplir RGPD.
+         CookieYes actualiza a 'granted' según la elección del usuario. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -15,8 +12,10 @@
         'ad_personalization': 'denied',
         'analytics_storage': 'denied'
       });
-      gtag('js', new Date());
     </script>
+
+    <!-- 2. CookieYes (banner de consentimiento) — carga después de Consent Mode -->
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/a84a1c10553663081741fdce/script.js"></script>
 
     <!-- 3. Google Tag Manager (única fuente de carga de GA4 G-DG23NL3Q5B) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
