@@ -1,50 +1,29 @@
 
-Objetivo: hacer una prueba controlada cambiando temporalmente el Consent Mode para que todos los permisos arranquen en `granted`, sin tocar el snippet de GTM ni el tracking SPA ya existente.
 
-Estado actual verificado:
-- `index.html` ya contiene correctamente el contenedor GTM `GTM-PR9NKCJH` en `<head>` y el `noscript` en `<body>`.
-- La app ya tiene tracking de navegación SPA mediante `src/hooks/useGTMPageView.ts`, montado en `src/App.tsx`.
-- El único bloqueo visible en el HTML actual es el bloque:
-  ```js
-  gtag('consent', 'default', {
-    ad_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
-    analytics_storage: 'denied'
-  })
-  ```
+**Plan: Aplicar fix de doble pageview + nota sobre propagación de GTM**
 
-Implementación propuesta:
-1. Editar `index.html`.
-2. Cambiar temporalmente en el bloque `gtag('consent', 'default', ...)` estos 4 valores de `denied` a `granted`:
-   - `ad_storage`
-   - `ad_user_data`
-   - `ad_personalization`
-   - `analytics_storage`
-3. Mantener sin cambios:
-   - script de CookieYes
-   - snippet de GTM `GTM-PR9NKCJH`
-   - `noscript` de GTM
-   - hook `useGTMPageView`
-4. Añadir un comentario breve en el HTML indicando que este cambio es solo para diagnóstico y luego debe volver a `denied`.
+**1. Fix en código** (`src/hooks/useGTMPageView.ts`):
+- Añadir `useRef(true)` como flag `isFirstRender`.
+- En el `useEffect`, si es el primer render: marcar `false` y salir sin hacer push.
+- En navegaciones SPA posteriores: hacer push de `page_view` al dataLayer.
+- Razón: GTM ya dispara automáticamente un `page_view` al cargar `gtm.js` en la primera visita. El hook duplicaba ese hit inicial.
 
-Resultado esperado:
-- GTM seguirá cargando como ahora, pero los tags gestionados por consentimiento arrancarán habilitados.
-- Si Tag Assistant conecta tras este cambio, quedará confirmado que el problema está en la configuración/actualización del consentimiento, no en la instalación base de GTM.
-- Si sigue sin detectar GTM, el problema estará en otro punto distinto del Consent Mode.
+**2. Sobre el borrado de tags en GTM (informativo, no requiere código):**
+- Cuando borras tags en `tagmanager.google.com`, el cambio NO es inmediato en la web.
+- Necesitas pulsar **Submit → Publish** dentro de GTM para crear una nueva versión del contenedor.
+- Una vez publicado en GTM, los navegadores que ya tienen `gtm.js` cacheado pueden tardar unos minutos en recibir la nueva versión (caché de hasta ~15 min).
+- Verificación: tras publicar en GTM, abrir la web en incógnito y revisar las network requests a `google-analytics.com/g/collect` — solo debe aparecer `tid=G-DG23NL3Q5B`.
 
-Archivo a tocar:
-- `index.html`
+**3. Lo que NO se toca:**
+- `index.html` (Consent Mode ya en `denied`, GTM snippet correcto).
+- `useAnalytics.ts` (tracking propio en Supabase, decisión separada).
+- `App.tsx`.
 
-Validación tras implementarlo:
-1. Abrir la versión actualizada publicada.
-2. Probar con Tag Assistant sobre `bebloo.es`.
-3. Verificar que detecta `GTM-PR9NKCJH`.
-4. Verificar también que las navegaciones SPA siguen enviando `page_view`.
+**Archivo a editar:**
+- `src/hooks/useGTMPageView.ts`
 
-Detalle importante sobre publicación:
-- El cambio es frontend, así que después de implementarlo habrá que pulsar `Publish → Update` para que quede activo en la web publicada y puedas probar Tag Assistant sobre la versión nueva.
+**Acción manual tras el fix:**
+- Publicar la app (Publish → Update).
+- Confirmar en GTM que pulsaste **Submit → Publish** después de borrar los tags duplicados.
+- Probar en incógnito y verificar en GA4 DebugView que solo llegan eventos a `G-DG23NL3Q5B`.
 
-Detalle técnico:
-- Aunque técnicamente GTM suele cargarse aunque el consentimiento esté en `denied`, este test sigue siendo válido para aislar si la detección o activación efectiva de tags está condicionada por la configuración actual de consentimiento.
-- No hace falta tocar `src/App.tsx` ni `src/hooks/useGTMPageView.ts` para esta prueba.
