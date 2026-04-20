@@ -1,42 +1,62 @@
 
 
-## Eliminar por completo Google Analytics, Google Tag Manager, Consent Mode y CookieYes
+## Instalar CookieYes + Google Consent Mode v2
 
-Borrado total de cualquier rastro de Google/CookieYes en el código. Se conserva la analítica interna propia (`useAnalytics` → tabla `analytics_events`), que no toca Google. Tras esto, el sitio publicado no cargará ningún script de `googletagmanager.com`, `google-analytics.com` ni `cookieyes.com`, dejándote partir de cero con tu nueva cuenta de Google.
+Instalación correcta del banner de CookieYes con tu nuevo `client_data` y conexión real con la etiqueta GA4 ya instalada (`G-G2070NPYMS`), de forma que GA respete el consentimiento del usuario desde el primer pageview.
 
-### Cambios en código
+### Cambios en `index.html`
 
-**1. `index.html`** — Eliminar 3 bloques del `<head>` y 1 del `<body>`:
-- Bloque `<script>` de Google Consent Mode v2 (defaults `denied` + función `gtag`).
-- `<script id="cookieyes" ...>` (banner CookieYes).
-- `<script>` snippet de Google Tag Manager (`GTM-PR9NKCJH`).
-- `<noscript><iframe src="googletagmanager.com/ns.html?...">` del `<body>`.
+El orden importa. Quedará así dentro de `<head>`, justo después de `<meta charset>`:
 
-Resultado: `<head>` queda solo con meta tags (charset, viewport, title, description, OG, Twitter, favicon) y `<body>` solo con `#root` y el script de `main.tsx`.
+1. **Consent Mode v2 — defaults `denied`** (debe ir ANTES de cargar gtag para que el primer hit ya respete el consentimiento):
+   ```html
+   <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('consent', 'default', {
+       ad_storage: 'denied',
+       ad_user_data: 'denied',
+       ad_personalization: 'denied',
+       analytics_storage: 'denied',
+       functionality_storage: 'granted',
+       security_storage: 'granted',
+       wait_for_update: 500
+     });
+   </script>
+   ```
 
-**2. `src/hooks/useGTMPageView.ts`** — Borrar el archivo completo.
+2. **CookieYes** (carga el banner y, al aceptar, dispara `consent update` automáticamente porque detecta que existe `gtag`):
+   ```html
+   <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/57a9019cf00b96663b195463/script.js"></script>
+   ```
 
-**3. `src/App.tsx`** — Quitar:
-- `import { useGTMPageView } from "@/hooks/useGTMPageView";`
-- Componente interno `GTMPageViewBoot`.
-- Su uso `<GTMPageViewBoot />` dentro de `<AuthProvider>`.
+3. **Google Analytics 4** (queda como está, ya cargado y configurado con `G-G2070NPYMS`). Solo se elimina la línea duplicada `function gtag(){...}` y `window.dataLayer = ...` del bloque actual de GA, porque ya quedan declaradas en el bloque de Consent Mode de arriba.
+
+### Resultado de comportamiento
+
+- Primer pageview: GA4 dispara pero **sin cookies de analítica** (porque `analytics_storage: denied`). Consent Mode v2 envía pings anónimos = Google puede modelar conversiones sin violar RGPD.
+- Banner CookieYes aparece con Aceptar / Rechazar / Configurar.
+- Si el usuario acepta analytics → CookieYes llama a `gtag('consent', 'update', {analytics_storage: 'granted'})` → GA empieza a usar cookies normales.
+- Si rechaza → todo sigue en modo anónimo.
 
 ### Lo que NO se toca
 
-- `src/hooks/useAnalytics.ts` y la tabla `analytics_events` → analítica propia, no Google.
-- Todos los `track(...)` en componentes → siguen funcionando contra Supabase.
-- `PrivacyPolicy.tsx` → la sección 8 ya dice "no usamos cookies de seguimiento publicitario de terceros", queda coherente.
-- Edge functions, migraciones, configuración Supabase: sin cambios.
+- `G-G2070NPYMS` se mantiene.
+- Google Tag Manager: sigue eliminado (no se reintroduce).
+- Analítica propia (`useAnalytics` → tabla `analytics_events`): no usa cookies de tracking publicitario, no necesita consentimiento previo bajo AEPD (interés legítimo / función necesaria), se queda igual.
+- `PrivacyPolicy.tsx`: sigue siendo coherente. Más adelante conviene actualizar la sección de cookies para mencionar CookieYes + GA4 + Consent Mode, pero no es bloqueante.
 
-### Tras aplicar
+### Verificación posterior (tras Publish)
 
-1. Pulsa **Publish → Update** para que la nueva versión sin Google quede en `bebloo.es`.
-2. Verifica en incógnito (DevTools → Network): no debe haber ninguna request a `googletagmanager.com`, `google-analytics.com/g/collect` ni `cookieyes.com`.
-3. En tu cuenta de Google nueva, cuando quieras volver a instalar: pídeme reinstalar GTM con el nuevo container ID y, si quieres, CookieYes con el nuevo site key.
+1. Incógnito en `bebloo.es` → debe aparecer el banner CookieYes.
+2. DevTools → Network filtro `gtag`: debe cargar `gtag/js?id=G-G2070NPYMS`.
+3. DevTools → Network filtro `collect`: debe haber requests con parámetro `gcs=G100` (denied) antes de aceptar y `gcs=G111` (granted) tras aceptar analytics.
+4. CookieYes dashboard → ver el primer registro de consentimiento entrante.
 
 ### Detalle técnico
 
-- No hay dependencias npm de Google/CookieYes que desinstalar (todo va por scripts inline en `index.html`).
-- El tipo global `declare global { interface Window { dataLayer } }` desaparece junto con el archivo `useGTMPageView.ts`. Ningún otro fichero referencia `dataLayer`, así que no hay errores de TypeScript residuales.
-- Ningún componente importa `useGTMPageView` salvo `App.tsx`.
+- El bloque actual de GA4 en `index.html` declara `window.dataLayer` y `function gtag` ANTES de definir Consent Mode. Si dejamos los dos bloques, `function gtag` se redeclara sin problema (mismo cuerpo), pero es más limpio dejar la declaración una sola vez en el bloque de Consent Mode (que va primero) y eliminarla del bloque GA4.
+- `wait_for_update: 500` da 500 ms al CMP para inyectar el estado real antes de que GA envíe el primer hit, evitando un hit "denied" innecesario si el usuario ya tenía consentimiento previo guardado.
+- CookieYes detecta automáticamente GA4 vía `gtag` global y mapea sus categorías (`analytics_storage`, `ad_storage`, etc.) sin configuración adicional por nuestra parte.
+- No hay cambios en componentes React, hooks, edge functions, migraciones ni dependencias npm. Todo es HTML estático.
 
