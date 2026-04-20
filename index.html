@@ -19,6 +19,36 @@
     <!-- CookieYes CMP -->
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/57a9019cf00b96663b195463/script.js"></script>
 
+    <!-- Hotjar Tracking Code for Bebloo (carga condicional según consentimiento) -->
+    <script>
+      (function () {
+        function loadHotjar() {
+          if (window.__hjLoaded) return;
+          window.__hjLoaded = true;
+          (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:6694632,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+          })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+        }
+
+        function hasAnalyticsConsent() {
+          try {
+            var c = (window.getCkyConsent && window.getCkyConsent()) || {};
+            return !!(c.categories && c.categories.analytics);
+          } catch (e) { return false; }
+        }
+
+        if (hasAnalyticsConsent()) loadHotjar();
+        document.addEventListener('cookieyes_consent_update', function () {
+          if (hasAnalyticsConsent()) loadHotjar();
+        });
+      })();
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-G2070NPYMS"></script>
     <script>
