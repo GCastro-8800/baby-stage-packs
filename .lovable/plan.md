@@ -1,43 +1,42 @@
 
 
-## Reemplazar imagen del Joolz Aer 2 (y cualquier otra que venga en el ZIP)
+## Aplicar precios oficiales del Excel a los 7 productos nuevos + guardar como regla
 
-El ZIP `wetransfer_joolz-aer2-png_2026-04-21_1633.zip` contiene, según su nombre y cabecera detectada, la imagen **Joolz Aer 2**. WeTransfer nombra el ZIP a partir del archivo principal, así que es muy probable que solo venga ese PNG. Aun así, al pasar a modo edición lo descomprimiré y trataré **todos** los archivos que aparezcan.
+### 1. Actualizar precios en `src/data/productCatalog.ts`
 
-### Estrategia de matching (para cada PNG del ZIP)
+Reemplazar el objeto `prices` y el `pricePerMonth` (= precio a 1 mes) de los 7 productos nuevos según el Excel oficial:
 
-Por cada imagen extraída comparo el nombre normalizado (minúsculas, sin acentos, espacios → `-`) contra el catálogo en `src/data/productCatalog.ts`:
-
-| Nombre del archivo (ej.) | Producto destino | Asset reemplazado |
+| ID | Nuevos `prices` { 1, 3, 6, 12, 24 } | `pricePerMonth` |
 |---|---|---|
-| `Joolz aer2.png` | `joolz-aer-2` | `src/assets/products/joolz-aer-2.png` |
-| `Bugaboo Fox 3.png` | `bugaboo-fox-3` | `src/assets/products/bugaboo-fox-3.png` |
-| `BabyBjorn Bliss.png` | `babybjorn-bliss` | `src/assets/products/babybjorn-bliss.png` |
-| …y así con cada uno | … | … |
+| `bugaboo-donkey-5-duo` | `{ 1: 75, 3: 71, 6: 64, 12: 51, 24: 36 }` | 75 |
+| `bugaboo-donkey-5-gemelar` | `{ 1: 65, 3: 62, 6: 56, 12: 44, 24: 31 }` | 65 |
+| `chicco-next2me` | `{ 1: 46, 3: 44, 6: 39, 12: 31, 24: 22 }` | 46 |
+| `babybjorn-hamaca` | `{ 1: 47, 3: 45, 6: 40, 12: 32, 24: 23 }` | 47 |
+| `banwood-sin-pedales` | `{ 1: 48, 3: 46, 6: 41, 12: 33, 24: 23 }` | 48 |
+| `banwood-triciclo` | `{ 1: 49, 3: 47, 6: 42, 12: 34, 24: 23 }` | 49 |
+| `banwood-bicicleta-pedales` | `{ 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 }` | 50 |
 
-- Si un nombre **coincide** con un asset existente → lo **sobrescribo** (mismo path → no toco código, el import sigue funcionando).
-- Si un nombre **no coincide** con ningún producto → lo trato como **producto nuevo**:
-  1. Lo guardo en `src/assets/products/<slug>.png`.
-  2. Añado un nuevo objeto al `PRODUCT_CATALOG` con `id`, `name`, `brand`, `category` (la mejor inferida; si es ambigua te pregunto), `stage` (`ambas` por defecto si no es claro), `prices` siguiendo la matriz fija del proyecto, `description` y `image`.
-- Si vienen **dos archivos para el mismo producto** (duplicados) → te aviso al final con la lista y uso el primero por orden alfabético.
+⚠️ Nota interesante: el Excel marca el "Donkey Gemelar" más barato que el "Donkey Duo", al revés de lo que asumí. Aplico tal cual el Excel.
 
-### Lo que voy a entregar tras la ejecución
+### 2. Guardar como regla persistente en memoria
 
-- ZIP descomprimido en `/tmp/joolz/`.
-- Listado real de archivos contenidos.
-- Tabla final con: `archivo → producto → acción (reemplazado / nuevo / duplicado / sin match)`.
-- Si hay productos nuevos: el diff exacto añadido a `productCatalog.ts` con precios siguiendo la convención existente (te confirmaré la categoría/stage si tengo dudas antes de añadirlo).
+Crear `mem://logic/official-pricing` con el contenido:
+> Los precios de productos individuales (matriz 1/3/6/12/24 meses) son los del archivo `Bebloo_Pricing_Individual-2.xlsx`. **Nunca inferir precios**: si se añade un producto nuevo y no aparece en el Excel oficial, preguntar al usuario en lugar de calcularlos.
 
-### Lo que NO se toca
+Y añadir una línea en `mem://index.md` (sección **Core**, porque aplica a cualquier cambio futuro de catálogo):
+> Precios de catálogo: usar SIEMPRE los del Excel oficial (Bebloo_Pricing_Individual-2.xlsx). Nunca inferirlos.
 
-- Imports y código TypeScript de productos cuyo asset solo se sobrescribe (mismo path).
-- Otras imágenes del catálogo no incluidas en el ZIP.
-- `productCatalog.ts` solo se modifica si aparecen productos nuevos.
-- Componentes que consumen el catálogo (`CatalogProductCard`, `Configurator`, packs, etc.).
+Y referencia en la sección **Memories**:
+> - [Official pricing source](mem://logic/official-pricing) — Excel oficial como única fuente de verdad para precios individuales
+
+### 3. Lo que NO se toca
+
+- Resto de productos del catálogo (sus precios ya coinciden con el Excel — verificado).
+- Imágenes, descripciones, specs, categorías ni stages.
+- Lógica de descuentos en `src/lib/constants.ts` (sigue siendo informativa; el catálogo usa `prices[months]` directamente).
 
 ### Verificación post-cambio
 
-- `/catalogo` → la card del Joolz Aer 2 (y cualquier otro reemplazado) muestra la nueva imagen.
-- Sección "Misión" sigue mostrando la foto YOYO anterior (no relacionada con este cambio).
-- Vite reprocesa los PNG automáticamente al guardar; si el navegador cachea, hard reload.
+- `/catalogo` → tarjetas de los 7 productos nuevos muestran los nuevos "desde X €/mes" (precio a 12 meses).
+- Selector de duración en cada uno → al cambiar de 1 a 24 meses, el precio sigue la matriz oficial.
 
