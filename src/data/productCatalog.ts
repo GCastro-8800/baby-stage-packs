@@ -15,6 +15,13 @@ import imgMoisesMimbre from "@/assets/products/moises-mimbre.png";
 import imgTrippTrapp from "@/assets/products/stokke-tripp-trapp.png";
 import imgGiraffeHamaca from "@/assets/products/bugaboo-giraffe-hamaca.png";
 import imgNunaLeaf from "@/assets/products/nuna-leaf-grow.png";
+import imgDonkey5Duo from "@/assets/products/bugaboo-donkey-5-duo.png";
+import imgDonkey5Gemelar from "@/assets/products/bugaboo-donkey-5-gemelar.png";
+import imgBanwoodPedales from "@/assets/products/banwood-bicicleta-pedales.png";
+import imgBanwoodSinPedales from "@/assets/products/banwood-sin-pedales.png";
+import imgBanwoodTriciclo from "@/assets/products/banwood-triciclo.png";
+import imgChiccoNext2Me from "@/assets/products/chicco-next2me.webp";
+import imgBabybjornHamaca from "@/assets/products/babybjorn-hamaca.png";
 
 export type ProductCategory = "movilidad" | "descanso" | "porteo" | "alimentacion" | "extras";
 export type ProductStage = "0-4" | "4-8" | "8-12" | "12-24" | "ambas";
