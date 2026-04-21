@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import missionImage from "@/assets/mother-carrier.png";
+import babyStrollerImage from "@/assets/baby-yoyo-stroller.png";
 
 const MissionSection = () => {
   return (
