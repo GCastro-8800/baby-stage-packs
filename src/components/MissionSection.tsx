@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import missionImage from "@/assets/mother-carrier.png";
+import babyStrollerImage from "@/assets/baby-yoyo-stroller.png";
 
 const MissionSection = () => {
   return (
@@ -50,9 +50,9 @@ const MissionSection = () => {
           <div className="order-1 lg:order-2">
           <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-lg">
               <img
-                src={missionImage}
-                alt="Madre con su bebé en portabebé"
-                className="w-full h-full object-cover object-top"
+                src={babyStrollerImage}
+                alt="Bebé en cochecito YOYO de Babyzen — equipamiento premium en alquiler con bebloo"
+                className="w-full h-full object-cover object-center"
               />
             </div>
           </div>
