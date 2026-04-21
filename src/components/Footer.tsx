@@ -1,6 +1,11 @@
 import { Instagram, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const isPreviewEnv =
+  import.meta.env.DEV ||
+  (typeof window !== "undefined" &&
+    window.location.hostname.endsWith("lovable.app") &&
+    !window.location.hostname.startsWith("bebloo."));
 
 const Footer = () => {
   return (
@@ -94,6 +99,19 @@ const Footer = () => {
             </div>
           </div>
         </div>
+
+        {isPreviewEnv && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={() => {
+                throw new Error("Sentry test: Break the world");
+              }}
+              className="text-xs text-background/40 hover:text-background/70 underline transition-colors"
+            >
+              [debug] Break the world
+            </button>
+          </div>
+        )}
       </div>
     </footer>);
 
