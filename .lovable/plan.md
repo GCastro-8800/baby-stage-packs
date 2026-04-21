@@ -1,42 +1,74 @@
 
 
-## Aplicar precios oficiales del Excel a los 7 productos nuevos + guardar como regla
+## Integrar Sentry en Bebloo (React + Vite)
 
-### 1. Actualizar precios en `src/data/productCatalog.ts`
+Voy a instalar y configurar `@sentry/react` con tu DSN, integrarlo con tu `ErrorBoundary` existente y con React Router, y dejar source maps subidos en cada build de producción.
 
-Reemplazar el objeto `prices` y el `pricePerMonth` (= precio a 1 mes) de los 7 productos nuevos según el Excel oficial:
+### 1. Instalar dependencias
 
-| ID | Nuevos `prices` { 1, 3, 6, 12, 24 } | `pricePerMonth` |
-|---|---|---|
-| `bugaboo-donkey-5-duo` | `{ 1: 75, 3: 71, 6: 64, 12: 51, 24: 36 }` | 75 |
-| `bugaboo-donkey-5-gemelar` | `{ 1: 65, 3: 62, 6: 56, 12: 44, 24: 31 }` | 65 |
-| `chicco-next2me` | `{ 1: 46, 3: 44, 6: 39, 12: 31, 24: 22 }` | 46 |
-| `babybjorn-hamaca` | `{ 1: 47, 3: 45, 6: 40, 12: 32, 24: 23 }` | 47 |
-| `banwood-sin-pedales` | `{ 1: 48, 3: 46, 6: 41, 12: 33, 24: 23 }` | 48 |
-| `banwood-triciclo` | `{ 1: 49, 3: 47, 6: 42, 12: 34, 24: 23 }` | 49 |
-| `banwood-bicicleta-pedales` | `{ 1: 50, 3: 48, 6: 43, 12: 34, 24: 24 }` | 50 |
+- `@sentry/react` — SDK de runtime.
+- `@sentry/vite-plugin` — sube source maps en build (preferible al wizard interactivo, que aquí no podemos correr).
 
-⚠️ Nota interesante: el Excel marca el "Donkey Gemelar" más barato que el "Donkey Duo", al revés de lo que asumí. Aplico tal cual el Excel.
+### 2. Variables de entorno
 
-### 2. Guardar como regla persistente en memoria
+Añadir al `.env` (no toco las gestionadas por Lovable):
 
-Crear `mem://logic/official-pricing` con el contenido:
-> Los precios de productos individuales (matriz 1/3/6/12/24 meses) son los del archivo `Bebloo_Pricing_Individual-2.xlsx`. **Nunca inferir precios**: si se añade un producto nuevo y no aparece en el Excel oficial, preguntar al usuario en lugar de calcularlos.
+```
+VITE_SENTRY_DSN="https://5a8991dbffa9f9a28dad382152dfdc71@o4511253436301312.ingest.de.sentry.io/4511259453161552"
+```
 
-Y añadir una línea en `mem://index.md` (sección **Core**, porque aplica a cualquier cambio futuro de catálogo):
-> Precios de catálogo: usar SIEMPRE los del Excel oficial (Bebloo_Pricing_Individual-2.xlsx). Nunca inferirlos.
+Y como **secret de build** (te lo pediré con `add_secret` al pasar a default mode, no se commitea ni se expone al cliente):
 
-Y referencia en la sección **Memories**:
-> - [Official pricing source](mem://logic/official-pricing) — Excel oficial como única fuente de verdad para precios individuales
+- `SENTRY_AUTH_TOKEN` → token de Sentry para subir source maps. Lo generas en Sentry → Settings → Auth Tokens con scope `project:releases`.
 
-### 3. Lo que NO se toca
+Org y project ya conocidos del wizard: `bebloo` / `debbuging-bebloo`.
 
-- Resto de productos del catálogo (sus precios ya coinciden con el Excel — verificado).
-- Imágenes, descripciones, specs, categorías ni stages.
-- Lógica de descuentos en `src/lib/constants.ts` (sigue siendo informativa; el catálogo usa `prices[months]` directamente).
+### 3. Inicializar Sentry en `src/main.tsx`
+
+Init **antes** de `createRoot(...).render(...)` con:
+
+- `dsn` desde `import.meta.env.VITE_SENTRY_DSN` (no hardcodeado).
+- `environment`: `'production'` si `import.meta.env.PROD`, si no `'preview'`.
+- `release`: `import.meta.env.VITE_APP_VERSION ?? 'dev'` (el plugin lo inyecta en build).
+- Integraciones:
+  - `Sentry.browserTracingIntegration()` con instrumentación de **React Router v6** (`useLocation`, `useNavigationType`, `createRoutesFromChildren`, `matchRoutes`) → breadcrumbs y trazas por ruta.
+  - `Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false })` → Session Replay (útil para debug visual). Privacidad: enmascararemos inputs (`maskAllInputs: true`) para no capturar emails/datos del onboarding.
+- Sample rates conservadores:
+  - `tracesSampleRate: 0.1`
+  - `replaysSessionSampleRate: 0.05`
+  - `replaysOnErrorSampleRate: 1.0`
+- `sendDefaultPii: false` (lo activamos solo si lo pides; tu app maneja datos de bebés/padres).
+- `beforeSend`: filtrar errores ruidosos conocidos (`ResizeObserver loop limit exceeded`, extensiones del navegador).
+
+### 4. Conectar con tu `ErrorBoundary`
+
+Tu `src/components/ErrorBoundary.tsx` ya hace `console.error`. Le añado una llamada `Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } })` dentro de `componentDidCatch`. Mantengo tu UI de fallback en español tal cual.
+
+### 5. Wrap del Router para route tracing
+
+En `src/App.tsx`, envolver `Routes` con `Sentry.withSentryReactRouterV6Routing(Routes)` para que cada navegación se asocie a una transacción con el nombre de la ruta (`/catalogo`, `/configurador`, etc.).
+
+### 6. Source maps en build
+
+En `vite.config.ts`:
+
+- `build.sourcemap: true`.
+- Añadir `sentryVitePlugin({ org: 'bebloo', project: 'debbuging-bebloo', authToken: process.env.SENTRY_AUTH_TOKEN, disable: !process.env.SENTRY_AUTH_TOKEN })` al final del array `plugins`.
+- `disable` evita romper builds locales/de preview cuando el token no esté disponible.
+
+### 7. Botón de verificación (temporal)
+
+Añado un pequeño botón **"Break the world"** SOLO visible en preview (`import.meta.env.DEV` o hostname `*lovable.app` distinto de producción) en una esquina del `Footer`, para confirmar que llegan errores a Sentry. Una vez verificado en tu dashboard, lo retiramos en el siguiente turno.
+
+### Lo que NO se toca
+
+- `src/integrations/supabase/client.ts`, `.env` gestionado, ni Edge Functions (Sentry para Deno es otra integración separada — lo vemos después si quieres).
+- Lógica de negocio, catálogo, precios, auth.
+- Consent Mode / CookieYes en `index.html`: Sentry no se considera analytics de marketing, pero si quieres condicionarlo a consent te lo planteo aparte.
 
 ### Verificación post-cambio
 
-- `/catalogo` → tarjetas de los 7 productos nuevos muestran los nuevos "desde X €/mes" (precio a 12 meses).
-- Selector de duración en cada uno → al cambiar de 1 a 24 meses, el precio sigue la matriz oficial.
+1. Abrir preview → footer → click en "Break the world" → ver el error en Sentry → Issues en pocos segundos.
+2. Navegar entre `/`, `/catalogo`, `/configurador` → verificar breadcrumbs `navigation` con esas rutas.
+3. Tras un build de producción, comprobar que en el issue el stack trace muestra archivos `.tsx` originales (source maps OK).
 
