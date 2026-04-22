@@ -114,7 +114,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
 
           {/* Expired + pending pickup */}
           {isExpiredPending && (
-            <div className="rounded-lg border border-[hsl(var(--coral-200,12_80%_85%))] bg-[hsl(var(--coral-50,12_80%_96%))] p-3 space-y-2">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 space-y-2">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                 <p className="text-sm">
