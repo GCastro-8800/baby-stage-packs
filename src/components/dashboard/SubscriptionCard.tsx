@@ -125,8 +125,10 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
                 <Button size="sm" className="flex-1" onClick={handleRenew}>
                   Renovar
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1" onClick={handleManage}>
-                  Programar recogida
+                <Button size="sm" variant="outline" className="flex-1" asChild>
+                  <a href="https://wa.me/34638706467?text=Hola%2C%20quiero%20programar%20la%20recogida%20de%20mi%20kit%20bebloo" target="_blank" rel="noopener noreferrer">
+                    Programar recogida
+                  </a>
                 </Button>
               </div>
             </div>
