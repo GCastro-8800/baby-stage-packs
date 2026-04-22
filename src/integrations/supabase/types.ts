@@ -256,6 +256,75 @@ export type Database = {
         }
         Relationships: []
       }
+      multichannel_notification_log: {
+        Row: {
+          channel: string
+          created_at: string
+          error_message: string | null
+          id: string
+          idempotency_key: string | null
+          metadata: Json | null
+          status: string
+          subscription_id: string | null
+          template_key: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          status: string
+          subscription_id?: string | null
+          template_key: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          status?: string
+          subscription_id?: string | null
+          template_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pickup_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          subscription_id: string
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          subscription_id: string
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          subscription_id?: string
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       processed_stripe_events: {
         Row: {
           event_id: string
@@ -287,8 +356,11 @@ export type Database = {
           has_seen_tutorial: boolean
           id: string
           is_first_child: boolean | null
+          notification_preferences: Json
           onboarding_completed: boolean | null
           parent_situation: string | null
+          phone: string | null
+          phone_verified: boolean
           questionnaire_answers: Json | null
           stripe_customer_id: string | null
           updated_at: string
@@ -302,8 +374,11 @@ export type Database = {
           has_seen_tutorial?: boolean
           id: string
           is_first_child?: boolean | null
+          notification_preferences?: Json
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          phone?: string | null
+          phone_verified?: boolean
           questionnaire_answers?: Json | null
           stripe_customer_id?: string | null
           updated_at?: string
@@ -317,8 +392,11 @@ export type Database = {
           has_seen_tutorial?: boolean
           id?: string
           is_first_child?: boolean | null
+          notification_preferences?: Json
           onboarding_completed?: boolean | null
           parent_situation?: string | null
+          phone?: string | null
+          phone_verified?: boolean
           questionnaire_answers?: Json | null
           stripe_customer_id?: string | null
           updated_at?: string
@@ -379,8 +457,12 @@ export type Database = {
         Row: {
           created_at: string
           current_stage: Database["public"]["Enums"]["baby_stage"]
+          end_date: string | null
           id: string
           next_shipment_date: string | null
+          pickup_scheduled_date: string | null
+          pickup_status: string
+          pickup_window: string | null
           plan_name: string
           status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
@@ -389,8 +471,12 @@ export type Database = {
         Insert: {
           created_at?: string
           current_stage?: Database["public"]["Enums"]["baby_stage"]
+          end_date?: string | null
           id?: string
           next_shipment_date?: string | null
+          pickup_scheduled_date?: string | null
+          pickup_status?: string
+          pickup_window?: string | null
           plan_name?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
@@ -399,8 +485,12 @@ export type Database = {
         Update: {
           created_at?: string
           current_stage?: Database["public"]["Enums"]["baby_stage"]
+          end_date?: string | null
           id?: string
           next_shipment_date?: string | null
+          pickup_scheduled_date?: string | null
+          pickup_status?: string
+          pickup_window?: string | null
           plan_name?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
@@ -525,7 +615,7 @@ export type Database = {
       app_role: "user" | "admin"
       baby_stage: "prenatal" | "0-3m" | "3-6m" | "6-12m" | "12-18m" | "18-24m"
       shipment_status: "scheduled" | "packed" | "shipped" | "delivered"
-      subscription_status: "active" | "paused" | "cancelled"
+      subscription_status: "active" | "paused" | "cancelled" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -656,7 +746,7 @@ export const Constants = {
       app_role: ["user", "admin"],
       baby_stage: ["prenatal", "0-3m", "3-6m", "6-12m", "12-18m", "18-24m"],
       shipment_status: ["scheduled", "packed", "shipped", "delivered"],
-      subscription_status: ["active", "paused", "cancelled"],
+      subscription_status: ["active", "paused", "cancelled", "expired"],
     },
   },
 } as const
