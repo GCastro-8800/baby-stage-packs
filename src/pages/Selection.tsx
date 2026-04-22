@@ -102,6 +102,27 @@ export default function Selection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Renewal: prefill from last shipment items
+  useEffect(() => {
+    if (!renewSubscriptionId || !user) return;
+    (async () => {
+      const { data: shipment } = await supabase
+        .from("shipments")
+        .select("items")
+        .eq("subscription_id", renewSubscriptionId)
+        .order("scheduled_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const items = (shipment?.items as Array<{ key?: string }> | null) ?? [];
+      items.forEach((it) => {
+        if (!it?.key) return;
+        const p = getProductById(it.key);
+        if (p && !isSelected(p.id)) addProduct(p);
+      });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [renewSubscriptionId, user?.id]);
+
   const stageSuggestions = useMemo(() => getStageSuggestions(), []);
 
   // Map of productId -> reasons (only when coming from questionnaire)
