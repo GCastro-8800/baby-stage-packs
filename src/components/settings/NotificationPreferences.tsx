@@ -57,7 +57,7 @@ export function NotificationPreferences() {
       .from("profiles")
       .update({
         phone: normalisedPhone,
-        notification_preferences: prefs,
+        notification_preferences: { ...prefs },
       })
       .eq("id", user.id);
     setSaving(false);
