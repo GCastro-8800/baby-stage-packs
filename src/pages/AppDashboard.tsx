@@ -19,6 +19,7 @@ import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
 import { ShipmentCard } from "@/components/dashboard/ShipmentCard";
 import { NoSubscriptionCard } from "@/components/dashboard/NoSubscriptionCard";
 import { WelcomeTutorial } from "@/components/dashboard/WelcomeTutorial";
+import { PhoneCaptureBanner } from "@/components/dashboard/PhoneCaptureBanner";
 import logo from "@/assets/logo-bebloo.png";
 import { openExternal } from "@/lib/openExternal";
 
@@ -80,6 +81,9 @@ export default function AppDashboard() {
       {/* Main content */}
       <main className="container max-w-6xl px-4 md:px-6 py-8 md:py-12">
         <div className="space-y-8">
+          {/* Phone capture banner */}
+          <PhoneCaptureBanner show={!!subscription && !profile?.phone} />
+
           {/* Welcome section */}
           <WelcomeHeader
             fullName={profile?.full_name}

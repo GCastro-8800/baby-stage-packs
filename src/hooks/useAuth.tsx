@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       profileFetchedForRef.current = null;
     } else {
-      setProfile(data as Profile);
+      setProfile(data as unknown as Profile);
     }
     setProfileLoaded(true);
   };

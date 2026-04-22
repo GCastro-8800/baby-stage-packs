@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import SelectionSidebar from "@/components/configurator/SelectionSidebar";
@@ -42,11 +44,15 @@ function productsForStage(stage: string): (p: Product) => boolean {
 export default function Selection() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  const renewSubscriptionId = searchParams.get("renew");
 
   const handlePreview = (product: Product) => {
     setPreviewProduct(product);
@@ -95,6 +101,27 @@ export default function Selection() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Renewal: prefill from last shipment items
+  useEffect(() => {
+    if (!renewSubscriptionId || !user) return;
+    (async () => {
+      const { data: shipment } = await supabase
+        .from("shipments")
+        .select("items")
+        .eq("subscription_id", renewSubscriptionId)
+        .order("scheduled_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const items = (shipment?.items as Array<{ key?: string }> | null) ?? [];
+      items.forEach((it) => {
+        if (!it?.key) return;
+        const p = getProductById(it.key);
+        if (p && !isSelected(p.id)) addProduct(p);
+      });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [renewSubscriptionId, user?.id]);
 
   const stageSuggestions = useMemo(() => getStageSuggestions(), []);
 
