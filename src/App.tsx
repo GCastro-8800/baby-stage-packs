@@ -24,6 +24,7 @@ import Configurator from "./pages/Configurator";
 import Selection from "./pages/Selection";
 import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
+import SchedulePickup from "./pages/SchedulePickup";
 import { useSelectionSync } from "@/hooks/useSelectionSync";
 
 const queryClient = new QueryClient();
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/catalogo" element={<Catalog />} />
             <Route path="/mi-seleccion" element={<Selection />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
+            <Route path="/recogida/:subscriptionId" element={<SchedulePickup />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </SentryRoutes>
