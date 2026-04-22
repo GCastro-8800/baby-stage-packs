@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import SelectionSidebar from "@/components/configurator/SelectionSidebar";
