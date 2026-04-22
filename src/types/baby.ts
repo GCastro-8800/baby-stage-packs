@@ -42,6 +42,12 @@ export interface Child {
   updated_at: string;
 }
 
+export interface NotificationPreferences {
+  email: boolean;
+  whatsapp: boolean;
+  sms: boolean;
+}
+
 export interface Profile {
   id: string;
   full_name: string | null;
@@ -54,4 +60,7 @@ export interface Profile {
   is_first_child: boolean | null;
   parent_situation: string | null;
   has_seen_tutorial: boolean;
+  phone: string | null;
+  phone_verified: boolean;
+  notification_preferences: NotificationPreferences;
 }
