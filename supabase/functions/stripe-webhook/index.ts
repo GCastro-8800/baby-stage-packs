@@ -155,6 +155,7 @@ Deno.serve(async (req) => {
 
       // Create subscription record for internal tracking
       const planName = `Suscripción bebloo (${itemCount} producto${itemCount !== 1 ? "s" : ""})`;
+      const endDateIso = endDate.toISOString().split("T")[0];
       const { data: subscription, error: subError } = await serviceClient
         .from("subscriptions")
         .insert({
@@ -163,6 +164,8 @@ Deno.serve(async (req) => {
           status: "active",
           current_stage: "prenatal",
           next_shipment_date: scheduledDate,
+          end_date: endDateIso,
+          pickup_status: "pending",
         })
         .select("id")
         .single();
