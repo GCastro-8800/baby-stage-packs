@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ChildCard } from "@/components/settings/ChildCard";
 import { ChildFormDialog } from "@/components/settings/ChildFormDialog";
+import { NotificationPreferences } from "@/components/settings/NotificationPreferences";
 import type { Child } from "@/types/baby";
 import logo from "@/assets/logo-bebloo.png";
 
@@ -178,6 +179,8 @@ export default function Settings() {
               )}
             </CardContent>
           </Card>
+          {/* Notifications */}
+          <NotificationPreferences />
         </div>
       </main>
 

@@ -3,6 +3,7 @@ import { SubscriptionsTab } from "@/components/admin/SubscriptionsTab";
 import { ShipmentsTab } from "@/components/admin/ShipmentsTab";
 import { LeadsTab } from "@/components/admin/LeadsTab";
 import { InactiveCustomersTab } from "@/components/admin/InactiveCustomersTab";
+import { PickupsTab } from "@/components/admin/PickupsTab";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -24,6 +25,7 @@ export default function Admin() {
         <TabsList className="mb-4">
           <TabsTrigger value="subscriptions">Suscripciones</TabsTrigger>
           <TabsTrigger value="shipments">Envíos</TabsTrigger>
+          <TabsTrigger value="pickups">Recogidas</TabsTrigger>
           <TabsTrigger value="leads">Leads</TabsTrigger>
           <TabsTrigger value="inactive">Inactivos</TabsTrigger>
         </TabsList>
@@ -33,6 +35,9 @@ export default function Admin() {
         </TabsContent>
         <TabsContent value="shipments">
           <ShipmentsTab />
+        </TabsContent>
+        <TabsContent value="pickups">
+          <PickupsTab />
         </TabsContent>
         <TabsContent value="leads">
           <LeadsTab />
