@@ -44,11 +44,15 @@ function productsForStage(stage: string): (p: Product) => boolean {
 export default function Selection() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const { track } = useAnalytics();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  const renewSubscriptionId = searchParams.get("renew");
 
   const handlePreview = (product: Product) => {
     setPreviewProduct(product);
