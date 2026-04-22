@@ -5,6 +5,16 @@ project_id = "okxfhhbqxsxtdlneliax"
     verify_jwt = false
   [functions.auth-email-hook]
     verify_jwt = false
+  [functions.check-expiring-subscriptions]
+    verify_jwt = false
+  [functions.process-expired-subscriptions]
+    verify_jwt = false
+  [functions.send-pickup-reminders]
+    verify_jwt = false
+  [functions.schedule-pickup]
+    verify_jwt = false
+  [functions.send-multichannel-notification]
+    verify_jwt = true
   [functions.chat]
     verify_jwt = false
   [functions.check-subscription]
