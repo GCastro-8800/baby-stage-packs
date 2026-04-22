@@ -6,12 +6,24 @@ import { useAuth } from "@/hooks/useAuth";
 export interface Subscription {
   id: string;
   user_id: string;
-  status: "active" | "paused" | "cancelled";
+  status: "active" | "paused" | "cancelled" | "expired";
   plan_name: string;
   current_stage: string;
   next_shipment_date: string | null;
+  end_date: string | null;
+  pickup_status: "pending" | "scheduled" | "completed" | "cancelled";
+  pickup_scheduled_date: string | null;
+  pickup_window: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export function daysUntilEnd(endDate: string | null): number | null {
+  if (!endDate) return null;
+  const end = new Date(endDate + "T00:00:00").getTime();
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return Math.ceil((end - now.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 export interface Shipment {
