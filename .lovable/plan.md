@@ -1,72 +1,61 @@
 
 
-## Plan: Frontend del ciclo de fin de servicio
+## Plan: Migración Stripe Test → Live (Parte F + G)
 
-### 1. Página pública de programación de recogida
-**Nueva ruta `/recogida/:subscriptionId`** (acceso por token, sin login)
-- Lee `?token=...` de la URL
-- Llama a edge function `schedule-pickup` con `action: "validate"` para verificar token y traer datos (nombre, productos, fecha fin)
-- Muestra calendario (4 semanas próximas, lun-vie) + selector de franja (mañana 10-13h / tarde 16-19h)
-- Si ya está programada: muestra confirmación con fecha/franja y opción de cambiar
-- Submit → `schedule-pickup` con `action: "schedule", date, window`
-- Estados: loading, token inválido/expirado, ya programada, éxito
-- Diseño coherente con marca (Fraunces + DM Sans, light blue/coral)
+### Pre-requisitos que debes hacer tú en Stripe (fuera de Lovable)
 
-### 2. Banners de estado en `SubscriptionCard.tsx`
-Tres variantes según `end_date` y `pickup_status`:
-- **Ámbar (≤30 días al fin, status `active`)**: "Tu servicio termina el [fecha] · Renovar ahora"
-- **Coral (status `expired`, pickup `pending`)**: "Tu servicio ha terminado · Programa la recogida o renueva"
-- **Verde (pickup `scheduled`)**: "Recogida confirmada el [fecha] · [franja]"
+**1. Activa tu cuenta Stripe Live**
+- Dashboard de Stripe → toggle arriba a la izquierda "Test mode" → OFF
+- Si aún no está activada: completa el formulario de activación (datos fiscales, IBAN, verificación de identidad). Suele tardar unos minutos.
 
-CTA "Renovar" → navega a `/configurador?renew=<subscription_id>` (pre-rellena selección desde último shipment — pequeño cambio en `Selection.tsx` para leer ese param)
+**2. Copia la Secret Key Live**
+- Stripe Live → Developers → API keys → "Secret key" → Reveal → copiar `sk_live_...`
 
-### 3. Captura de teléfono y preferencias en `Settings.tsx`
-Sección nueva "Notificaciones":
-- Input teléfono (validación E.164 con zod, prefijo +34)
-- 3 toggles: Email (siempre on, deshabilitado), WhatsApp, SMS
-- Banner informativo si los canales SMS/WhatsApp aún no están activos: "Los avisos por WhatsApp y SMS llegarán cuando activemos el servicio"
-- Guarda en `profiles.phone` y `profiles.notification_preferences`
+**3. Crea el webhook Live**
+- Stripe Live → Developers → Webhooks → Add endpoint
+- URL: `https://okxfhhbqxsxtdlneliax.supabase.co/functions/v1/stripe-webhook`
+- Evento a escuchar: `checkout.session.completed`
+- Crear → copiar el `whsec_...` que aparece (solo se muestra una vez)
 
-### 4. Banner global en `AppDashboard.tsx`
-Si `profile.phone` está vacío y hay subscription activa:
-- Banner dismissible arriba del dashboard: "Añade tu teléfono para no perderte avisos importantes → Ir a ajustes"
+**4. Activa el Customer Portal en Live** (necesario para `customer-portal`)
+- Stripe Live → Settings → Billing → Customer portal → Activate
 
-### 5. Tab "Recogidas" en panel admin (`Admin.tsx`)
-Nuevo `PickupsTab.tsx` con:
-- Tabla de subscriptions con `pickup_status` ∈ {pending, scheduled, completed}
-- Columnas: cliente, fecha fin, fecha recogida, franja, estado, acciones
-- Filtros por estado
-- Botón "Marcar como recogida" → update `pickup_status = 'completed'`
-- Botón "Reenviar link de recogida" para pending (regenera token vía edge function)
+### Lo que haré yo en Lovable (tras tu confirmación)
 
-### 6. Hook `useSubscription` actualizado
-- Exponer `end_date`, `pickup_status`, `pickup_scheduled_date`, `pickup_window` en el tipo `Subscription`
-- Helper `daysUntilEnd` calculado
+**F.1 Actualizar `STRIPE_SECRET_KEY`**
+- Modal seguro vía `update_stripe_secret_key` → pegas `sk_live_...`
 
-### Ficheros a crear
-- `src/pages/SchedulePickup.tsx`
-- `src/components/admin/PickupsTab.tsx`
-- `src/components/dashboard/PhoneCaptureBanner.tsx`
-- `src/components/settings/NotificationPreferences.tsx`
+**F.2 Actualizar `STRIPE_WEBHOOK_SECRET`**
+- Modal seguro vía `add_secret` (sobrescribe el de test) → pegas `whsec_...` live
 
-### Ficheros a editar
-- `src/App.tsx` — ruta `/recogida/:subscriptionId`
-- `src/components/dashboard/SubscriptionCard.tsx` — banners de estado
-- `src/pages/AppDashboard.tsx` — banner captura teléfono
-- `src/pages/Settings.tsx` — sección notificaciones
-- `src/pages/Admin.tsx` — tab Recogidas
-- `src/hooks/useSubscription.ts` — campos nuevos
-- `src/pages/Selection.tsx` — soporte query param `renew`
-- `supabase/functions/schedule-pickup/index.ts` — añadir acción `validate` (solo lectura del token sin marcarlo usado) si no existe ya
+**F.3 Verificar código**
+- Confirmar que `stripe-checkout`, `stripe-webhook`, `check-subscription` y `customer-portal` no tienen ningún literal de test hardcodeado (los Price IDs se generan al vuelo con `price_data`, así que no hay nada que cambiar)
+- Confirmar que la URL de éxito (`/checkout/success`) y cancel (`/mi-seleccion`) son correctas en producción
 
-### Orden de ejecución
-1. Hook `useSubscription` + tipos
-2. Página `/recogida` + acción validate en edge function
-3. Banners en `SubscriptionCard`
-4. Settings: preferencias de notificación + captura de teléfono
-5. Banner global en dashboard
-6. Tab admin de recogidas
-7. Soporte `?renew=` en Selection
+### G — Test end-to-end en Live (juntos)
 
-¿Confirmas para arrancar?
+Con tu tarjeta personal y un producto barato (1 mes ≈ 25-50 €):
+
+1. **Checkout real** desde `/mi-seleccion` → "Pagar con tarjeta" → completar pago en Stripe Live
+2. **Verificar webhook** en Stripe Live → Webhooks → ver evento `checkout.session.completed` con status 200
+3. **Verificar BD**: nueva fila en `subscriptions` con `status='active'`, `end_date` correcto (hoy + meses contratados), `pickup_status='pending'`
+4. **Verificar email**: te llega el email de confirmación de pedido (Resend)
+5. **Test del ciclo de fin** (opcional pero recomendado):
+   - SQL manual para acortar `end_date` a hoy → ejecutar `process-expired-subscriptions` manualmente → verificar que cambia a `expired` y se envía email de recogida con link `/recogida/...?token=...`
+   - Abrir el link → programar franja → verificar email de confirmación
+6. **Reembolso** desde Stripe Dashboard (ojo: la comisión Stripe ~1.5 % no se devuelve)
+
+### Riesgos y notas
+
+- **Cliente real en limbo**: una vez en live, cualquier persona que entre puede pagar de verdad. Te recomiendo hacer el test e2e en los próximos minutos tras el cambio para detectar fallos antes de promocionar.
+- **Suscripciones de test ya creadas en BD**: las que tienes ahora siguen funcionando en frontend pero apuntan a customers de Stripe Test. Si quieres, podemos marcarlas como `status='cancelled'` para limpiar. Dímelo.
+- **Customer Portal en Live**: si no lo activas, el botón "Gestionar suscripción" fallará para clientes live (aunque ahora apenas se usa porque el modelo es pago único).
+- **Rollback**: si algo sale mal, basta con volver a poner las claves de test (las guardas a mano antes de cambiar) y todo vuelve atrás. Las subscriptions live ya creadas se quedan en BD.
+
+### Confirma para arrancar
+
+Responde:
+- **"tengo `sk_live_...` y `whsec_...` listos, dale"** → lanzo los 2 modales seguros uno tras otro
+- **"aún no, primero activo Stripe Live"** → espero a que me digas
+- **"hazlo y limpia también las subs de test"** → mismo flow + UPDATE para cancelar las subs de prueba existentes
 
