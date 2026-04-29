@@ -131,15 +131,57 @@ Deno.serve(async (req) => {
 
       console.log(`[WEBHOOK] One-time payment completed for user ${userId}, items: ${itemCount}`);
 
-      // Store stripe_customer_id on profile if available
-      if (session.customer) {
+      // Extract shipping address and phone from Stripe checkout
+      const shippingDetails = session.shipping_details || session.shipping || null;
+      const customerPhone = session.customer_details?.phone || null;
+      const customerName = session.customer_details?.name || shippingDetails?.name || null;
+
+      const shippingAddressJson = shippingDetails
+        ? {
+            recipient_name: shippingDetails.name || customerName,
+            phone: customerPhone,
+            line1: shippingDetails.address?.line1 || null,
+            line2: shippingDetails.address?.line2 || null,
+            city: shippingDetails.address?.city || null,
+            postal_code: shippingDetails.address?.postal_code || null,
+            state: shippingDetails.address?.state || null,
+            country: shippingDetails.address?.country || null,
+          }
+        : null;
+
+      // Update profile: stripe_customer_id + phone (only if empty)
+      const profileUpdate: Record<string, unknown> = {};
+      if (session.customer) profileUpdate.stripe_customer_id = session.customer;
+
+      if (Object.keys(profileUpdate).length > 0) {
         const { error: profileError } = await serviceClient
           .from("profiles")
-          .update({ stripe_customer_id: session.customer })
+          .update(profileUpdate)
           .eq("id", userId);
 
         if (profileError) {
-          console.error("Error updating profile stripe_customer_id:", profileError);
+          console.error("Error updating profile:", profileError);
+        }
+      }
+
+      // Backfill phone only if profile.phone is empty (don't overwrite user-set value)
+      if (customerPhone) {
+        const { data: existingProfile } = await serviceClient
+          .from("profiles")
+          .select("phone")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (!existingProfile?.phone) {
+          // Normalize to E.164 (Stripe usually returns E.164 already)
+          const normalized = customerPhone.startsWith("+") ? customerPhone : `+${customerPhone.replace(/[^0-9]/g, "")}`;
+          const { error: phoneError } = await serviceClient
+            .from("profiles")
+            .update({ phone: normalized })
+            .eq("id", userId);
+          if (phoneError) {
+            console.error("Error backfilling profile.phone:", phoneError);
+          }
         }
       }
 
