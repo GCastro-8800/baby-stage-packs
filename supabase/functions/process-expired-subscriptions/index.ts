@@ -17,7 +17,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 function authorizeCronRequest(req: Request): boolean {
-  const cronSecret = Deno.env.get("CRON_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  const cronSecret = Deno.env.get("CRON_SECRET");
   const providedCronSecret = req.headers.get("x-cron-secret");
   if (cronSecret && providedCronSecret && timingSafeEqual(providedCronSecret, cronSecret)) {
     return true;
