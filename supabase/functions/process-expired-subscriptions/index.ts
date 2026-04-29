@@ -17,7 +17,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 function authorizeCronRequest(req: Request): boolean {
-  const cronSecret = Deno.env.get("CRON_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  const cronSecret = Deno.env.get("CRON_SECRET");
   const providedCronSecret = req.headers.get("x-cron-secret");
   if (cronSecret && providedCronSecret && timingSafeEqual(providedCronSecret, cronSecret)) {
     return true;
@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const secret = Deno.env.get("PICKUP_TOKEN_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const secret = Deno.env.get("PICKUP_TOKEN_SECRET");
     if (!secret) throw new Error("Pickup signing secret is not configured");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
