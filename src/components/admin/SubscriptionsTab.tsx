@@ -147,7 +147,7 @@ export function SubscriptionsTab() {
           <TableBody>
             {data?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   No hay suscripciones
                 </TableCell>
               </TableRow>
@@ -156,6 +156,9 @@ export function SubscriptionsTab() {
               <TableRow key={sub.id}>
                 <TableCell className="font-medium">{sub.user_name}</TableCell>
                 <TableCell className="capitalize">{sub.plan_name}</TableCell>
+                <TableCell>
+                  <ShippingCell addr={(sub as any).shipping_address as ShippingAddress} />
+                </TableCell>
                 <TableCell>
                   <Badge variant="outline" className={statusColors[sub.status]}>
                     {statusLabels[sub.status] || sub.status}
