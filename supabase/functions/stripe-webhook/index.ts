@@ -208,6 +208,7 @@ Deno.serve(async (req) => {
           next_shipment_date: scheduledDate,
           end_date: endDateIso,
           pickup_status: "pending",
+          shipping_address: shippingAddressJson,
         })
         .select("id")
         .single();
