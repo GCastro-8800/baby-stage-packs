@@ -1,59 +1,42 @@
-## Problema
+## Qué voy a hacer
 
-1. `stripe-checkout` no incluye `shipping_address_collection` ni `phone_number_collection` → operaciones no recibe ni dirección ni teléfono confirmado.
-2. El webhook no persiste esos datos cuando lleguen → aunque Stripe los recoja, no aparecen en el panel admin.
-3. `PhoneCaptureBanner` es opcional y descartable → muchos usuarios pagarán sin teléfono.
+Yo genero dos cadenas aleatorias seguras (32 bytes hex cada una), las guardo como secretos del backend y arreglo el código para que use esos secretos correctamente. Tú no tienes que copiar ni pegar nada.
 
-## Solución (1 sola vuelta)
+## Pasos
 
-### A. Recoger datos en Stripe Checkout (bloqueante)
+### 1. Generar y guardar los secretos
+- Generar `PICKUP_TOKEN_SECRET` (64 caracteres hex aleatorios) → guardar como secreto del backend.
+- Generar `CRON_SECRET` (64 caracteres hex aleatorios) → guardar como secreto del backend.
 
-En `supabase/functions/stripe-checkout/index.ts`, añadir a `stripe.checkout.sessions.create`:
+Ambos quedan almacenados de forma segura, accesibles solo desde las edge functions. Nadie los ve, ni siquiera tú (ni falta hace).
 
-- `shipping_address_collection: { allowed_countries: ["ES"] }` — solo España, obligatorio.
-- `phone_number_collection: { enabled: true }` — Stripe pide y valida el teléfono.
-- `billing_address_collection: "auto"` — para facturación correcta.
-- `locale: "es"` — UI de Stripe en español.
-- `custom_text` opcional con nota: "Necesitamos tu dirección y teléfono para coordinar la entrega del kit."
+### 2. Eliminar el fallback inseguro de los pickup tokens
+En `supabase/functions/schedule-pickup/index.ts` y `supabase/functions/process-expired-subscriptions/index.ts`:
+- Quitar la cadena `"fallback-pickup-secret"` y el fallback a `STRIPE_WEBHOOK_SECRET`.
+- Si `PICKUP_TOKEN_SECRET` no está configurado, la función falla con error 500 en lugar de usar un valor público.
 
-Ventaja: Stripe gestiona la validación, no tenemos que construir UI propia. Sin dirección/teléfono, el usuario no puede pagar.
+### 3. Proteger las 3 funciones cron
+Añadir validación de header `X-Cron-Secret` en:
+- `supabase/functions/check-expiring-subscriptions/index.ts`
+- `supabase/functions/process-expired-subscriptions/index.ts`
+- `supabase/functions/send-pickup-reminders/index.ts`
 
-### B. Persistir dirección y teléfono al recibir el webhook
+Cualquier petición sin ese header (o con valor incorrecto) recibe HTTP 401. Esto cierra el agujero de "cualquiera en internet puede disparar envíos masivos".
 
-En `supabase/functions/stripe-webhook/index.ts`, dentro de `checkout.session.completed`:
+### 4. Actualizar los cron jobs de la base de datos
+Los `cron.schedule` actuales hacen `net.http_post` a esas funciones sin enviar el header secreto. Hay que actualizarlos para que incluyan `X-Cron-Secret: <valor>` en sus headers. Esto se hace con un SQL de actualización (no migración, porque contiene el secreto real).
 
-1. Leer `session.shipping_details` (nombre, dirección completa) y `session.customer_details.phone`.
-2. Guardar:
-   - `profiles.phone` (si está vacío) ← `customer_details.phone`.
-   - **Nueva columna** `subscriptions.shipping_address` (jsonb) con dirección estructurada (line1, line2, city, postal_code, state, country, recipient_name).
-3. Migración SQL: `ALTER TABLE subscriptions ADD COLUMN shipping_address jsonb;`
+### 5. Verificación post-deploy
+- Disparar manualmente cada cron desde el panel admin (o esperar el siguiente tick) y verificar en logs que se ejecutan correctamente.
+- Hacer un curl externo sin header para confirmar que devuelve 401.
 
-### C. Mostrar dirección en el panel admin
+## Lo que NO toco
 
-En `src/components/admin/SubscriptionsTab.tsx` y/o `ShipmentsTab.tsx`, añadir una columna/sección con la dirección formateada del envío. Permite a operaciones copiar dirección + teléfono de un vistazo.
+- Las otras vulnerabilidades del scan (RLS de `pickup_tokens`, política redundante en `user_roles`, función SECURITY DEFINER pública, listado de bucket público) — son warnings menores, los abordamos en otra vuelta si quieres.
+- El `STRIPE_WEBHOOK_SECRET` sigue intacto, solo dejo de reutilizarlo para firmar pickup tokens.
 
-### D. Backfill suave del teléfono en dashboard
+## Resultado
 
-`PhoneCaptureBanner` ya queda como respaldo para clientes anteriores. No bloqueamos el dashboard porque el teléfono nuevo ya viene de Stripe.
-
-## Archivos afectados
-
-- `supabase/functions/stripe-checkout/index.ts` — añadir collection params.
-- `supabase/functions/stripe-webhook/index.ts` — persistir `shipping_details` y `customer_details.phone`.
-- Migración: `subscriptions.shipping_address jsonb`.
-- `src/components/admin/SubscriptionsTab.tsx` — mostrar dirección.
-- (Opcional) `src/components/admin/ShipmentsTab.tsx` — mostrar dirección por envío.
-
-## Lo que NO hacemos en esta vuelta
-
-- No tocamos `PackCheckout.tsx` (flujo legacy, mismo edge function).
-- No bloqueamos el dashboard si falta teléfono — lo recoge Stripe en compras nuevas.
-- No añadimos validación custom de código postal — Stripe ya lo hace.
-
-## Validación post-deploy
-
-Compra de prueba en live (1€ con un product ID existente, modo test si prefieres) → verificar:
-- Stripe Checkout pide dirección ES + teléfono.
-- `subscriptions.shipping_address` contiene la dirección.
-- `profiles.phone` se actualiza si estaba vacío.
-- Admin → Suscripciones muestra la dirección.
+- Pickup tokens firmados con secreto real único, sin fallback público.
+- Cron endpoints cerrados al exterior — solo el cron interno de la base de datos puede llamarlos.
+- Cero acción manual por tu parte.
