@@ -8,6 +8,35 @@ import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
 const SITE_URL = "https://bebloo.es";
 
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length != b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function authorizeCronRequest(req: Request): string | null {
+  const configured = Deno.env.get("CRON_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  if (!configured) {
+    throw new Error("CRON_SECRET is not configured");
+  }
+
+  const provided = req.headers.get("x-cron-secret");
+  if (provided && timingSafeEqual(provided, configured)) {
+    return "cron";
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  if (anonKey && authHeader === `Bearer ${anonKey}`) {
+    return "anon-bearer";
+  }
+
+  return null;
+}
+
+
 async function makeHmacToken(subscriptionId: string, userId: string, secret: string): Promise<string> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 30);
@@ -30,18 +59,37 @@ Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
   try {
-    const secret = Deno.env.get("PICKUP_TOKEN_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "fallback-pickup-secret";
+    const authMode = authorizeCronRequest(req);
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const resendFor = typeof body?.resendFor === "string" ? body.resendFor : null;
+
+    if (!authMode && !resendFor) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const secret = Deno.env.get("PICKUP_TOKEN_SECRET");
+    if (!secret) throw new Error("PICKUP_TOKEN_SECRET is not configured");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
     const today = new Date().toISOString().slice(0, 10);
-    const { data: expired, error } = await supabase
+    let expiredQuery = supabase
       .from("subscriptions")
       .select("id, user_id, end_date")
-      .eq("status", "active")
-      .lte("end_date", today);
+      .eq("status", "active");
+
+    if (resendFor) {
+      expiredQuery = expiredQuery.eq("id", resendFor);
+    } else {
+      expiredQuery = expiredQuery.lte("end_date", today);
+    }
+
+    const { data: expired, error } = await expiredQuery;
 
     if (error) {
       console.error("[process-expired] Query error", error);
@@ -54,9 +102,10 @@ Deno.serve(async (req) => {
     let processed = 0;
     for (const sub of expired ?? []) {
       // Update status
+      const nextStatus = resendFor ? { pickup_status: "pending" } : { status: "expired", pickup_status: "pending" };
       const { error: upErr } = await supabase
         .from("subscriptions")
-        .update({ status: "expired", pickup_status: "pending" })
+        .update(nextStatus)
         .eq("id", sub.id);
       if (upErr) {
         console.error("[process-expired] Update error", upErr);
@@ -91,7 +140,7 @@ Deno.serve(async (req) => {
           userId: sub.user_id,
           subscriptionId: sub.id,
           templateKey: "service-ended-pickup",
-          idempotencyKey: `expired-${sub.id}`,
+          idempotencyKey: resendFor ? `pickup-link-resend-${sub.id}-${Date.now()}` : `expired-${sub.id}`,
           data: {
             pickupSchedulerUrl,
             renewUrl: `${SITE_URL}/configurador`,
@@ -102,7 +151,7 @@ Deno.serve(async (req) => {
       processed++;
     }
 
-    return new Response(JSON.stringify({ ok: true, processed }), {
+    return new Response(JSON.stringify({ ok: true, processed, mode: resendFor ? "resend" : "cron" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {

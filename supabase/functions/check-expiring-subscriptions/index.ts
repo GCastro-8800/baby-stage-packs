@@ -6,6 +6,35 @@ import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
 const REMINDER_DAYS = [14, 7, 1] as const;
 
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length != b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function authorizeCronRequest(req: Request): string | null {
+  const configured = Deno.env.get("CRON_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
+  if (!configured) {
+    throw new Error("CRON_SECRET is not configured");
+  }
+
+  const provided = req.headers.get("x-cron-secret");
+  if (provided && timingSafeEqual(provided, configured)) {
+    return "cron";
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  if (anonKey && authHeader === `Bearer ${anonKey}`) {
+    return "anon-bearer";
+  }
+
+  return null;
+}
+
+
 function formatEsDate(iso: string): string {
   const d = new Date(iso + "T00:00:00Z");
   return d.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -17,6 +46,14 @@ Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
   try {
+    const authMode = authorizeCronRequest(req);
+    if (!authMode) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,

@@ -62,7 +62,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const secret = Deno.env.get("PICKUP_TOKEN_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET") ?? "fallback-pickup-secret";
+    const secret = Deno.env.get("PICKUP_TOKEN_SECRET");
+    if (!secret) throw new Error("PICKUP_TOKEN_SECRET is not configured");
     const verified = await verifyHmacToken(body.token, secret);
     if (!verified || verified.subscriptionId !== body.subscriptionId) {
       return new Response(JSON.stringify({ error: "Invalid or expired token" }), {
