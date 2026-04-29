@@ -136,6 +136,7 @@ export function SubscriptionsTab() {
             <TableRow>
               <TableHead>Usuario</TableHead>
               <TableHead>Plan</TableHead>
+              <TableHead>Envío</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Etapa</TableHead>
               <TableHead>Próximo envío</TableHead>
