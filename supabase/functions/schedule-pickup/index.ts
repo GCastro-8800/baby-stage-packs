@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const secret = Deno.env.get("PICKUP_TOKEN_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const secret = Deno.env.get("PICKUP_TOKEN_SECRET");
     if (!secret) throw new Error("Pickup signing secret is not configured");
     const verified = await verifyHmacToken(body.token, secret);
     if (!verified || verified.subscriptionId !== body.subscriptionId) {
