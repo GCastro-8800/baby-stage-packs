@@ -464,6 +464,7 @@ export type Database = {
           pickup_status: string
           pickup_window: string | null
           plan_name: string
+          shipping_address: Json | null
           status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
           user_id: string
@@ -478,6 +479,7 @@ export type Database = {
           pickup_status?: string
           pickup_window?: string | null
           plan_name?: string
+          shipping_address?: Json | null
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
           user_id: string
@@ -492,6 +494,7 @@ export type Database = {
           pickup_status?: string
           pickup_window?: string | null
           plan_name?: string
+          shipping_address?: Json | null
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
           user_id?: string

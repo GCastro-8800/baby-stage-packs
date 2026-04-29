@@ -4,12 +4,62 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Plus, Pause, Play, XCircle } from "lucide-react";
+import { Loader2, Plus, Pause, Play, XCircle, Copy, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { CreateSubscriptionDialog } from "./CreateSubscriptionDialog";
 import type { Database } from "@/integrations/supabase/types";
+
+type ShippingAddress = {
+  recipient_name?: string | null;
+  phone?: string | null;
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
+  state?: string | null;
+  country?: string | null;
+} | null;
+
+function formatAddress(addr: ShippingAddress): string {
+  if (!addr) return "";
+  return [
+    addr.recipient_name,
+    [addr.line1, addr.line2].filter(Boolean).join(", "),
+    [addr.postal_code, addr.city].filter(Boolean).join(" "),
+    addr.state,
+    addr.country,
+    addr.phone ? `Tel: ${addr.phone}` : null,
+  ].filter(Boolean).join("\n");
+}
+
+function ShippingCell({ addr }: { addr: ShippingAddress }) {
+  if (!addr || !addr.line1) {
+    return <span className="text-muted-foreground text-xs">Sin dirección</span>;
+  }
+  const text = formatAddress(addr);
+  const short = `${addr.postal_code ?? ""} ${addr.city ?? ""}`.trim() || "Ver dirección";
+  return (
+    <div className="flex items-start gap-1.5 max-w-[220px]">
+      <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium truncate" title={text}>{short}</p>
+        {addr.phone && <p className="text-[10px] text-muted-foreground truncate">{addr.phone}</p>}
+      </div>
+      <Button
+        size="icon" variant="ghost" className="h-6 w-6 shrink-0"
+        onClick={() => {
+          navigator.clipboard.writeText(text);
+          toast.success("Dirección copiada");
+        }}
+        title="Copiar dirección y teléfono"
+      >
+        <Copy className="h-3 w-3" />
+      </Button>
+    </div>
+  );
+}
 
 type SubStatus = Database["public"]["Enums"]["subscription_status"];
 
@@ -86,6 +136,7 @@ export function SubscriptionsTab() {
             <TableRow>
               <TableHead>Usuario</TableHead>
               <TableHead>Plan</TableHead>
+              <TableHead>Envío</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Etapa</TableHead>
               <TableHead>Próximo envío</TableHead>
@@ -96,7 +147,7 @@ export function SubscriptionsTab() {
           <TableBody>
             {data?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   No hay suscripciones
                 </TableCell>
               </TableRow>
@@ -105,6 +156,9 @@ export function SubscriptionsTab() {
               <TableRow key={sub.id}>
                 <TableCell className="font-medium">{sub.user_name}</TableCell>
                 <TableCell className="capitalize">{sub.plan_name}</TableCell>
+                <TableCell>
+                  <ShippingCell addr={(sub as any).shipping_address as ShippingAddress} />
+                </TableCell>
                 <TableCell>
                   <Badge variant="outline" className={statusColors[sub.status]}>
                     {statusLabels[sub.status] || sub.status}
