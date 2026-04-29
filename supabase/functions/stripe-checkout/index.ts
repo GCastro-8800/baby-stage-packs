@@ -117,6 +117,15 @@ Deno.serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: "payment",
+      locale: "es",
+      billing_address_collection: "auto",
+      shipping_address_collection: { allowed_countries: ["ES"] },
+      phone_number_collection: { enabled: true },
+      custom_text: {
+        shipping_address: {
+          message: "Necesitamos tu dirección y teléfono para coordinar la entrega y la recogida del kit.",
+        },
+      },
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/mi-seleccion`,
       metadata: {
