@@ -1,39 +1,49 @@
-## Cierre de warnings de seguridad
+## Rotar secretos: separar `PICKUP_TOKEN_SECRET` y `CRON_SECRET`
 
-Tras la pasada anterior (CORS por dominio, autenticación por `X-Cron-Secret`, eliminación del fallback `"fallback-pickup-secret"`, REVOKE en funciones SECURITY DEFINER, RLS de `pickup_tokens` y bucket `email-assets`), el escáner aún muestra warnings porque no se ha re-ejecutado (`up_to_date: false`). Cierro los pendientes así:
+### Por qué
 
-### 1. Cambio de código (1 migración SQL)
+Hoy las edge functions usan `STRIPE_WEBHOOK_SECRET` como apaño para dos cosas que no son Stripe:
+- Firmar los enlaces HMAC de recogida que mandamos por email.
+- Validar el header `X-Cron-Secret` de las funciones programadas (cron diario de expiraciones, recordatorios, etc.).
 
-Endurecer `public.user_roles` reemplazando las PERMISSIVE-`false` (frágiles, se evaporan si alguien añade otra PERMISSIVE) por **RESTRICTIVE**, que sí denegan de forma absoluta:
+Esto funciona pero mezcla responsabilidades: si algún día Stripe rota su webhook secret, se rompe el cron y las firmas; y al revés, si filtramos el secreto de cron, comprometemos la verificación de Stripe. Lo correcto es una llave por propósito.
 
-- DROP de `Block anon role inserts`, `Block direct role inserts`, `Block role updates`, `Block role deletions`.
-- CREATE POLICY ... AS RESTRICTIVE para INSERT/UPDATE/DELETE con `USING (false)` / `WITH CHECK (false)` aplicadas a `anon` y `authenticated`.
-- Mantener la SELECT existente `Users can view own roles`.
-- La asignación de roles se sigue haciendo solo vía trigger `handle_new_user` (SECURITY DEFINER) y desde service_role en edge functions, que no se ven afectados por RLS.
+### Qué hago yo
 
-### 2. Gestión de findings en el escáner
+1. **Generar las dos cadenas aleatorias** (64 caracteres hex cada una) y dártelas en chat para que las pegues como secretos en Lovable Cloud:
+   - `PICKUP_TOKEN_SECRET`
+   - `CRON_SECRET`
 
-**Marcar como fixed** (ya se arregló en la pasada anterior; el escáner está desactualizado):
-- `agent_security / unauth_cron_endpoints` — Las 3 funciones cron ahora exigen `X-Cron-Secret` o bearer del anon key vía `authorizeCronRequest`.
-- `agent_security / hmac_fallback_secret` — Se eliminó la cadena `"fallback-pickup-secret"` en `schedule-pickup` y `process-expired-subscriptions`; ahora fallan duro si no hay secret.
-- `supabase / SUPA_anon_security_definer_function_executable` y `SUPA_authenticated_security_definer_function_executable` — REVOKE EXECUTE sobre `has_role`, `enqueue_email`, `delete_email`, `read_email_batch`, `move_to_dlq`, `get_inactive_customers` para `anon` y `authenticated`.
-- `supabase / SUPA_public_bucket_allows_listing` — Política de listado en `email-assets` restringida; solo se sirven assets públicos concretos (logo) por path.
-- `supabase_lov / user_roles_insert_block_bypass` — Se cierra con la migración del paso 1.
+2. **Actualizar 4 edge functions** para leer el secreto correcto en cada caso, eliminando el fallback a `STRIPE_WEBHOOK_SECRET`:
+   - `schedule-pickup` → `PICKUP_TOKEN_SECRET` para verificar firma del enlace.
+   - `process-expired-subscriptions` → `PICKUP_TOKEN_SECRET` para firmar enlaces nuevos + `CRON_SECRET` para validar header.
+   - `check-expiring-subscriptions` → `CRON_SECRET`.
+   - `send-pickup-reminders` → `CRON_SECRET` + `PICKUP_TOKEN_SECRET` para regenerar firma si hace falta.
 
-**Ignorar** (no aplicable al diseño):
-- `supabase_lov / pickup_tokens_no_user_self_read` — El token de recogida se entrega al usuario por email mediante una URL firmada con HMAC; el usuario nunca lee la tabla `pickup_tokens` desde el cliente. Solo admins y service_role la consultan. Añadir SELECT por `auth.uid() = user_id` ampliaría innecesariamente la superficie sin aportar funcionalidad.
+3. **Ajustar el helper `authorizeCronRequest`** para que exija `CRON_SECRET` (sigue aceptando bearer del service role como vía de escape para llamadas internas).
 
-### 3. Actualizar memoria de seguridad
+4. **Re-ejecutar el escáner** al final para confirmar 0 hallazgos.
 
-Añadir una nota a `@security-memory` explicando:
-- `user_roles` usa políticas RESTRICTIVE para INSERT/UPDATE/DELETE; no añadir PERMISSIVE que permitan estas operaciones.
-- `pickup_tokens` se accede solo por service_role + URL firmada al usuario; no abrir SELECT al usuario final.
-- Las funciones cron internas requieren `X-Cron-Secret` (o bearer anon key); cualquier nueva función cron debe pasar por `authorizeCronRequest`.
+5. **Actualizar `@security-memory`** para documentar que cada secreto tiene un único propósito y que no se debe reintroducir el fallback a Stripe.
+
+### Qué necesitas hacer tú
+
+Una sola cosa, cuando termine:
+- Ir a **Cloud → Secrets**, pulsar "Add secret" dos veces y pegar los dos valores que te daré. Nombres exactos: `PICKUP_TOKEN_SECRET` y `CRON_SECRET`.
+
+Yo no puedo crearlos por ti porque la herramienta de añadir secretos requiere tu confirmación explícita por seguridad — pero te lanzaré la solicitud directamente desde el chat y solo tendrás que pegar el valor.
 
 ### Archivos afectados
 
-- `supabase/migrations/<timestamp>_user_roles_restrictive.sql` (nuevo)
-- Llamadas a `security--manage_security_finding` (mark_as_fixed × 6, ignore × 1)
-- Llamada a `security--update_memory`
+- `supabase/functions/schedule-pickup/index.ts`
+- `supabase/functions/process-expired-subscriptions/index.ts`
+- `supabase/functions/check-expiring-subscriptions/index.ts`
+- `supabase/functions/send-pickup-reminders/index.ts`
+- (posible) helper compartido de cron auth
+- `@security-memory`
 
-No se tocan edge functions ni código frontend en esta pasada.
+No se tocan tablas, RLS, ni código frontend.
+
+### Riesgo
+
+Bajo. Si por error me equivoco con un nombre de secreto, la función fallará de forma controlada (devuelve 500 con log) y se arregla cambiando una línea. No hay riesgo de exposición de datos.
