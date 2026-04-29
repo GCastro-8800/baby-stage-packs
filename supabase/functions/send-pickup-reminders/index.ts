@@ -14,24 +14,14 @@ function timingSafeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function authorizeCronRequest(req: Request): string | null {
+function authorizeCronRequest(req: Request): boolean {
   const configured = Deno.env.get("CRON_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
   if (!configured) {
     throw new Error("CRON_SECRET is not configured");
   }
 
   const provided = req.headers.get("x-cron-secret");
-  if (provided && timingSafeEqual(provided, configured)) {
-    return "cron";
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (anonKey && authHeader === `Bearer ${anonKey}`) {
-    return "anon-bearer";
-  }
-
-  return null;
+  return !!(provided && timingSafeEqual(provided, configured));
 }
 
 
@@ -41,8 +31,8 @@ Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
   try {
-    const authMode = authorizeCronRequest(req);
-    if (!authMode) {
+    const isCronAuthorized = authorizeCronRequest(req);
+    if (!isCronAuthorized) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

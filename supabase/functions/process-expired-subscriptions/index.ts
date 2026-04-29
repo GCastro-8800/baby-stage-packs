@@ -16,24 +16,14 @@ function timingSafeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function authorizeCronRequest(req: Request): string | null {
+function authorizeCronRequest(req: Request): boolean {
   const configured = Deno.env.get("CRON_SECRET") ?? Deno.env.get("STRIPE_WEBHOOK_SECRET");
   if (!configured) {
     throw new Error("CRON_SECRET is not configured");
   }
 
   const provided = req.headers.get("x-cron-secret");
-  if (provided && timingSafeEqual(provided, configured)) {
-    return "cron";
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (anonKey && authHeader === `Bearer ${anonKey}`) {
-    return "anon-bearer";
-  }
-
-  return null;
+  return !!(provided && timingSafeEqual(provided, configured));
 }
 
 
@@ -59,11 +49,11 @@ Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req);
 
   try {
-    const authMode = authorizeCronRequest(req);
+    const isCronAuthorized = authorizeCronRequest(req);
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const resendFor = typeof body?.resendFor === "string" ? body.resendFor : null;
 
-    if (!authMode && !resendFor) {
+    if (!isCronAuthorized && !resendFor) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -72,10 +62,45 @@ Deno.serve(async (req) => {
 
     const secret = Deno.env.get("PICKUP_TOKEN_SECRET");
     if (!secret) throw new Error("PICKUP_TOKEN_SECRET is not configured");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const authHeader = req.headers.get("Authorization");
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      resendFor && authHeader?.startsWith("Bearer ") && anonKey
+        ? anonKey
+        : serviceRoleKey!,
+      resendFor && authHeader?.startsWith("Bearer ")
+        ? { global: { headers: { Authorization: authHeader } } }
+        : undefined,
     );
+
+    if (resendFor && authHeader?.startsWith("Bearer ") && anonKey) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims?.sub) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const adminClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        serviceRoleKey!,
+      );
+      const { data: hasRole, error: roleError } = await adminClient.rpc("has_role", {
+        _user_id: claimsData.claims.sub,
+        _role: "admin",
+      });
+      if (roleError || !hasRole) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
     const today = new Date().toISOString().slice(0, 10);
     let expiredQuery = supabase
