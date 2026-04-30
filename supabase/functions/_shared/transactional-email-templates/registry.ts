@@ -15,6 +15,8 @@ import { template as serviceEndedPickup } from './service-ended-pickup.tsx'
 import { template as pickupReminder } from './pickup-reminder.tsx'
 import { template as pickupConfirmed } from './pickup-confirmed.tsx'
 import { template as welcome } from './welcome.tsx'
+import { template as cartRecoveryDay1 } from './cart-recovery-day-1.tsx'
+import { template as cartRecoveryDay4 } from './cart-recovery-day-4.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-confirmation': orderConfirmation,
@@ -23,4 +25,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'pickup-reminder': pickupReminder,
   'pickup-confirmed': pickupConfirmed,
   'welcome': welcome,
+  'cart-recovery-day-1': cartRecoveryDay1,
+  'cart-recovery-day-4': cartRecoveryDay4,
 }
