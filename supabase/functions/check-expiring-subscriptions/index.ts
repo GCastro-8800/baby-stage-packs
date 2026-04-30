@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
 
   try {
     const isCronAuthorized = authorizeCronRequest(req);
+    console.log(`[check-expiring] auth=${isCronAuthorized} hasSecret=${!!Deno.env.get("CRON_SECRET")} provided=${!!req.headers.get("x-cron-secret")}`);
     if (!isCronAuthorized) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
