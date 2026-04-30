@@ -236,6 +236,25 @@ Deno.serve(async (req) => {
 
       console.log(`[WEBHOOK] Subscription ${subscription.id} created for user ${userId} (paid upfront)`);
 
+      // --- Mark lead as converted (if exists) for funnel metrics ---
+      try {
+        const convEmail = (session.customer_details?.email || "").toLowerCase().trim();
+        if (convEmail) {
+          await serviceClient
+            .from("leads")
+            .update({ converted_at: new Date().toISOString() })
+            .ilike("email", convEmail)
+            .is("converted_at", null);
+        }
+        await serviceClient
+          .from("leads")
+          .update({ converted_at: new Date().toISOString() })
+          .eq("user_id", userId)
+          .is("converted_at", null);
+      } catch (markErr) {
+        console.error("[WEBHOOK] Failed to mark lead as converted:", markErr);
+      }
+
       // --- Send order confirmation email ---
       try {
         // Get user email from auth

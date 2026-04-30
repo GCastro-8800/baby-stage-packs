@@ -9,6 +9,7 @@ import CategorySection from "@/components/configurator/CategorySection";
 import StickyMobileBar from "@/components/configurator/StickyMobileBar";
 import CheckoutOptionsDialog from "@/components/configurator/CheckoutOptionsDialog";
 import ProductDetailDialog from "@/components/catalog/ProductDetailDialog";
+import ExitIntentModal from "@/components/ExitIntentModal";
 import type { CheckoutProduct } from "@/components/configurator/CheckoutOptionsDialog";
 import { Button } from "@/components/ui/button";
 import { useSelection } from "@/hooks/useSelection";
@@ -331,6 +332,8 @@ export default function Selection() {
           }
         }}
       />
+
+      <ExitIntentModal plan="seleccion-exit" disabled={!!user} />
     </div>
   );
 }

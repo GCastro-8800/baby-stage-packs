@@ -228,29 +228,38 @@ export type Database = {
       }
       leads: {
         Row: {
+          converted_at: string | null
           created_at: string | null
           email: string
           id: string
           plan: string
           postal_code: string | null
+          recovery_email_1_sent_at: string | null
+          recovery_email_2_sent_at: string | null
           selected_products: string[] | null
           user_id: string | null
         }
         Insert: {
+          converted_at?: string | null
           created_at?: string | null
           email: string
           id?: string
           plan: string
           postal_code?: string | null
+          recovery_email_1_sent_at?: string | null
+          recovery_email_2_sent_at?: string | null
           selected_products?: string[] | null
           user_id?: string | null
         }
         Update: {
+          converted_at?: string | null
           created_at?: string | null
           email?: string
           id?: string
           plan?: string
           postal_code?: string | null
+          recovery_email_1_sent_at?: string | null
+          recovery_email_2_sent_at?: string | null
           selected_products?: string[] | null
           user_id?: string | null
         }
