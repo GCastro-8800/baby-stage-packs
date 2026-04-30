@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { Product } from "@/data/productCatalog";
 import { DURATION_OPTIONS } from "@/lib/constants";
+import TrustBadges from "@/components/configurator/TrustBadges";
 
 interface StickyMobileBarProps {
   count: number;
@@ -139,6 +140,7 @@ export default function StickyMobileBar({
             <p className="text-[10px] text-muted-foreground">
               Se cobra el importe total del compromiso de una sola vez
             </p>
+            <TrustBadges />
             <Button
               className="w-full cta-tension"
               size="lg"

@@ -2,6 +2,7 @@ import { X, Sparkles, Truck, RefreshCw, HeadphonesIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/data/productCatalog";
 import { DURATION_OPTIONS } from "@/lib/constants";
+import TrustBadges from "@/components/configurator/TrustBadges";
 
 interface SelectionSidebarProps {
   products: Product[];
@@ -113,6 +114,10 @@ export default function SelectionSidebar({
             </p>
           )}
         </div>
+
+        {products.length > 0 && (
+          <TrustBadges className="pt-1" />
+        )}
 
         <Button className="w-full cta-tension" size="lg" onClick={onCheckout}>
           Contratar ahora

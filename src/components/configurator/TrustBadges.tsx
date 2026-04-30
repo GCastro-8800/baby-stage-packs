@@ -6,7 +6,7 @@ interface TrustBadgesProps {
 }
 
 export default function TrustBadges({
-  whatsappUrl = "https://wa.me/34600000000",
+  whatsappUrl = "https://wa.me/34638706467?text=Hola%2C%20tengo%20una%20duda%20sobre%20bebloo",
   className = "",
 }: TrustBadgesProps) {
   return (
