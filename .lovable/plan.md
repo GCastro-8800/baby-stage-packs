@@ -1,49 +1,71 @@
-## Rotar secretos: separar `PICKUP_TOKEN_SECRET` y `CRON_SECRET`
 
-### Por qué
+## Objetivo
 
-Hoy las edge functions usan `STRIPE_WEBHOOK_SECRET` como apaño para dos cosas que no son Stripe:
-- Firmar los enlaces HMAC de recogida que mandamos por email.
-- Validar el header `X-Cron-Secret` de las funciones programadas (cron diario de expiraciones, recordatorios, etc.).
+Cerrar el último agujero de seguridad detectado (los crons aún se pueden disparar con la anon key pública) y completar el ciclo de vida del cliente con un email de bienvenida cuando crea cuenta.
 
-Esto funciona pero mezcla responsabilidades: si algún día Stripe rota su webhook secret, se rompe el cron y las firmas; y al revés, si filtramos el secreto de cron, comprometemos la verificación de Stripe. Lo correcto es una llave por propósito.
+---
 
-### Qué hago yo
+## Bloque A — Endurecer autenticación de los crons
 
-1. **Generar las dos cadenas aleatorias** (64 caracteres hex cada una) y dártelas en chat para que las pegues como secretos en Lovable Cloud:
-   - `PICKUP_TOKEN_SECRET`
-   - `CRON_SECRET`
+**Problema actual:** los 3 jobs de pg_cron envían `Authorization: Bearer <ANON_KEY>` y el código de los endpoints acepta ese header como válido. Como la anon key viaja en el cliente, cualquiera puede disparar los crons y forzar envíos de email (no duplicados gracias a la idempotencia, pero sí abuso de cuota Resend / coste).
 
-2. **Actualizar 4 edge functions** para leer el secreto correcto en cada caso, eliminando el fallback a `STRIPE_WEBHOOK_SECRET`:
-   - `schedule-pickup` → `PICKUP_TOKEN_SECRET` para verificar firma del enlace.
-   - `process-expired-subscriptions` → `PICKUP_TOKEN_SECRET` para firmar enlaces nuevos + `CRON_SECRET` para validar header.
-   - `check-expiring-subscriptions` → `CRON_SECRET`.
-   - `send-pickup-reminders` → `CRON_SECRET` + `PICKUP_TOKEN_SECRET` para regenerar firma si hace falta.
+**Cambios:**
 
-3. **Ajustar el helper `authorizeCronRequest`** para que exija `CRON_SECRET` (sigue aceptando bearer del service role como vía de escape para llamadas internas).
+1. **Migración SQL** que actualiza los 3 jobs existentes con `cron.alter_job` (o `cron.unschedule` + `cron.schedule`) para que envíen `X-Cron-Secret: <CRON_SECRET>` en vez del Bearer anon. La `CRON_SECRET` ya está en los secretos de Cloud, así que esto se hace leyéndola desde Vault (siguiendo el mismo patrón que ya usa `process-email-queue`). 
+   - Jobs afectados: `check-expiring-subscriptions-daily`, `process-expired-subscriptions-daily`, `send-pickup-reminders-daily`.
 
-4. **Re-ejecutar el escáner** al final para confirmar 0 hallazgos.
+2. **Endpoints**: quitar el bloque de fallback con anon key en `authorizeCronRequest` de las 3 funciones. Solo se acepta `X-Cron-Secret` correcto. Mantener intacta la rama `resendFor` de `process-expired-subscriptions` (esa sigue siendo Bearer JWT de admin, que es lo correcto).
 
-5. **Actualizar `@security-memory`** para documentar que cada secreto tiene un único propósito y que no se debe reintroducir el fallback a Stripe.
+   Funciones tocadas:
+   - `supabase/functions/check-expiring-subscriptions/index.ts`
+   - `supabase/functions/process-expired-subscriptions/index.ts`
+   - `supabase/functions/send-pickup-reminders/index.ts`
 
-### Qué necesitas hacer tú
+3. **Verificación**: ejecutar manualmente los 3 endpoints con `curl_edge_functions` enviando `X-Cron-Secret` correcto e incorrecto para confirmar 200 / 401.
 
-Una sola cosa, cuando termine:
-- Ir a **Cloud → Secrets**, pulsar "Add secret" dos veces y pegar los dos valores que te daré. Nombres exactos: `PICKUP_TOKEN_SECRET` y `CRON_SECRET`.
+---
 
-Yo no puedo crearlos por ti porque la herramienta de añadir secretos requiere tu confirmación explícita por seguridad — pero te lanzaré la solicitud directamente desde el chat y solo tendrás que pegar el valor.
+## Bloque B — Email de bienvenida tras signup
 
-### Archivos afectados
+**Cambios:**
 
-- `supabase/functions/schedule-pickup/index.ts`
-- `supabase/functions/process-expired-subscriptions/index.ts`
-- `supabase/functions/check-expiring-subscriptions/index.ts`
-- `supabase/functions/send-pickup-reminders/index.ts`
-- (posible) helper compartido de cron auth
-- `@security-memory`
+1. **Plantilla nueva** `supabase/functions/_shared/transactional-email-templates/welcome.tsx`:
+   - Tono cálido en castellano, mismas reglas de terminología (servicio, kit, Momento; nada de “suscripción/pack/etapa”).
+   - Tipografías Fraunces / DM Sans, paleta light blue + coral sobre crema.
+   - Props opcionales: `customerName`, `configuratorUrl`. CTA al configurador.
+   - Registrar en `_shared/transactional-email-templates/registry.ts`.
 
-No se tocan tablas, RLS, ni código frontend.
+2. **Disparador**: ampliar el trigger `handle_new_user` en la BD para llamar a la edge function `send-transactional-email` vía `pg_net.http_post` con:
+   - `templateName: "welcome"`
+   - `recipientEmail: NEW.email`
+   - `idempotencyKey: \`welcome-${NEW.id}\``
+   - `templateData: { customerName: NEW.raw_user_meta_data->>'full_name' }`
+   
+   Esto cubre tanto signup por email como OAuth Google (ambos disparan `auth.users` insert).
 
-### Riesgo
+3. **Filtro anti-duplicado**: si por cualquier motivo el usuario hace login antes de existir el profile (caso raro), la idempotencia por `welcome-${user_id}` evita doble envío. Además el sistema ya filtra por `suppressed_emails` automáticamente.
 
-Bajo. Si por error me equivoco con un nombre de secreto, la función fallará de forma controlada (devuelve 500 con log) y se arregla cambiando una línea. No hay riesgo de exposición de datos.
+---
+
+## Bloque C — Cierre
+
+1. Re-ejecutar el escáner de seguridad para confirmar que sigue en 0 hallazgos.
+2. Actualizar `@security-memory` añadiendo:
+   - “Crons solo aceptan X-Cron-Secret. Anon key como auth de cron está prohibida.”
+3. Actualizar memoria del proyecto:
+   - Nueva entrada `mem://features/welcome-email` con la regla de bienvenida tras signup.
+
+---
+
+## Detalles técnicos relevantes
+
+- La `CRON_SECRET` se lee con `vault.read_secret('cron_secret')` dentro del cuerpo SQL del cron, igual que se hace hoy con `email_queue_service_role_key`. Si ese secreto no está en Vault todavía (solo está como env var de las edge functions), la migración primero hará `vault.create_secret(<valor>, 'cron_secret')`. El valor lo aporto en la migración leyéndolo del entorno que ya tiene Lovable Cloud.
+- El trigger `handle_new_user` ya hace dos inserts (`profiles`, `user_roles`); se le añade un tercer paso `pg_net.http_post`. Si la llamada falla, no debe romper el signup → se envuelve en `BEGIN ... EXCEPTION WHEN OTHERS THEN NULL; END;`.
+- Ningún cambio toca el flujo Stripe ni el webhook Make, que ya validamos como correctos.
+
+## Riesgos
+
+- Si la migración del cron se aplica mal, los recordatorios dejarían de salir un día. Mitigación: la migración es idempotente y se puede revertir en segundos volviendo al schedule anterior.
+- El email de bienvenida usa el trigger DB, así que si Resend/Lovable Email cae, el signup sigue funcionando (gracias al try/catch en el trigger).
+
+¿Lo lanzo?
