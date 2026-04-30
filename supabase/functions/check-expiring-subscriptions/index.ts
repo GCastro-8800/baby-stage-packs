@@ -17,17 +17,8 @@ function timingSafeEqual(a: string, b: string): boolean {
 function authorizeCronRequest(req: Request): boolean {
   const cronSecret = Deno.env.get("CRON_SECRET");
   const providedCronSecret = req.headers.get("x-cron-secret");
-  if (cronSecret && providedCronSecret && timingSafeEqual(providedCronSecret, cronSecret)) {
-    return true;
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (anonKey && authHeader === `Bearer ${anonKey}`) {
-    return true;
-  }
-
-  return false;
+  if (!cronSecret || !providedCronSecret) return false;
+  return timingSafeEqual(providedCronSecret, cronSecret);
 }
 
 
@@ -43,6 +34,7 @@ Deno.serve(async (req) => {
 
   try {
     const isCronAuthorized = authorizeCronRequest(req);
+    console.log(`[check-expiring] auth=${isCronAuthorized} hasSecret=${!!Deno.env.get("CRON_SECRET")} provided=${!!req.headers.get("x-cron-secret")}`);
     if (!isCronAuthorized) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
