@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { StepIndicator } from "@/components/onboarding/StepIndicator";
 import Header from "@/components/Header";
+import ExitIntentModal from "@/components/ExitIntentModal";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -329,6 +330,7 @@ export default function Configurator() {
           </div>
         </div>
       </main>
+      <ExitIntentModal plan="configurador-exit" disabled={!!user} />
     </div>
   );
 }
