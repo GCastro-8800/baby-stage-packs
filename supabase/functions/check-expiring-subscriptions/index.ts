@@ -17,17 +17,8 @@ function timingSafeEqual(a: string, b: string): boolean {
 function authorizeCronRequest(req: Request): boolean {
   const cronSecret = Deno.env.get("CRON_SECRET");
   const providedCronSecret = req.headers.get("x-cron-secret");
-  if (cronSecret && providedCronSecret && timingSafeEqual(providedCronSecret, cronSecret)) {
-    return true;
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (anonKey && authHeader === `Bearer ${anonKey}`) {
-    return true;
-  }
-
-  return false;
+  if (!cronSecret || !providedCronSecret) return false;
+  return timingSafeEqual(providedCronSecret, cronSecret);
 }
 
 
