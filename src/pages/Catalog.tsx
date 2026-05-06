@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SEO from "@/components/SEO";
 import Header from "@/components/Header";
@@ -14,8 +14,19 @@ import {
   type Product,
 } from "@/data/productCatalog";
 import CatalogProductCard from "@/components/catalog/CatalogProductCard";
+import CatalogSearchBar from "@/components/catalog/CatalogSearchBar";
+import ProductRequestCard from "@/components/catalog/ProductRequestCard";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ALL_CATEGORIES: ProductCategory[] = ["movilidad", "descanso", "porteo", "alimentacion", "extras"];
+
+function normalize(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .trim();
+}
 
 function groupByStage(products: Product[]): Record<string, Product[]> {
   const groups: Record<string, Product[]> = {};
@@ -45,8 +56,11 @@ function getSelectionCount(): number {
 
 const Catalog = () => {
   const navigate = useNavigate();
+  const { track } = useAnalytics();
   const [activeCategory, setActiveCategory] = useState<ProductCategory | null>(null);
   const [selectionCount, setSelectionCount] = useState(getSelectionCount);
+  const [searchQuery, setSearchQuery] = useState("");
+  const noResultsTrackedRef = useRef<string>("");
 
   // Listen for storage changes (from CatalogProductCard adding items)
   useEffect(() => {
@@ -59,11 +73,38 @@ const Catalog = () => {
     };
   }, []);
 
-  const filtered = activeCategory
-    ? PRODUCT_CATALOG.filter((p) => p.category === activeCategory)
-    : PRODUCT_CATALOG;
+  const filtered = useMemo(() => {
+    let list = activeCategory
+      ? PRODUCT_CATALOG.filter((p) => p.category === activeCategory)
+      : PRODUCT_CATALOG;
+    const q = normalize(searchQuery);
+    if (q.length > 0) {
+      list = list.filter((p) => {
+        const haystack = normalize(
+          `${p.name} ${p.brand} ${p.description} ${CATEGORY_LABELS[p.category] ?? ""}`
+        );
+        return haystack.includes(q);
+      });
+    }
+    return list;
+  }, [activeCategory, searchQuery]);
 
   const grouped = groupByStage(filtered);
+  const trimmedQuery = searchQuery.trim();
+  const showEmptyState = trimmedQuery.length >= 2 && filtered.length === 0;
+
+  // Track no-results once per query (debounced via effect)
+  useEffect(() => {
+    if (!showEmptyState) return;
+    const key = trimmedQuery.toLowerCase();
+    if (noResultsTrackedRef.current === key) return;
+    const timeout = setTimeout(() => {
+      noResultsTrackedRef.current = key;
+      track("product_search_no_results", { query: trimmedQuery });
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [showEmptyState, trimmedQuery, track]);
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -105,6 +146,9 @@ const Catalog = () => {
           </Button>
         </div>
 
+        {/* Search bar */}
+        <CatalogSearchBar value={searchQuery} onChange={setSearchQuery} />
+
         {/* Category filters */}
         <div className="flex flex-wrap gap-2 mb-10">
           <button
@@ -132,21 +176,29 @@ const Catalog = () => {
           ))}
         </div>
 
+        {/* Empty state with lead capture */}
+        {showEmptyState && (
+          <div className="mb-12">
+            <ProductRequestCard query={trimmedQuery} />
+          </div>
+        )}
+
         {/* Product grid by stage */}
-        {ALL_STAGES.map((stage) => {
-          const products = grouped[stage];
-          if (!products || !products.length) return null;
-          return (
-            <section key={stage} className="mb-12">
-              <h2 className="text-xl font-serif text-foreground mb-5">{STAGE_LABELS[stage]}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {products.map((p) => (
-                  <CatalogProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+        {!showEmptyState &&
+          ALL_STAGES.map((stage) => {
+            const products = grouped[stage];
+            if (!products || !products.length) return null;
+            return (
+              <section key={stage} className="mb-12">
+                <h2 className="text-xl font-serif text-foreground mb-5">{STAGE_LABELS[stage]}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {products.map((p) => (
+                    <CatalogProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
 
         {/* Footer CTA */}
         <div className="text-center pt-8 border-t border-border">
