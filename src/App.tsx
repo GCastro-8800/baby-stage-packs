@@ -26,6 +26,7 @@ import NotFound from "./pages/NotFound";
 import Unsubscribe from "./pages/Unsubscribe";
 import SchedulePickup from "./pages/SchedulePickup";
 import { useSelectionSync } from "@/hooks/useSelectionSync";
+import CookieBanner from "@/components/cookies/CookieBanner";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </SentryRoutes>
+          <CookieBanner />
         </AuthProvider>
         </ErrorBoundary>
       </BrowserRouter>
