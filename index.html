@@ -48,6 +48,41 @@
       })();
     </script>
 
+    <!-- Apollo.io visitor tracker (carga condicional según consentimiento de marketing Bebloo) -->
+    <script>
+      (function () {
+        function loadApollo() {
+          if (window.__apolloLoaded) return;
+          window.__apolloLoaded = true;
+          var n = Math.random().toString(36).substring(7);
+          var o = document.createElement("script");
+          o.src = "https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache=" + n;
+          o.async = true;
+          o.defer = true;
+          o.onload = function () {
+            if (window.trackingFunctions && window.trackingFunctions.onLoad) {
+              window.trackingFunctions.onLoad({ appId: "69fa21bd328a66001113ff4e" });
+            }
+          };
+          document.head.appendChild(o);
+        }
+
+        function hasMarketingConsent() {
+          try {
+            var raw = window.localStorage.getItem('bebloo_consent_v1');
+            if (!raw) return false;
+            var c = JSON.parse(raw);
+            return !!(c && c.marketing);
+          } catch (e) { return false; }
+        }
+
+        if (hasMarketingConsent()) loadApollo();
+        window.addEventListener('bebloo_consent_update', function () {
+          if (hasMarketingConsent()) loadApollo();
+        });
+      })();
+    </script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-G2070NPYMS"></script>
     <script>
