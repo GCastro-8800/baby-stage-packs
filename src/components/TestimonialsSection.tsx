@@ -1,106 +1,74 @@
-import { Star } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { useState, useEffect } from "react";
 
 const testimonials = [
   {
     name: "María G.",
-    rating: 5,
-    text: "Increíble servicio. El equipamiento llegó impecable y cuando mi bebé creció, el cambio fue súper fácil. ¡Lo recomiendo 100%!",
-    verified: true,
+    location: "Madrid",
+    text: "Increíble servicio. El equipamiento llegó impecable y cuando mi bebé creció, el cambio fue súper fácil.",
   },
   {
     name: "Carlos y Ana",
-    rating: 5,
-    text: "Como padres primerizos, no sabíamos ni por dónde empezar. bebloo nos quitó todo el estrés de encima. Gracias de corazón.",
-    verified: true,
+    location: "Barcelona",
+    text: "Como padres primerizos, no sabíamos ni por dónde empezar. bebloo nos quitó todo el estrés de encima.",
   },
   {
     name: "Laura M.",
-    rating: 5,
-    text: "Vivimos en un piso pequeño y no teníamos espacio para guardar todo. Con bebloo, usamos lo que necesitamos y listo. Genial.",
-    verified: true,
+    location: "Valencia",
+    text: "Vivimos en un piso pequeño y no teníamos espacio. Con bebloo, usamos lo que necesitamos y listo.",
   },
   {
     name: "Pedro R.",
-    rating: 5,
-    text: "La calidad del equipamiento es excepcional. Todo está como nuevo y la limpieza es impecable. Muy contentos con el servicio.",
-    verified: true,
+    location: "Sevilla",
+    text: "La calidad del equipamiento es excepcional. Todo está como nuevo y la limpieza es impecable.",
   },
   {
     name: "Sofía T.",
-    rating: 5,
-    text: "El soporte es fantástico. Tuve una duda y me respondieron al momento. Se nota que les importa de verdad.",
-    verified: true,
+    location: "Bilbao",
+    text: "El soporte es fantástico. Tuve una duda y me respondieron al momento. Se nota que les importa.",
   },
 ];
 
 const TestimonialsSection = () => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setIndex((i) => (i + 1) % testimonials.length), 7000);
+    return () => clearInterval(id);
+  }, []);
+
+  const t = testimonials[index];
+
   return (
-    <section className="py-16 px-4 md:py-24 md:px-6 bg-card">
-      <div className="container max-w-6xl">
-        <div className="text-center mb-10 md:mb-14">
-          <div className="flex items-center justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-5 h-5 fill-accent text-accent" />
-            ))}
-          </div>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4">
-            Lo que dicen las familias
-          </h2>
-          <p className="text-base md:text-lg text-muted-foreground">
-            Más de 50 familias ya confían en bebloo.
-          </p>
+    <section className="py-24 md:py-36 px-4 md:px-6 bg-card">
+      <div className="container max-w-3xl text-center reveal">
+        <p className="eyebrow mb-10">Lo que dicen las familias</p>
+
+        <p
+          aria-live="polite"
+          className="font-serif text-foreground text-balance leading-[1.15] mb-10"
+          style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.5rem)", fontWeight: 400, letterSpacing: "-0.015em" }}
+        >
+          <span className="text-muted-foreground/60 font-serif text-4xl align-top mr-1">“</span>
+          {t.text}
+          <span className="text-muted-foreground/60 font-serif text-4xl align-top ml-1">”</span>
+        </p>
+
+        <div className="text-sm text-muted-foreground">
+          <span className="text-foreground font-medium">{t.name}</span> · {t.location}
         </div>
 
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-4">
-            {testimonials.map((testimonial, index) => (
-              <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                <div className="bg-background rounded-2xl p-6 shadow-sm border border-border h-full flex flex-col">
-                  {/* Stars */}
-                  <div className="flex gap-0.5 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-accent text-accent" />
-                    ))}
-                  </div>
-                  
-                  {/* Quote */}
-                  <p className="text-foreground text-sm md:text-base leading-relaxed flex-grow mb-4">
-                    "{testimonial.text}"
-                  </p>
-                  
-                  {/* Author */}
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-foreground">{testimonial.name}</span>
-                    {testimonial.verified && (
-                      <Badge variant="secondary" className="text-xs bg-primary/10 text-primary-foreground border-0">
-                        Verificado
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden md:flex -left-12" />
-          <CarouselNext className="hidden md:flex -right-12" />
-        </Carousel>
-        <p className="text-center text-xs text-muted-foreground mt-4 md:hidden">
-          Desliza para ver más →
-        </p>
+        <div className="flex justify-center gap-1.5 mt-10">
+          {testimonials.map((_, i) => (
+            <button
+              key={i}
+              aria-label={`Testimonio ${i + 1}`}
+              onClick={() => setIndex(i)}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                i === index ? "w-8 bg-foreground" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
