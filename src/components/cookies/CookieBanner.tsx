@@ -46,42 +46,46 @@ const CookieBanner = () => {
           role="dialog"
           aria-live="polite"
           aria-label="Aviso de cookies"
-          className="fixed inset-x-0 bottom-0 z-[60] p-3 md:p-6 md:left-auto md:right-6 md:bottom-6 md:max-w-md animate-in slide-in-from-bottom-4 duration-300"
+          className="fixed inset-x-0 bottom-0 z-[60] animate-in slide-in-from-bottom-2 duration-500"
         >
-          <div className="bg-card border border-border rounded-2xl shadow-lg p-5 md:p-6">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="rounded-full bg-primary/30 p-2 flex-shrink-0">
-                <Cookie className="h-5 w-5 text-foreground" aria-hidden />
+          <div className="bg-background/95 backdrop-blur-md border-t border-border">
+            <div className="container max-w-6xl px-4 md:px-6 py-3 md:py-4">
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <Cookie className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" aria-hidden />
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                    Usamos cookies para que la web funcione y, con tu permiso, para entender cómo mejorarla.{" "}
+                    <Link to="/privacidad" className="underline underline-offset-2 hover:text-foreground">
+                      Más info
+                    </Link>
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPrefsOpen(true)}
+                    className="text-xs h-9"
+                  >
+                    Personalizar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleReject}
+                    className="text-xs h-9"
+                  >
+                    Rechazar
+                  </Button>
+                  <Button
+                    onClick={handleAccept}
+                    size="sm"
+                    className="text-xs h-9 bg-foreground text-background hover:bg-foreground/90"
+                  >
+                    Aceptar
+                  </Button>
+                </div>
               </div>
-              <div>
-                <h2 className="font-serif text-lg text-foreground mb-1">
-                  Cuidamos tu experiencia (y tu privacidad)
-                </h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Usamos cookies necesarias para que la web funcione y, si nos lo permites, también de
-                  analítica para entender cómo mejorarla. Tú decides.{" "}
-                  <Link to="/privacidad" className="underline hover:text-foreground">
-                    Saber más
-                  </Link>
-                  .
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-2 mt-4">
-              <Button onClick={handleAccept} className="cta-tension flex-1">
-                Aceptar todo
-              </Button>
-              <Button variant="outline" onClick={handleReject} className="flex-1">
-                Rechazar todo
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setPrefsOpen(true)}
-                className="flex-1"
-              >
-                Personalizar
-              </Button>
             </div>
           </div>
         </div>
