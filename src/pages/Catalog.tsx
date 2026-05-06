@@ -56,8 +56,11 @@ function getSelectionCount(): number {
 
 const Catalog = () => {
   const navigate = useNavigate();
+  const { track } = useAnalytics();
   const [activeCategory, setActiveCategory] = useState<ProductCategory | null>(null);
   const [selectionCount, setSelectionCount] = useState(getSelectionCount);
+  const [searchQuery, setSearchQuery] = useState("");
+  const noResultsTrackedRef = useRef<string>("");
 
   // Listen for storage changes (from CatalogProductCard adding items)
   useEffect(() => {
@@ -70,11 +73,38 @@ const Catalog = () => {
     };
   }, []);
 
-  const filtered = activeCategory
-    ? PRODUCT_CATALOG.filter((p) => p.category === activeCategory)
-    : PRODUCT_CATALOG;
+  const filtered = useMemo(() => {
+    let list = activeCategory
+      ? PRODUCT_CATALOG.filter((p) => p.category === activeCategory)
+      : PRODUCT_CATALOG;
+    const q = normalize(searchQuery);
+    if (q.length > 0) {
+      list = list.filter((p) => {
+        const haystack = normalize(
+          `${p.name} ${p.brand} ${p.description} ${CATEGORY_LABELS[p.category] ?? ""}`
+        );
+        return haystack.includes(q);
+      });
+    }
+    return list;
+  }, [activeCategory, searchQuery]);
 
   const grouped = groupByStage(filtered);
+  const trimmedQuery = searchQuery.trim();
+  const showEmptyState = trimmedQuery.length >= 2 && filtered.length === 0;
+
+  // Track no-results once per query (debounced via effect)
+  useEffect(() => {
+    if (!showEmptyState) return;
+    const key = trimmedQuery.toLowerCase();
+    if (noResultsTrackedRef.current === key) return;
+    const timeout = setTimeout(() => {
+      noResultsTrackedRef.current = key;
+      track("product_search_no_results", { query: trimmedQuery });
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [showEmptyState, trimmedQuery, track]);
+
 
   return (
     <div className="min-h-screen bg-background">
