@@ -1,14 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Star } from "lucide-react";
-import heroImage from "@/assets/mother-stroller.png";
+import { ArrowRight } from "lucide-react";
+import heroImage from "@/assets/hero-premium.jpg";
 import { useAnalytics } from "@/hooks/useAnalytics";
-
-const benefits = [
-  "Equipamiento premium de marcas top",
-  "Limpieza con estándares hospitalarios",
-  "Cambios cuando tu bebé crece",
-];
 
 const Hero = () => {
   const { track } = useAnalytics();
@@ -19,84 +13,68 @@ const Hero = () => {
     navigate("/configurador");
   };
 
-  return (
-    <section className="hero-section min-h-[auto] lg:min-h-[75vh] flex items-center px-4 pt-20 pb-8 md:px-6 md:pt-24 md:pb-12 lg:pt-24 lg:pb-12">
-      <div className="container max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-          {/* Left column - Content */}
-          <div className="order-2 lg:order-1 text-center lg:text-left">
-            {/* Trust badge with stars */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/30 text-foreground text-xs md:text-sm font-medium mb-6">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-accent text-accent" />
-                ))}
-              </div>
-              <span>Primeras familias ya confían en nosotros</span>
-            </div>
+  const scrollToHow = () => {
+    document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
+  };
 
-            {/* Headline */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4 md:mb-6 text-balance leading-tight">
-              Alquiler de equipamiento premium para tu bebé
+  return (
+    <section className="hero-section min-h-[auto] lg:min-h-[88vh] flex items-center px-4 pt-24 pb-16 md:px-6 md:pt-28 md:pb-24 lg:pt-32 lg:pb-28">
+      <div className="container max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          {/* Left column — content */}
+          <div className="order-2 lg:order-1 lg:col-span-6 text-center lg:text-left reveal">
+            <p className="eyebrow mb-6">Equipamiento de bebé · en alquiler</p>
+
+            <h1 className="font-serif text-foreground text-balance mb-6"
+                style={{ fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)', fontWeight: 400, letterSpacing: '-0.02em' }}>
+              Lo mejor para tu bebé,<br className="hidden md:block" /> sin acumularlo en casa.
             </h1>
 
-            {/* Subheadline */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-lg mx-auto lg:mx-0 text-balance">
-              Sin decisiones equivocadas. Sin espacio ocupado. Sin estrés de reventa.
+            <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              Equipamiento premium en alquiler. Cambia, devuelve y olvídate de revender.
+              Sin permanencia.
             </p>
 
-            {/* Benefits with checkmarks */}
-            <ul className="space-y-3 mb-8 text-left max-w-md mx-auto lg:mx-0">
-              {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
-                    <Check className="h-3 w-3 text-accent" />
-                  </div>
-                  <span className="text-foreground text-sm md:text-base">{benefit}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-4 sm:items-center justify-center lg:justify-start">
               <Button
                 size="lg"
                 onClick={handleCtaClick}
-                className="cta-tension text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto"
+                className="cta-tension text-base px-8 py-6 h-auto rounded-full"
               >
-                Descubre qué necesitas
+                Empieza tu selección
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+              <button
+                onClick={scrollToHow}
+                className="text-sm text-foreground/70 hover:text-foreground transition-colors underline-offset-4 hover:underline"
+              >
+                Cómo funciona →
+              </button>
             </div>
-
-            {/* Micro-validation */}
-            <p className="mt-6 text-sm text-muted-foreground">Sin permanencia • Envío incluido • Cambios sin coste</p>
           </div>
 
-          {/* Right column - Image */}
-          <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+          {/* Right column — image */}
+          <div className="order-1 lg:order-2 lg:col-span-6 flex justify-center lg:justify-end reveal">
             <div className="relative w-full max-w-md lg:max-w-xl">
-              <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-secondary shadow-xl">
+              <div className="aspect-[4/5] rounded-md overflow-hidden bg-secondary shadow-quiet">
                 <img
                   src={heroImage}
-                  alt="Madre con cochecito de bebé premium en alquiler — servicio bebloo"
+                  alt="Madre con cochecito premium en alquiler — bebloo"
                   className="w-full h-full object-cover"
+                  width={1024}
+                  height={1280}
                 />
-              </div>
-              {/* Floating badge */}
-              <div className="absolute -bottom-4 -left-4 md:-bottom-6 md:-left-6 bg-background rounded-2xl shadow-lg p-4 border border-border">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
-                    <Check className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Todo incluido</p>
-                    <p className="text-xs text-muted-foreground">Entrega + recogida</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Sub-band: discreet trust strip */}
+        <div className="mt-14 md:mt-20 pt-8 border-t border-border/60 flex flex-wrap items-center justify-center lg:justify-between gap-x-10 gap-y-3 text-xs text-muted-foreground reveal">
+          <span className="tracking-wide">Sin permanencia</span>
+          <span className="tracking-wide">Envío y recogida incluidos</span>
+          <span className="tracking-wide">Cambia el material cuando quieras</span>
+          <span className="tracking-wide">Limpieza con estándares hospitalarios</span>
         </div>
       </div>
     </section>
