@@ -116,28 +116,20 @@ const Header = () => {
 
           {/* Desktop CTA */}
           {!isMobile && (
-            <div className="flex items-center gap-2">
-              <CartSheet />
-              <Button
-                variant="ghost"
-                size="sm"
+            <div className="flex items-center gap-3">
+              {!isHome && <CartSheet />}
+              <button
                 onClick={handleAuthClick}
-                className="gap-2"
                 disabled={loading}
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors disabled:opacity-50"
               >
-                {user ? (
-                  <>
-                    <User className="h-4 w-4" />
-                    Mi cuenta
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="h-4 w-4" />
-                    Acceder
-                  </>
-                )}
-              </Button>
-              <Button onClick={handleCtaClick} size="sm" className="gap-2">
+                {user ? "Mi cuenta" : "Acceder"}
+              </button>
+              <Button
+                onClick={handleCtaClick}
+                size="sm"
+                className="cta-tension gap-2 rounded-full px-5"
+              >
                 Empezar
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -147,7 +139,7 @@ const Header = () => {
           {/* Mobile Menu */}
           {isMobile && (
             <div className="flex items-center gap-1">
-              <CartSheet />
+              {!isHome && <CartSheet />}
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="md:hidden">
