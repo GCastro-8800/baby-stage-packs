@@ -116,11 +116,24 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-3">8. Cookies</h2>
-            <p className="leading-relaxed">
-              Utilizamos cookies estrictamente necesarias para el funcionamiento de la aplicación, 
-              como las de autenticación y preferencias de sesión. No utilizamos cookies de seguimiento 
-              publicitario de terceros. Puedes configurar tu navegador para rechazar cookies, aunque 
-              esto podría afectar al funcionamiento del servicio.
+            <p className="leading-relaxed mb-3">
+              En bebloo usamos cookies organizadas en tres categorías:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Necesarias:</strong> imprescindibles para el funcionamiento de la web (sesión, login y tu selección). Siempre activas.</li>
+              <li><strong>Analítica:</strong> Google Analytics y Hotjar. Nos ayudan a entender cómo se usa la web para mejorarla. Solo se cargan si las aceptas.</li>
+              <li><strong>Marketing:</strong> reservadas para posibles campañas publicitarias futuras. Hoy no usamos ninguna.</li>
+            </ul>
+            <p className="leading-relaxed mt-3">
+              Puedes cambiar tus preferencias en cualquier momento desde el botón{" "}
+              <button
+                type="button"
+                onClick={() => import("@/lib/consent").then((m) => m.openCookiePreferences())}
+                className="text-primary hover:underline"
+              >
+                Configurar cookies
+              </button>{" "}
+              del pie de página. Tu decisión se recuerda durante 6 meses.
             </p>
           </section>
 

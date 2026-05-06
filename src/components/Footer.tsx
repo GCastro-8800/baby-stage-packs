@@ -1,5 +1,6 @@
 import { Instagram, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+import { openCookiePreferences } from "@/lib/consent";
 
 const Footer = () => {
   return (
@@ -90,6 +91,13 @@ const Footer = () => {
               <Link to="/privacidad" className="hover:text-background/70 transition-colors">
                 Política de privacidad
               </Link>
+              <button
+                type="button"
+                onClick={openCookiePreferences}
+                className="hover:text-background/70 transition-colors"
+              >
+                Configurar cookies
+              </button>
             </div>
           </div>
         </div>
