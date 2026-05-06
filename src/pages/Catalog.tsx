@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SEO from "@/components/SEO";
 import Header from "@/components/Header";
@@ -14,8 +14,19 @@ import {
   type Product,
 } from "@/data/productCatalog";
 import CatalogProductCard from "@/components/catalog/CatalogProductCard";
+import CatalogSearchBar from "@/components/catalog/CatalogSearchBar";
+import ProductRequestCard from "@/components/catalog/ProductRequestCard";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const ALL_CATEGORIES: ProductCategory[] = ["movilidad", "descanso", "porteo", "alimentacion", "extras"];
+
+function normalize(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .trim();
+}
 
 function groupByStage(products: Product[]): Record<string, Product[]> {
   const groups: Record<string, Product[]> = {};
