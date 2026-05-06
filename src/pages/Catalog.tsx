@@ -146,6 +146,9 @@ const Catalog = () => {
           </Button>
         </div>
 
+        {/* Search bar */}
+        <CatalogSearchBar value={searchQuery} onChange={setSearchQuery} />
+
         {/* Category filters */}
         <div className="flex flex-wrap gap-2 mb-10">
           <button
@@ -173,21 +176,29 @@ const Catalog = () => {
           ))}
         </div>
 
+        {/* Empty state with lead capture */}
+        {showEmptyState && (
+          <div className="mb-12">
+            <ProductRequestCard query={trimmedQuery} />
+          </div>
+        )}
+
         {/* Product grid by stage */}
-        {ALL_STAGES.map((stage) => {
-          const products = grouped[stage];
-          if (!products || !products.length) return null;
-          return (
-            <section key={stage} className="mb-12">
-              <h2 className="text-xl font-serif text-foreground mb-5">{STAGE_LABELS[stage]}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {products.map((p) => (
-                  <CatalogProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+        {!showEmptyState &&
+          ALL_STAGES.map((stage) => {
+            const products = grouped[stage];
+            if (!products || !products.length) return null;
+            return (
+              <section key={stage} className="mb-12">
+                <h2 className="text-xl font-serif text-foreground mb-5">{STAGE_LABELS[stage]}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {products.map((p) => (
+                    <CatalogProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
 
         {/* Footer CTA */}
         <div className="text-center pt-8 border-t border-border">
