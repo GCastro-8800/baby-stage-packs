@@ -20,7 +20,9 @@ type EventType =
   | "recommendation_view"
   | "product_swap"
   | "product_add"
-  | "product_remove";
+  | "product_remove"
+  | "product_search_no_results"
+  | "product_request_submitted";
 
 interface EventData {
   [key: string]: string | number | boolean | undefined;
