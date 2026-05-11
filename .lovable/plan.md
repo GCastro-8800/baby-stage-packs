@@ -1,77 +1,82 @@
-## Buscador de productos + captura de "lo que buscan"
+## Bebloo · Awwwards-level prompt + plan de implementación
 
-Sí, es una idea muy buena: añade fricción cero al usuario y, además, te genera **datos de demanda real** (qué piden las familias que aún no tenemos).
+Adaptación del framework "unicycle as a sculpture" al universo Bebloo. La metáfora cambia: no vendemos un objeto, vendemos **calma + curaduría**. El producto-héroe no es el cochecito: es **el momento** (el bebé creciendo + la casa sin acumular).
 
-### Qué se añade
+### 1) El "prompt Awwwards" reescrito para Bebloo
 
-**1. Buscador en `/catalogo` (Catalog.tsx)**
-- Input con icono de lupa, sticky bajo el header.
-- Placeholder: *"Busca un producto: cuna, mochila, hamaca…"*
-- Filtra `PRODUCT_CATALOG` por `name`, `description`, `brand` y `category` (match parcial, case-insensitive, sin acentos).
-- Convive con el filtro de categorías existente (se combinan).
-- Al escribir, se ocultan las secciones por etapa que queden vacías.
+> Build the **Bebloo** product site — a curated rental service of premium baby gear for families that want the best without accumulating it. **React + Tailwind + Framer Motion** for all motion. Treat the experience as an **editorial object**: every product is a sculpted piece, every section a chapter. Balance and trust visualized through interaction, not gimmicks. The **journey of a child** (prenatal → 0–4m → 4–8m → 8–12m → 12–24m) is explored through scroll: as the page scrolls, the room around the gear quietly evolves. Smooth scroll with **Lenis**. Micro-interactions on every CTA, card, and toggle. Tactile feel: paper-grain background, soft shadows, slow parallax. No stock photography energy — feel like *Cereal Magazine* meets *Hermès*. Fully responsive, **mobile-first** (363px is the canonical viewport). Confidently quiet palette already defined: dusted blue (`205 60% 88%`), terracotta coral accent (`8 65% 64%`) on warm cream. Typography locked: **Fraunces** (serif, weight 400, `-0.02em`) for headings, **DM Sans** for body. References: *Aesop, Cereal, Hermès Baby, Mubi, Stripe*. Awwwards-level — make a parent stop scrolling and *exhale*.
 
-**2. Estado vacío con captura de lead**
-Cuando la búsqueda no devuelve resultados, en lugar de "0 productos" mostramos una tarjeta cálida:
+### 2) Cómo aterrizarlo (sin romper lo que ya funciona)
 
-> **"No encontramos «{término}» todavía."**
-> Cuéntanos qué producto te haría falta y lo valoramos para próximas selecciones. Si lo añadimos, te avisamos.
->
-> [ Email (opcional) ] [ Notas: marca, modelo… ]
-> **Botón:** *Avísame si lo añadimos*
+Trabajamos en 4 PRs incrementales. Cada uno entrega valor por sí solo.
 
-- Email validado con `zod` (igual patrón que el resto del proyecto).
-- Tracking analítico: nuevo evento `product_search_no_results` con `{ query, has_email }`.
-- Persistencia: tabla nueva `product_requests` (ver técnico).
+```text
+PR-A  Smooth scroll + global motion grammar
+PR-B  Hero "kinetic still" + scroll-linked storytelling
+PR-C  Catálogo como editorial (cards-sculpture)
+PR-D  Detalle de producto + transiciones de página
+```
 
-**3. Microcopy y tono**
-- Sin "lo sentimos" ni disculpas largas (Bebloo evita victimismo).
-- Frase clave: *"Curamos la selección con cuidado, así que aún no tenemos todo. Tu pista nos ayuda."*
+#### PR-A · Smooth scroll + grammar
+- Añadir **Lenis** (`@studio-freight/lenis`) en `App.tsx`, integrado con el observer de `useReveal` para que `scrollY` alimente Framer Motion.
+- Instalar **framer-motion** (revisar si ya está) y crear `src/lib/motion.ts` con tokens reutilizables: `easeOutExpo`, `springSoft`, `staggerChildren = 0.08`.
+- Hook `useScrollProgress(ref)` que devuelve 0→1 para parallax/escalado por sección.
+- Respeto absoluto a `prefers-reduced-motion` (ya implementado en `useReveal`).
 
-### Detalle técnico
+#### PR-B · Hero "kinetic still"
+Sobre `Hero.tsx` actual:
+- La imagen del cochecito hace **parallax sutil** (translateY -40px en 100vh).
+- El H1 entra con **clip-path reveal** por línea (no fade básico): *"Lo mejor para tu bebé,"* + *"sin acumularlo en casa."* en dos tiempos.
+- El eyebrow "Equipamiento de bebé · en alquiler" entra con un **rule horizontal** que dibuja antes (50ms) que el texto.
+- El CTA `cta-tension` ya tiene shimmer. Añadir un **magnetic hover** (cursor "atrae" el botón ±6px) en desktop.
+- Trust strip inferior: cada palabra entra con stagger 0.06s al cruzar viewport.
+- Fondo: añadir capa de **grano SVG** (`<feTurbulence>`) al 4% para tactilidad sin peso.
 
-- **Componente nuevo:** `src/components/catalog/CatalogSearchBar.tsx` (input + clear).
-- **Componente nuevo:** `src/components/catalog/ProductRequestCard.tsx` (estado vacío + form).
-- **Lógica de búsqueda:** helper `normalize(str)` que hace `toLowerCase` + `normalize("NFD").replace(/\p{Diacritic}/gu, "")`.
-- **Migración Supabase** (tabla nueva):
-  ```sql
-  create table public.product_requests (
-    id uuid primary key default gen_random_uuid(),
-    query text not null,
-    email text,
-    notes text,
-    user_id uuid,
-    user_agent text,
-    referrer text,
-    created_at timestamptz not null default now()
-  );
-  alter table public.product_requests enable row level security;
-  -- Insert público (con o sin user)
-  create policy "Anyone can submit product requests"
-    on public.product_requests for insert
-    to anon, authenticated
-    with check (
-      length(query) between 1 and 120
-      and (email is null or email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$')
-      and (notes is null or length(notes) <= 500)
-    );
-  -- Solo admin lee
-  create policy "Admins can read product requests"
-    on public.product_requests for select
-    to authenticated
-    using (has_role(auth.uid(), 'admin'));
-  -- Sin update/delete (igual patrón que `leads`)
-  ```
-- **Analytics:** añadir `product_search_no_results` y `product_request_submitted` al array permitido del trigger `validate_analytics_event` (otra migración).
-- **Sin email automático** en esta primera versión: solo guardamos. Más adelante podemos disparar un `acknowledge` por Resend si quieres.
+#### PR-C · Catálogo editorial
+`Catalog.tsx` y `CatalogProductCard.tsx`:
+- Reemplazar grid uniforme por **broken-grid asimétrico** en desktop (1ª y 4ª card a doble alto), grid normal en móvil.
+- Cada card es un "objeto en repisa": fondo `--card`, sombra `--shadow-quiet`, hover → la imagen escala 1.04 con `springSoft` y la sombra se alarga.
+- Al entrar en viewport, las cards se revelan con stagger 0.08s usando `motion.div`.
+- El **buscador** que acabamos de añadir gana un foco con borde animado (gradient blue→coral) y un placeholder que rota cada 4s entre: *"cuna"*, *"mochila portabebé"*, *"hamaca"*.
+- Empty state (`ProductRequestCard`) recibe una entrada con `scale 0.96 → 1` + opacity para que se sienta "atendida".
 
-### Lo que NO se toca
-- Configurador (`/configurador`) y `PackStageProducts` siguen igual: el buscador vive en el catálogo, que es donde el usuario explora libre.
-- No se cambia el flujo de selección/precios.
+#### PR-D · Detalle de producto + transición de página
+- `ProductDetailDialog` actual → convertir en **shared layout transition**: la imagen de la card "vuela" al modal con `layoutId={product.id}`.
+- Tabs internos (Detalles · Materiales · Garantía) con underline animado tipo *story-link*.
+- Entre rutas (`/`, `/catalogo`, `/configurador`) añadir transición de página: fade + translateY 12px de 320ms con `AnimatePresence` envolviendo `<SentryRoutes>`.
 
-### Resultado para Bebloo
-- Catálogo más usable en móvil (363px) sin scroll infinito.
-- Pipeline de "demanda no atendida" → input directo para decidir qué producto incorporar.
-- Puedes consultar peticiones desde el panel admin (`SELECT query, count(*) FROM product_requests GROUP BY 1 ORDER BY 2 DESC`).
+### 3) Capa de "kinetic even when still"
+Pequeños detalles que dan vida sin distraer:
+- **Header**: el logotipo respira (scale 1 → 1.012 cada 6s, `easeInOut`).
+- **Footer**: el manifiesto ("Menos cosas. Más calma.") tiene un letter-spacing que se relaja al entrar.
+- **PricingSection**: el precio cambia con `<AnimatedNumber>` (cuenta atrás 800ms) cuando el usuario cambia duración.
+- **WhatsApp button**: pulso muy lento (cada 12s) en lugar del actual estático.
+- **Cursor** (solo desktop, `pointer:fine`): pequeño punto coral que sigue al cursor con `damping: 25`. Opt-in detrás de flag.
 
-¿Lo arranco así, o prefieres que el buscador esté también dentro del configurador (paso 4) además de en el catálogo?
+### 4) Lo que **NO** copiamos del prompt unicycle
+- Nada de "rotación 3D del producto": un cochecito girando es kitsch, no premium. El movimiento se queda en composición y entrada, no en el objeto.
+- Nada de WebGL ni Three.js: rompe el budget de performance móvil (363px es nuestro viewport real).
+- Nada de "explorar engineering": Bebloo no vende ingeniería, vende **alivio mental**. La narrativa scroll-driven cuenta el viaje del bebé, no las piezas del producto.
+
+### 5) Riesgos y mitigaciones
+| Riesgo | Mitigación |
+|---|---|
+| Lenis pelea con scroll de modales/sheets | Pausar Lenis en `useEffect` cuando hay `Dialog` abierto |
+| Animaciones penalizan LCP móvil | Hero image `fetchpriority="high"`, motion solo on-mount tras `requestIdleCallback` |
+| Saturación visual en móvil 363px | Desactivar parallax y broken-grid bajo `md:`; quedarse con stagger reveal |
+| Lectores de pantalla / a11y | Toda animación detrás de `prefers-reduced-motion`; nada que dependa solo de movimiento para comunicar |
+
+### 6) Stack añadido
+- `@studio-freight/lenis` (~5KB)
+- `framer-motion` (verificar si ya está; si no, ~30KB gz)
+- 0 imágenes nuevas en PR-A/B; PR-C puede pedir 2-3 fotos editoriales si quieres elevar el catálogo
+
+---
+
+### Pregunta antes de arrancar
+
+¿Por dónde quieres que empiece?
+
+1. **PR-A + PR-B** (smooth scroll + hero kinético) → 1 sesión, máximo "wow" en home con mínimo riesgo.
+2. **PR-C** (catálogo editorial) → impacta donde el usuario decide comprar, pero requiere más trabajo de QA en móvil.
+3. **Solo el prompt + un POC del hero** para validar la dirección antes de comprometer todo.
