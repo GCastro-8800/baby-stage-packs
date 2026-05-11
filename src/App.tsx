@@ -28,6 +28,7 @@ import SchedulePickup from "./pages/SchedulePickup";
 import { useSelectionSync } from "@/hooks/useSelectionSync";
 import CookieBanner from "@/components/cookies/CookieBanner";
 import { useReveal } from "@/hooks/useReveal";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 function SelectionSyncBoot() {
   useSelectionSync();
   useReveal();
+  useSmoothScroll();
   return null;
 }
 
