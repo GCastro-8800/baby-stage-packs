@@ -8,11 +8,32 @@ const GATEWAY_URL = 'https://connector-gateway.lovable.dev/resend'
 const SITE_NAME = "bebloo"
 const FROM_ADDRESS = `${SITE_NAME} <noreply@bebloo.es>`
 
+function parseJwtClaims(token: string): Record<string, unknown> | null {
+  const parts = token.split('.')
+  if (parts.length < 2) return null
+  try {
+    const payload = parts[1].replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(parts[1].length / 4) * 4, '=')
+    return JSON.parse(atob(payload)) as Record<string, unknown>
+  } catch {
+    return null
+  }
+}
+
 Deno.serve(async (req) => {
   const corsResponse = handleCors(req)
   if (corsResponse) return corsResponse
 
   const corsHeaders = getCorsHeaders(req)
+
+  // Require service_role JWT — only backend callers (cron, other functions) may invoke.
+  const authToken = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '').trim() ?? ''
+  const claims = parseJwtClaims(authToken)
+  if (claims?.role !== 'service_role') {
+    return new Response(
+      JSON.stringify({ error: 'Forbidden' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
