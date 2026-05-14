@@ -50,7 +50,8 @@ Deno.serve(async (req) => {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const resendFor = typeof body?.resendFor === "string" ? body.resendFor : null;
 
-    if (!isCronAuthorized && !resendFor) {
+    const authHeaderEarly = req.headers.get("Authorization");
+    if (!isCronAuthorized && !(resendFor && authHeaderEarly?.startsWith("Bearer "))) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
