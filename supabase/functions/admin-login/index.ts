@@ -75,11 +75,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
     // 1. Find user by email
     const { data: userList, error: listError } =
       await supabaseAdmin.auth.admin.listUsers();
@@ -97,6 +92,7 @@ Deno.serve(async (req) => {
     );
 
     if (!user) {
+      await recordFailedAttempt(supabaseAdmin, ip);
       return new Response(
         JSON.stringify({ error: "Credenciales inválidas" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -110,6 +106,7 @@ Deno.serve(async (req) => {
     );
 
     if (roleError || !hasRole) {
+      await recordFailedAttempt(supabaseAdmin, ip);
       return new Response(
         JSON.stringify({ error: "Credenciales inválidas" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -124,6 +121,7 @@ Deno.serve(async (req) => {
       .single();
 
     if (credError || !cred) {
+      await recordFailedAttempt(supabaseAdmin, ip);
       return new Response(
         JSON.stringify({ error: "No se ha configurado contraseña admin" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -133,6 +131,7 @@ Deno.serve(async (req) => {
     const passwordValid = compareSync(password, cred.password_hash);
 
     if (!passwordValid) {
+      await recordFailedAttempt(supabaseAdmin, ip);
       return new Response(
         JSON.stringify({ error: "Credenciales inválidas" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
