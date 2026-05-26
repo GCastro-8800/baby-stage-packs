@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import babyStrollerImage from "@/assets/baby-yoyo-stroller.png";
 import babyStrollerImage from "@/assets/baby-yoyo-stroller.png";
 
 const MissionSection = () => {
