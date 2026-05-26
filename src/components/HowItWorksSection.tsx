@@ -23,38 +23,26 @@ const steps = [
 
 const HowItWorksSection = () => {
   return (
-    <section id="como-funciona" className="py-16 px-4 md:py-24 md:px-6 bg-step scroll-mt-20">
+    <section id="como-funciona" className="py-24 md:py-36 px-4 md:px-6 scroll-mt-20">
       <div className="container max-w-5xl">
-        <div className="text-center mb-10 md:mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/40 text-primary-foreground text-xs font-semibold tracking-wide uppercase mb-4">
-            Así de fácil
-          </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4">
+        <div className="text-center mb-16 md:mb-24">
+          <p className="eyebrow mb-6">Así de fácil</p>
+          <h2 className="font-serif text-foreground mb-5" style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", fontWeight: 400 }}>
             Cómo funciona bebloo
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-            En solo 3 pasos, tendrás todo lo que necesitas para cada etapa.
+            En solo 3 pasos, tendrás todo lo que necesitas para cada momento.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
           {steps.map((step) => (
-            <div
-              key={step.number}
-              className="relative bg-background rounded-2xl p-6 md:p-8 shadow-sm border border-border hover:shadow-md transition-shadow"
-            >
-              {/* Step number */}
-              <div className="absolute -top-4 left-6 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold">
-                {step.number}
+            <div key={step.number} className="relative">
+              <div className="font-serif text-5xl md:text-6xl text-accent/60 mb-6" style={{ fontWeight: 300 }}>
+                {String(step.number).padStart(2, "0")}
               </div>
-              
-              {/* Icon */}
-              <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-5 mt-2">
-                <step.icon className="h-7 w-7 text-primary-foreground" />
-              </div>
-              
-              {/* Content */}
-              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-2">
+              <step.icon className="h-6 w-6 text-foreground/60 mb-5" strokeWidth={1.25} />
+              <h3 className="font-serif text-foreground mb-3" style={{ fontSize: "clamp(1.35rem, 2vw, 1.75rem)", fontWeight: 400 }}>
                 {step.title}
               </h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed">

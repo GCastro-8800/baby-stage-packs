@@ -48,17 +48,15 @@ const faqJsonLd = {
 
 const FAQSection = () => {
   return (
-    <section id="faq" className="py-16 px-4 md:py-24 md:px-6 bg-background scroll-mt-20">
+    <section id="faq" className="py-24 md:py-36 px-4 md:px-6 scroll-mt-20">
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 
       <div className="container max-w-3xl">
-        <div className="text-center mb-10 md:mb-14">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-secondary text-secondary-foreground text-xs font-semibold tracking-wide uppercase mb-4">
-            Preguntas frecuentes
-          </span>
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-4">
+        <div className="text-center mb-16 md:mb-20">
+          <p className="eyebrow mb-6">Preguntas frecuentes</p>
+          <h2 className="font-serif text-foreground mb-5" style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", fontWeight: 400 }}>
             ¿Tienes dudas?
           </h2>
           <p className="text-base md:text-lg text-muted-foreground">
@@ -66,17 +64,17 @@ const FAQSection = () => {
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="w-full space-y-3">
+        <Accordion type="single" collapsible className="w-full">
           {faqs.map((faq, index) => (
-            <AccordionItem 
-              key={index} 
+            <AccordionItem
+              key={index}
               value={`item-${index}`}
-              className="bg-card rounded-xl border border-border px-6 data-[state=open]:shadow-sm transition-shadow"
+              className="border-b border-border/50 last:border-b-0"
             >
-              <AccordionTrigger className="text-left text-base md:text-lg font-medium text-foreground hover:no-underline py-5">
+              <AccordionTrigger className="text-left font-serif text-foreground hover:no-underline py-7" style={{ fontSize: "clamp(1.15rem, 1.6vw, 1.4rem)", fontWeight: 400 }}>
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-sm md:text-base pb-5 leading-relaxed">
+              <AccordionContent className="text-muted-foreground text-base pb-7 leading-relaxed">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>

@@ -15,8 +15,8 @@ export const STAGGER = 0.08;
 
 // Reusable variants
 export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: easeOutExpo } },
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 1.4, ease: easeOutExpo } },
 };
 
 export const lineReveal: Variants = {
@@ -24,13 +24,13 @@ export const lineReveal: Variants = {
   visible: (i: number = 0) => ({
     clipPath: "inset(0 0 0% 0)",
     opacity: 1,
-    transition: { duration: 0.9, ease: easeOutExpo, delay: 0.05 + i * 0.12 },
+    transition: { duration: 1.4, ease: easeOutExpo, delay: 0.08 + i * 0.18 },
   }),
 };
 
 export const staggerContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: STAGGER, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } },
 };
 
 export function prefersReducedMotion(): boolean {

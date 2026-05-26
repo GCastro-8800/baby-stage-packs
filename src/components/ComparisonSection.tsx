@@ -20,62 +20,44 @@ const buyProblems = [
 
 const ComparisonSection = () => {
   return (
-    <section className="py-16 px-4 md:py-24 md:px-6 bg-mint">
+    <section className="py-24 md:py-36 px-4 md:px-6">
       <div className="container max-w-5xl">
-        <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-serif text-foreground mb-3">
+        <div className="text-center mb-16 md:mb-24">
+          <p className="eyebrow mb-6">El contraste</p>
+          <h2 className="font-serif text-foreground mb-5" style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)", fontWeight: 400 }}>
             ¿Por qué alquilar?
           </h2>
-          <span className="inline-block px-4 py-1.5 rounded-full bg-accent/15 text-accent text-sm font-semibold mb-3">
-            Ahorra hasta un 60% frente a la compra directa
-          </span>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-            Compara y decide qué tiene más sentido para tu familia.
+            Ahorra hasta un 60% frente a la compra directa. Compara y decide qué tiene más sentido para tu familia.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {/* Rent card */}
-          <div className="bg-background rounded-2xl p-6 md:p-8 shadow-sm border-2 border-primary">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
-                <Check className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <h3 className="text-xl md:text-2xl font-semibold text-foreground">
-                Alquilar con bebloo
-              </h3>
-            </div>
-            
-            <ul className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+          {/* Rent */}
+          <div>
+            <h3 className="font-serif text-foreground mb-8" style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)", fontWeight: 400 }}>
+              Alquilar con bebloo
+            </h3>
+            <ul className="space-y-5">
               {rentBenefits.map((benefit, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mt-0.5">
-                    <Check className="h-3 w-3 text-accent" />
-                  </div>
-                  <span className="text-foreground text-sm md:text-base">{benefit}</span>
+                <li key={index} className="flex items-start gap-4">
+                  <Check className="h-4 w-4 text-accent mt-1.5 shrink-0" strokeWidth={1.5} />
+                  <span className="text-foreground text-base leading-relaxed">{benefit}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Buy card */}
-          <div className="bg-background/60 rounded-2xl p-6 md:p-8 shadow-sm border border-border">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                <X className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl md:text-2xl font-semibold text-muted-foreground">
-                Comprar todo nuevo
-              </h3>
-            </div>
-            
-            <ul className="space-y-4">
+          {/* Buy */}
+          <div>
+            <h3 className="font-serif text-muted-foreground mb-8" style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)", fontWeight: 400 }}>
+              Comprar todo nuevo
+            </h3>
+            <ul className="space-y-5">
               {buyProblems.map((problem, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center mt-0.5">
-                    <X className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                  <span className="text-muted-foreground text-sm md:text-base line-through decoration-muted-foreground/50">{problem}</span>
+                <li key={index} className="flex items-start gap-4">
+                  <X className="h-4 w-4 text-muted-foreground/60 mt-1.5 shrink-0" strokeWidth={1.5} />
+                  <span className="text-muted-foreground text-base leading-relaxed line-through decoration-muted-foreground/30">{problem}</span>
                 </li>
               ))}
             </ul>

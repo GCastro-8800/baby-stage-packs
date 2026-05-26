@@ -87,8 +87,8 @@ const Hero = () => {
 
             {/* H1 with two-line clip-path reveal */}
             <h1
-              className="font-serif text-foreground text-balance mb-6"
-              style={{ fontSize: "clamp(2.5rem, 5.5vw, 4.5rem)", fontWeight: 400, letterSpacing: "-0.02em" }}
+              className="font-serif text-foreground text-balance mb-8"
+              style={{ fontSize: "clamp(2.75rem, 6.2vw, 5rem)", fontWeight: 400, letterSpacing: "-0.01em" }}
             >
               <motion.span
                 className="block overflow-hidden"
@@ -154,7 +154,7 @@ const Hero = () => {
               transition={{ duration: 1.1, ease: easeOutExpo }}
             >
               <motion.div
-                className="aspect-[4/5] rounded-md overflow-hidden bg-secondary shadow-quiet"
+                className="aspect-[4/5] overflow-hidden bg-secondary/40"
                 style={{ y: imageY, scale: imageScale }}
               >
                 <img
