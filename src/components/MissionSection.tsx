@@ -1,5 +1,4 @@
 import babyStrollerImage from "@/assets/baby-yoyo-stroller.png";
-import babyStrollerImage from "@/assets/baby-yoyo-stroller.png";
 
 const MissionSection = () => {
   return (
