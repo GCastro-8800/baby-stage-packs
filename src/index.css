@@ -83,20 +83,20 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 16px;
-    line-height: 1.65;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
     @apply tracking-tight;
     font-weight: 400;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.005em;
   }
 
-  h1 { line-height: 1.05; }
-  h2 { line-height: 1.1; }
+  h1 { line-height: 1.08; }
+  h2 { line-height: 1.12; }
 }
 
 @layer utilities {
