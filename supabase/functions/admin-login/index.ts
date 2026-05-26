@@ -1,26 +1,39 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { compareSync } from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
 
-// Rate limiting: 5 attempts per 15 minutes per IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+// Shared rate limiting: 5 failed attempts per 15 minutes per IP, persisted across instances.
 const RATE_LIMIT = 5;
-const RATE_WINDOW = 15 * 60 * 1000;
+const RATE_WINDOW_MINUTES = 15;
 
-function checkRateLimit(req: Request): boolean {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || req.headers.get("cf-connecting-ip")
-    || "unknown";
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+function getClientIp(req: Request): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("cf-connecting-ip") ||
+    "unknown"
+  );
+}
 
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
-    return true;
+async function isRateLimited(supabase: SupabaseClient, ip: string): Promise<boolean> {
+  const since = new Date(Date.now() - RATE_WINDOW_MINUTES * 60 * 1000).toISOString();
+  const { count, error } = await supabase
+    .from("login_attempts")
+    .select("id", { count: "exact", head: true })
+    .eq("ip_address", ip)
+    .gte("attempted_at", since);
+
+  if (error) {
+    console.error("Rate-limit lookup failed; failing closed:", error);
+    return true; // fail closed
   }
+  return (count ?? 0) >= RATE_LIMIT;
+}
 
-  entry.count++;
-  return entry.count <= RATE_LIMIT;
+async function recordFailedAttempt(supabase: SupabaseClient, ip: string): Promise<void> {
+  const { error } = await supabase.from("login_attempts").insert({ ip_address: ip });
+  if (error) console.error("Failed to record login attempt:", error);
+  // Best-effort cleanup of old rows.
+  supabase.rpc("cleanup_old_login_attempts").then(() => {}, () => {});
 }
 
 Deno.serve(async (req) => {
@@ -30,7 +43,14 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (!checkRateLimit(req)) {
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const ip = getClientIp(req);
+
+  if (await isRateLimited(supabaseAdmin, ip)) {
     return new Response(
       JSON.stringify({ error: "Demasiados intentos. Inténtalo más tarde." }),
       {
@@ -38,11 +58,12 @@ Deno.serve(async (req) => {
         headers: {
           ...corsHeaders,
           "Content-Type": "application/json",
-          "Retry-After": "900",
+          "Retry-After": String(RATE_WINDOW_MINUTES * 60),
         },
       }
     );
   }
+
 
   try {
     const { email, password } = await req.json();
