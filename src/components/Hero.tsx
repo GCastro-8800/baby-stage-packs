@@ -143,6 +143,26 @@ const Hero = () => {
                 Cómo funciona →
               </button>
             </motion.div>
+
+            <motion.p
+              className="mt-6 text-sm text-muted-foreground text-center lg:text-left"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, ease: easeOutExpo, delay: 0.9 }}
+            >
+              ¿Primer bebé y no sabes por dónde empezar?{" "}
+              <a
+                href="#asesoria-paola"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById("asesoria-paola")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="text-foreground underline underline-offset-4 decoration-foreground/30 hover:decoration-foreground transition-colors"
+              >
+                Habla gratis con Paola, nuestra enfermera de maternidad
+              </a>
+              .
+            </motion.p>
           </motion.div>
 
           {/* Right column — image with parallax */}

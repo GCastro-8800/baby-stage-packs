@@ -9,6 +9,7 @@ import ComparisonSection from "@/components/ComparisonSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import PaolaConsultationSection from "@/components/PaolaConsultationSection";
 import ManifestoBand from "@/components/ManifestoBand";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
@@ -35,6 +36,7 @@ const Index = () => {
       <div className="reveal"><HowItWorksSection /></div>
       <div className="reveal"><MissionSection /></div>
       <div className="reveal"><ComparisonSection /></div>
+      <div className="reveal"><PaolaConsultationSection /></div>
       <div className="reveal"><PricingSection /></div>
       <div className="reveal"><FAQSection /></div>
       <TestimonialsSection />
