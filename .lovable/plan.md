@@ -1,82 +1,75 @@
-## Bebloo · Awwwards-level prompt + plan de implementación
+# Rebranding visual: editorial & lujo minimalista
 
-Adaptación del framework "unicycle as a sculpture" al universo Bebloo. La metáfora cambia: no vendemos un objeto, vendemos **calma + curaduría**. El producto-héroe no es el cochecito: es **el momento** (el bebé creciendo + la casa sin acumular).
+Objetivo: alejar la landing del look "SaaS tech" y acercarla a una marca editorial de lujo — fondo crema, serif elegante en titulares, ausencia de cajas/bordes/sombras, mucho aire y animaciones lentas y fluidas.
 
-### 1) El "prompt Awwwards" reescrito para Bebloo
-
-> Build the **Bebloo** product site — a curated rental service of premium baby gear for families that want the best without accumulating it. **React + Tailwind + Framer Motion** for all motion. Treat the experience as an **editorial object**: every product is a sculpted piece, every section a chapter. Balance and trust visualized through interaction, not gimmicks. The **journey of a child** (prenatal → 0–4m → 4–8m → 8–12m → 12–24m) is explored through scroll: as the page scrolls, the room around the gear quietly evolves. Smooth scroll with **Lenis**. Micro-interactions on every CTA, card, and toggle. Tactile feel: paper-grain background, soft shadows, slow parallax. No stock photography energy — feel like *Cereal Magazine* meets *Hermès*. Fully responsive, **mobile-first** (363px is the canonical viewport). Confidently quiet palette already defined: dusted blue (`205 60% 88%`), terracotta coral accent (`8 65% 64%`) on warm cream. Typography locked: **Fraunces** (serif, weight 400, `-0.02em`) for headings, **DM Sans** for body. References: *Aesop, Cereal, Hermès Baby, Mubi, Stripe*. Awwwards-level — make a parent stop scrolling and *exhale*.
-
-### 2) Cómo aterrizarlo (sin romper lo que ya funciona)
-
-Trabajamos en 4 PRs incrementales. Cada uno entrega valor por sí solo.
-
-```text
-PR-A  Smooth scroll + global motion grammar
-PR-B  Hero "kinetic still" + scroll-linked storytelling
-PR-C  Catálogo como editorial (cards-sculpture)
-PR-D  Detalle de producto + transiciones de página
-```
-
-#### PR-A · Smooth scroll + grammar
-- Añadir **Lenis** (`@studio-freight/lenis`) en `App.tsx`, integrado con el observer de `useReveal` para que `scrollY` alimente Framer Motion.
-- Instalar **framer-motion** (revisar si ya está) y crear `src/lib/motion.ts` con tokens reutilizables: `easeOutExpo`, `springSoft`, `staggerChildren = 0.08`.
-- Hook `useScrollProgress(ref)` que devuelve 0→1 para parallax/escalado por sección.
-- Respeto absoluto a `prefers-reduced-motion` (ya implementado en `useReveal`).
-
-#### PR-B · Hero "kinetic still"
-Sobre `Hero.tsx` actual:
-- La imagen del cochecito hace **parallax sutil** (translateY -40px en 100vh).
-- El H1 entra con **clip-path reveal** por línea (no fade básico): *"Lo mejor para tu bebé,"* + *"sin acumularlo en casa."* en dos tiempos.
-- El eyebrow "Equipamiento de bebé · en alquiler" entra con un **rule horizontal** que dibuja antes (50ms) que el texto.
-- El CTA `cta-tension` ya tiene shimmer. Añadir un **magnetic hover** (cursor "atrae" el botón ±6px) en desktop.
-- Trust strip inferior: cada palabra entra con stagger 0.06s al cruzar viewport.
-- Fondo: añadir capa de **grano SVG** (`<feTurbulence>`) al 4% para tactilidad sin peso.
-
-#### PR-C · Catálogo editorial
-`Catalog.tsx` y `CatalogProductCard.tsx`:
-- Reemplazar grid uniforme por **broken-grid asimétrico** en desktop (1ª y 4ª card a doble alto), grid normal en móvil.
-- Cada card es un "objeto en repisa": fondo `--card`, sombra `--shadow-quiet`, hover → la imagen escala 1.04 con `springSoft` y la sombra se alarga.
-- Al entrar en viewport, las cards se revelan con stagger 0.08s usando `motion.div`.
-- El **buscador** que acabamos de añadir gana un foco con borde animado (gradient blue→coral) y un placeholder que rota cada 4s entre: *"cuna"*, *"mochila portabebé"*, *"hamaca"*.
-- Empty state (`ProductRequestCard`) recibe una entrada con `scale 0.96 → 1` + opacity para que se sienta "atendida".
-
-#### PR-D · Detalle de producto + transición de página
-- `ProductDetailDialog` actual → convertir en **shared layout transition**: la imagen de la card "vuela" al modal con `layoutId={product.id}`.
-- Tabs internos (Detalles · Materiales · Garantía) con underline animado tipo *story-link*.
-- Entre rutas (`/`, `/catalogo`, `/configurador`) añadir transición de página: fade + translateY 12px de 320ms con `AnimatePresence` envolviendo `<SentryRoutes>`.
-
-### 3) Capa de "kinetic even when still"
-Pequeños detalles que dan vida sin distraer:
-- **Header**: el logotipo respira (scale 1 → 1.012 cada 6s, `easeInOut`).
-- **Footer**: el manifiesto ("Menos cosas. Más calma.") tiene un letter-spacing que se relaja al entrar.
-- **PricingSection**: el precio cambia con `<AnimatedNumber>` (cuenta atrás 800ms) cuando el usuario cambia duración.
-- **WhatsApp button**: pulso muy lento (cada 12s) en lugar del actual estático.
-- **Cursor** (solo desktop, `pointer:fine`): pequeño punto coral que sigue al cursor con `damping: 25`. Opt-in detrás de flag.
-
-### 4) Lo que **NO** copiamos del prompt unicycle
-- Nada de "rotación 3D del producto": un cochecito girando es kitsch, no premium. El movimiento se queda en composición y entrada, no en el objeto.
-- Nada de WebGL ni Three.js: rompe el budget de performance móvil (363px es nuestro viewport real).
-- Nada de "explorar engineering": Bebloo no vende ingeniería, vende **alivio mental**. La narrativa scroll-driven cuenta el viaje del bebé, no las piezas del producto.
-
-### 5) Riesgos y mitigaciones
-| Riesgo | Mitigación |
-|---|---|
-| Lenis pelea con scroll de modales/sheets | Pausar Lenis en `useEffect` cuando hay `Dialog` abierto |
-| Animaciones penalizan LCP móvil | Hero image `fetchpriority="high"`, motion solo on-mount tras `requestIdleCallback` |
-| Saturación visual en móvil 363px | Desactivar parallax y broken-grid bajo `md:`; quedarse con stagger reveal |
-| Lectores de pantalla / a11y | Toda animación detrás de `prefers-reduced-motion`; nada que dependa solo de movimiento para comunicar |
-
-### 6) Stack añadido
-- `@studio-freight/lenis` (~5KB)
-- `framer-motion` (verificar si ya está; si no, ~30KB gz)
-- 0 imágenes nuevas en PR-A/B; PR-C puede pedir 2-3 fotos editoriales si quieres elevar el catálogo
+Alcance: **solo la landing pública** (`/`). El resto de la app (dashboard, configurador, admin) se mantiene como está para no romper densidad funcional.
 
 ---
 
-### Pregunta antes de arrancar
+## 1. Paleta — fondo crema/marfil
 
-¿Por dónde quieres que empiece?
+En `src/index.css`, ajustar tokens del tema claro:
 
-1. **PR-A + PR-B** (smooth scroll + hero kinético) → 1 sesión, máximo "wow" en home con mínimo riesgo.
-2. **PR-C** (catálogo editorial) → impacta donde el usuario decide comprar, pero requiere más trabajo de QA en móvil.
-3. **Solo el prompt + un POC del hero** para validar la dirección antes de comprometer todo.
+- `--background`: `0 0% 99%` → **`36 33% 97%`** (≈ `#FBF9F6`)
+- `--card`: alinear al mismo crema (sin contraste visible con el fondo, para que las "cards" desaparezcan visualmente)
+- `--secondary` / `--muted`: subir un punto de calidez para mantener jerarquía sin grises fríos
+- `--border`: bajar opacidad/contraste — bordes casi invisibles, solo como hairline cuando sean imprescindibles
+- Mantener el coral (`--accent`) y el azul polvo (`--primary`) — son parte de la identidad de bebloo
+
+`--hero-gradient` y `--section-warm` se recalculan sobre el nuevo crema para que no haya saltos entre secciones.
+
+## 2. Tipografía — serif editorial en titulares
+
+- Reemplazar el import de Google Fonts: quitar **Fraunces**, añadir **Cormorant Garamond** (300/400/500) manteniendo **DM Sans** para body.
+- En `tailwind.config.ts`: `fontFamily.serif` → `['Cormorant Garamond', 'Georgia', 'serif']`.
+- En `src/index.css` base: los `h1–h6` ya heredan `serif`; ajustar:
+  - `font-weight: 400` (Cormorant pide algo más de peso que Fraunces para mantener presencia)
+  - `letter-spacing: -0.01em` (Cormorant es más estrecha, no necesita tanto tracking negativo)
+  - `line-height: 1.1` h1, `1.15` h2
+- Revisar tamaños de los `clamp()` en `Hero.tsx` y `ManifestoBand.tsx` — Cormorant rinde más pequeña visualmente, subir ~10%.
+
+## 3. Quitar cajas, bordes y sombras
+
+Componentes de la landing afectados (todos en `src/components/`):
+- `Hero.tsx` — quitar `shadow-quiet` y el `rounded-md` agresivo de la imagen → `rounded-sm` o sin radio, sin sombra
+- `BrandLogosSection`, `HowItWorksSection`, `MissionSection`, `ComparisonSection`, `PricingSection`, `FAQSection`, `TestimonialsSection` — auditar y eliminar:
+  - `border`, `border-border`, `shadow-*`
+  - fondos `bg-card` / `bg-secondary` que crean "tarjetas"
+  - reemplazar separadores por hairlines (`border-t border-border/30`) o por puro espacio vertical
+- Aumentar padding vertical de secciones: `py-24 md:py-36` mínimo (ya lo usa `ManifestoBand`, extender al resto)
+- Aumentar `gap` en grids y `space-y` en listas para más aire
+
+## 4. Animaciones — más lentas y fluidas
+
+- En `src/lib/motion.ts`: subir las duraciones base (0.6→1.0, 0.8→1.4) y mantener `easeOutExpo` (`[0.16, 1, 0.3, 1]`)
+- `useSmoothScroll` (Lenis): `duration: 1.6` y `lerp: 0.08` para scroll más "mantequilloso"
+- En `src/index.css`:
+  - `.reveal` transition: `0.8s` → `1.4s`
+  - `.cta-tension` hover transition: `300ms` → `500ms`, suavizar el `translateY` (-1px → -2px con más tiempo)
+  - `.magnetic` transition: `240ms` → `420ms`
+  - Shimmer del CTA: ralentizar de `9s` a `14s` y bajar opacidad del brillo
+- Hover de botones (`button.tsx` variants): añadir `transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]` al base
+
+## 5. QA visual
+
+- Revisar `/` en viewport mobile (363px, el que está viendo el usuario ahora) y desktop
+- Verificar contraste AA del texto sobre el nuevo crema
+- Confirmar que `prefers-reduced-motion` sigue desactivando todo correctamente
+
+---
+
+## Detalles técnicos
+
+**Archivos a tocar:**
+- `src/index.css` (tokens, tipografía base, transiciones de utilidades)
+- `tailwind.config.ts` (fontFamily.serif)
+- `src/lib/motion.ts` (duraciones)
+- `src/hooks/useSmoothScroll.ts` (Lenis params)
+- `src/components/Hero.tsx`, `ManifestoBand.tsx`, `BrandLogosSection.tsx`, `HowItWorksSection.tsx`, `MissionSection.tsx`, `ComparisonSection.tsx`, `PricingSection.tsx`, `FAQSection.tsx`, `TestimonialsSection.tsx`, `Footer.tsx` (quitar bordes/sombras/cajas, aumentar aire)
+
+**Lo que NO se toca:**
+- Lógica de negocio, configurador, dashboard, admin, edge functions
+- Identidad de marca (coral CTA y azul polvo siguen siendo los acentos)
+- Memoria de proyecto (Fraunces estaba registrada como elección previa — la sustituimos por Cormorant en la memoria de diseño tras aplicar)
+
+¿Procedo con la implementación?
