@@ -6,25 +6,25 @@
 
 @layer base {
   :root {
-    /* bebloo — confidently quiet */
-    --background: 0 0% 99%;
-    --foreground: 205 30% 15%;
+    /* bebloo — editorial calm, cream canvas */
+    --background: 36 33% 97%;
+    --foreground: 205 25% 14%;
 
-    --card: 30 30% 98%;
-    --card-foreground: 205 30% 15%;
+    --card: 36 33% 97%;
+    --card-foreground: 205 25% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 205 30% 15%;
+    --popover: 36 33% 98%;
+    --popover-foreground: 205 25% 14%;
 
     /* Light blue, more dusted */
-    --primary: 205 60% 88%;
+    --primary: 205 55% 86%;
     --primary-foreground: 205 35% 18%;
 
-    --secondary: 205 40% 95%;
+    --secondary: 34 28% 94%;
     --secondary-foreground: 205 30% 22%;
 
-    --muted: 205 20% 96%;
-    --muted-foreground: 205 12% 45%;
+    --muted: 34 22% 93%;
+    --muted-foreground: 205 10% 42%;
 
     /* Coral terroso — only for primary CTA */
     --accent: 8 65% 64%;
@@ -33,22 +33,22 @@
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 205 15% 92%;
-    --input: 205 15% 92%;
+    --border: 34 18% 88%;
+    --input: 34 18% 88%;
     --ring: 8 65% 64%;
 
     --radius: 0.5rem;
 
     /* Custom tokens */
-    --hero-gradient: linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(30 30% 98%) 100%);
-    --pricing-highlight: 30 30% 97%;
+    --hero-gradient: linear-gradient(180deg, hsl(36 33% 97%) 0%, hsl(34 30% 95%) 100%);
+    --pricing-highlight: 34 28% 94%;
     --trust-badge: 205 60% 88%;
 
-    --section-warm: 30 30% 97%;
-    --section-mint: 160 25% 95%;
-    --step-bg: 205 50% 94%;
+    --section-warm: 34 30% 95%;
+    --section-mint: 160 18% 94%;
+    --step-bg: 205 35% 93%;
 
-    --shadow-quiet: 0 1px 2px hsl(205 30% 15% / 0.04), 0 8px 24px -12px hsl(205 30% 15% / 0.08);
+    --shadow-quiet: 0 1px 2px hsl(205 30% 15% / 0.03), 0 8px 24px -16px hsl(205 30% 15% / 0.06);
   }
 
   .dark {
