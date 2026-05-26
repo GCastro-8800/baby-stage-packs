@@ -15,17 +15,17 @@ const sequence = Array.from({ length: 8 }, (_, i) => brands[i % brands.length]);
 
 const BrandLogosSection = () => {
   return (
-    <section className="py-8 md:py-12 bg-secondary/30">
+    <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <p className="text-sm uppercase tracking-widest text-muted-foreground text-center mb-6 md:mb-8">
+        <p className="eyebrow text-center mb-10">
           Trabajamos con las mejores marcas
         </p>
         
         {/* Container con overflow hidden */}
         <div className="relative overflow-hidden">
           {/* Gradientes fade en los bordes */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-secondary/30 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-secondary/30 to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           
           {/* Pista animada: inline-flex + w-max para medir ancho real del contenido */}
           <div className="inline-flex w-max animate-marquee will-change-transform hover:[animation-play-state:paused] motion-reduce:animate-none">

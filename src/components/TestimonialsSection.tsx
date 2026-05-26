@@ -39,7 +39,7 @@ const TestimonialsSection = () => {
   const t = testimonials[index];
 
   return (
-    <section className="py-24 md:py-36 px-4 md:px-6 bg-card">
+    <section className="py-24 md:py-36 px-4 md:px-6">
       <div className="container max-w-3xl text-center reveal">
         <p className="eyebrow mb-10">Lo que dicen las familias</p>
 
