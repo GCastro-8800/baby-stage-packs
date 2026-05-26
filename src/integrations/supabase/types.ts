@@ -265,6 +265,24 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempted_at: string
+          id: string
+          ip_address: string
+        }
+        Insert: {
+          attempted_at?: string
+          id?: string
+          ip_address: string
+        }
+        Update: {
+          attempted_at?: string
+          id?: string
+          ip_address?: string
+        }
+        Relationships: []
+      }
       multichannel_notification_log: {
         Row: {
           channel: string
@@ -614,6 +632,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_login_attempts: { Args: never; Returns: undefined }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
