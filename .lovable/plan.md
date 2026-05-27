@@ -1,75 +1,106 @@
-# Rebranding visual: editorial & lujo minimalista
 
-Objetivo: alejar la landing del look "SaaS tech" y acercarla a una marca editorial de lujo — fondo crema, serif elegante en titulares, ausencia de cajas/bordes/sombras, mucho aire y animaciones lentas y fluidas.
+# Fase 1 — Confianza
 
-Alcance: **solo la landing pública** (`/`). El resto de la app (dashboard, configurador, admin) se mantiene como está para no romper densidad funcional.
+Objetivo: transformar la landing de "marca anónima de internet" a "servicio premium con personas reales y procesos serios" sin tocar la identidad editorial (crema + Cormorant + minimalismo).
+
+Todo el contenido se escribe en español, sigue las reglas de terminología (Momento, kit, selección, servicio — nunca pack/plan/etapa/suscripción), y respeta el sistema de diseño actual (tokens semánticos HSL, sin cajas/bordes/sombras pesadas).
 
 ---
 
-## 1. Paleta — fondo crema/marfil
+## 1. Página "Sobre nosotras" (`/sobre-nosotras`)
 
-En `src/index.css`, ajustar tokens del tema claro:
+Refactor completo de `src/pages/AboutUs.tsx` con estructura editorial:
 
-- `--background`: `0 0% 99%` → **`36 33% 97%`** (≈ `#FBF9F6`)
-- `--card`: alinear al mismo crema (sin contraste visible con el fondo, para que las "cards" desaparezcan visualmente)
-- `--secondary` / `--muted`: subir un punto de calidez para mantener jerarquía sin grises fríos
-- `--border`: bajar opacidad/contraste — bordes casi invisibles, solo como hairline cuando sean imprescindibles
-- Mantener el coral (`--accent`) y el azul polvo (`--primary`) — son parte de la identidad de bebloo
+- **Hero editorial** — Eyebrow ("Quiénes somos") + H1 serif a dos líneas + párrafo breve.
+- **Manifiesto** — 2–3 párrafos cortos sobre por qué existe bebloo (borrador honesto basado en lo que ya hay en `ManifestoBand` y `MissionSection`).
+- **Bloque "Las personas detrás"** — Dos retratos en columna (fundadora + Paola) con:
+  - Foto en proporción 4/5, sin bordes ni sombras, fondo crema.
+  - Nombre · rol · 1 frase de credencial.
+  - Placeholders editoriales (silueta crema con inicial serif) marcados con comentario `{/* TODO: reemplazar con foto real */}`.
+- **Valores** — Tres pilares con hairlines (Cuidado · Honestidad · Sostenibilidad), una frase cada uno.
+- **CTA cierre** — "Habla con nosotras" → Calendly de Paola + email `info@bebloo.es`.
 
-`--hero-gradient` y `--section-warm` se recalculan sobre el nuevo crema para que no haya saltos entre secciones.
+Enlaces:
+- Añadir "Sobre nosotras" al `Header.tsx` (desktop nav) y al `Footer.tsx` (columna principal).
 
-## 2. Tipografía — serif editorial en titulares
+## 2. Sección "Cómo cuidamos cada pieza" (en landing)
 
-- Reemplazar el import de Google Fonts: quitar **Fraunces**, añadir **Cormorant Garamond** (300/400/500) manteniendo **DM Sans** para body.
-- En `tailwind.config.ts`: `fontFamily.serif` → `['Cormorant Garamond', 'Georgia', 'serif']`.
-- En `src/index.css` base: los `h1–h6` ya heredan `serif`; ajustar:
-  - `font-weight: 400` (Cormorant pide algo más de peso que Fraunces para mantener presencia)
-  - `letter-spacing: -0.01em` (Cormorant es más estrecha, no necesita tanto tracking negativo)
-  - `line-height: 1.1` h1, `1.15` h2
-- Revisar tamaños de los `clamp()` en `Hero.tsx` y `ManifestoBand.tsx` — Cormorant rinde más pequeña visualmente, subir ~10%.
+Nuevo componente `src/components/CareProcessSection.tsx`, insertado en `src/pages/Index.tsx` **entre `MissionSection` y `ComparisonSection`** (justo antes del bloque que compara comprar vs. bebloo — refuerza la narrativa de "no es de segunda mano cualquiera").
 
-## 3. Quitar cajas, bordes y sombras
+Estructura editorial en 4 pasos numerados (01–04) con tipografía serif grande para el número y descripción sans en muted:
 
-Componentes de la landing afectados (todos en `src/components/`):
-- `Hero.tsx` — quitar `shadow-quiet` y el `rounded-md` agresivo de la imagen → `rounded-sm` o sin radio, sin sombra
-- `BrandLogosSection`, `HowItWorksSection`, `MissionSection`, `ComparisonSection`, `PricingSection`, `FAQSection`, `TestimonialsSection` — auditar y eliminar:
-  - `border`, `border-border`, `shadow-*`
-  - fondos `bg-card` / `bg-secondary` que crean "tarjetas"
-  - reemplazar separadores por hairlines (`border-t border-border/30`) o por puro espacio vertical
-- Aumentar padding vertical de secciones: `py-24 md:py-36` mínimo (ya lo usa `ManifestoBand`, extender al resto)
-- Aumentar `gap` en grids y `space-y` en listas para más aire
+1. **Devolución y recepción** — La pieza vuelve a nuestro taller en Madrid.
+2. **Inspección manual** — Revisamos cada componente, tornillería y tejido.
+3. **Limpieza con estándares hospitalarios** — Vapor a alta temperatura, productos hipoalergénicos, textiles a 60°C.
+4. **Control de calidad** — Empaquetado individual para la próxima familia.
 
-## 4. Animaciones — más lentas y fluidas
+Sin cajas, separados con hairlines verticales en desktop / horizontales en mobile. Microcopy al pie: *"Si una pieza no pasa el control, no vuelve a salir."*
 
-- En `src/lib/motion.ts`: subir las duraciones base (0.6→1.0, 0.8→1.4) y mantener `easeOutExpo` (`[0.16, 1, 0.3, 1]`)
-- `useSmoothScroll` (Lenis): `duration: 1.6` y `lerp: 0.08` para scroll más "mantequilloso"
-- En `src/index.css`:
-  - `.reveal` transition: `0.8s` → `1.4s`
-  - `.cta-tension` hover transition: `300ms` → `500ms`, suavizar el `translateY` (-1px → -2px con más tiempo)
-  - `.magnetic` transition: `240ms` → `420ms`
-  - Shimmer del CTA: ralentizar de `9s` a `14s` y bajar opacidad del brillo
-- Hover de botones (`button.tsx` variants): añadir `transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]` al base
+**Marcado claro como TODO**: el copy exacto de los 4 pasos debe validarlo la fundadora antes de publicar — borrador conservador, sin inventar certificaciones.
 
-## 5. QA visual
+## 3. Testimonios enriquecidos
 
-- Revisar `/` en viewport mobile (363px, el que está viendo el usuario ahora) y desktop
-- Verificar contraste AA del texto sobre el nuevo crema
-- Confirmar que `prefers-reduced-motion` sigue desactivando todo correctamente
+Refactor de `src/components/TestimonialsSection.tsx`:
+
+- Estructura nueva por testimonio: `{ quote, name, city, moment, avatarUrl? }`.
+- Renderizado editorial: cita grande en serif → línea hairline corta → nombre · ciudad · Momento del bebé. Sin tarjetas, sin sombras.
+- Si `avatarUrl` está presente, mostrar avatar circular pequeño (40px) a la izquierda; si no, una inicial serif sobre círculo crema.
+- Mantener el contenido textual actual (asumiendo que es real) y añadir campos `city` + `moment` con valores genéricos marcados como `TODO: confirmar con clientas`.
+
+## 4. Banda de sellos de confianza
+
+Nuevo componente `src/components/TrustBadgesBand.tsx`, insertado en `Index.tsx` **justo después del `Hero`** (reemplazando o complementando el `BrandLogosSection` actual si solapa).
+
+Cuatro sellos en una fila, separados por hairlines verticales, en tipografía sans uppercase muy fina:
+
+- Limpieza con estándares hospitalarios
+- Marcas oficiales (Bugaboo · Stokke · Maxi-Cosi…)
+- Envío y recogida incluidos en Madrid
+- Pago seguro · Stripe
+
+Sin iconos pesados — máximo un divisor `·` o un punto coral muy pequeño. Responsive: 2x2 en mobile.
+
+## 5. FAQ categorizada
+
+Refactor de `src/components/FAQSection.tsx`:
+
+- Cambiar la estructura de datos de `Array<{q, a}>` a `Array<{category, items: [{q, a}]}>`.
+- Cuatro categorías: **Higiene y cuidado** · **Envío y recogida** · **Cambios y devoluciones** · **Pago y facturación**.
+- UI: navegación lateral de categorías a la izquierda (sticky en desktop), preguntas a la derecha. En mobile, las categorías son acordeones de primer nivel.
+- Mantener el componente `Accordion` de shadcn ya existente con los overrides actuales (hairlines, sin cajas).
+- Reasignar las FAQs actuales a categorías + añadir 2–3 huecos por categoría marcados como `TODO: pendiente de confirmar`.
 
 ---
 
 ## Detalles técnicos
 
-**Archivos a tocar:**
-- `src/index.css` (tokens, tipografía base, transiciones de utilidades)
-- `tailwind.config.ts` (fontFamily.serif)
-- `src/lib/motion.ts` (duraciones)
-- `src/hooks/useSmoothScroll.ts` (Lenis params)
-- `src/components/Hero.tsx`, `ManifestoBand.tsx`, `BrandLogosSection.tsx`, `HowItWorksSection.tsx`, `MissionSection.tsx`, `ComparisonSection.tsx`, `PricingSection.tsx`, `FAQSection.tsx`, `TestimonialsSection.tsx`, `Footer.tsx` (quitar bordes/sombras/cajas, aumentar aire)
+**Archivos a crear:**
+- `src/components/CareProcessSection.tsx`
+- `src/components/TrustBadgesBand.tsx`
+
+**Archivos a modificar:**
+- `src/pages/AboutUs.tsx` — refactor completo.
+- `src/pages/Index.tsx` — insertar `TrustBadgesBand` y `CareProcessSection`.
+- `src/components/Header.tsx` — enlace "Sobre nosotras".
+- `src/components/Footer.tsx` — enlace "Sobre nosotras".
+- `src/components/TestimonialsSection.tsx` — nuevo schema + render.
+- `src/components/FAQSection.tsx` — categorización + nav lateral.
 
 **Lo que NO se toca:**
-- Lógica de negocio, configurador, dashboard, admin, edge functions
-- Identidad de marca (coral CTA y azul polvo siguen siendo los acentos)
-- Memoria de proyecto (Fraunces estaba registrada como elección previa — la sustituimos por Cormorant en la memoria de diseño tras aplicar)
+- Tokens de color en `index.css` ni `tailwind.config.ts`.
+- Lógica de negocio, configurador, dashboard, admin, edge functions.
+- Sistema de motion existente (`motion.ts`, Lenis).
 
-¿Procedo con la implementación?
+**Tipografía/motion:** todos los nuevos bloques usan `font-serif` para titulares, `staggerContainer` + `lineReveal` para apariciones, padding `py-24 md:py-36`, consistente con `PaolaConsultationSection`.
+
+---
+
+## Lo que necesitará tu input para go-live (lo marco con `TODO` en código)
+
+1. Fotos reales de fundadora y Paola.
+2. Historia breve de cómo nació bebloo (1–2 párrafos).
+3. Validación literal del proceso de higiene (pasos 1–4).
+4. Ciudad + Momento del bebé de cada testimonio existente, y fotos si están disponibles.
+5. Confirmación de las marcas oficiales a citar en la banda de sellos.
+
+Puedes lanzarlo con los placeholders y reemplazar a medida que tengas el material — la estructura editorial aguanta perfectamente.
