@@ -41,7 +41,7 @@ export function BabyTimeline({ currentStage }: BabyTimelineProps) {
                     className={[
                       "block w-2 h-2 rounded-full mb-4 mt-2 transition-colors",
                       isCurrent
-                        ? "bg-[hsl(var(--coral))] ring-4 ring-[hsl(var(--coral))]/15"
+                        ? "bg-[hsl(var(--accent))] ring-4 ring-[hsl(var(--accent))]/15"
                         : isPast
                           ? "bg-foreground/60"
                           : "bg-foreground/20",
@@ -79,7 +79,7 @@ export function BabyTimeline({ currentStage }: BabyTimelineProps) {
                 className={[
                   "absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full",
                   isCurrent
-                    ? "bg-[hsl(var(--coral))] ring-4 ring-[hsl(var(--coral))]/15"
+                    ? "bg-[hsl(var(--accent))] ring-4 ring-[hsl(var(--accent))]/15"
                     : isPast
                       ? "bg-foreground/60"
                       : "bg-foreground/20",
