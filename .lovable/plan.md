@@ -1,106 +1,100 @@
 
-# Fase 1 — Confianza
+# Fase 2 — Dashboard editorial
 
-Objetivo: transformar la landing de "marca anónima de internet" a "servicio premium con personas reales y procesos serios" sin tocar la identidad editorial (crema + Cormorant + minimalismo).
+Transformar `/app` de "panel funcional shadcn" a un espacio cálido y editorial coherente con la landing (crema, Cormorant, hairlines, sin cajas pesadas). Mantenemos toda la lógica de negocio intacta — solo cambia presentación, jerarquía y copy.
 
-Todo el contenido se escribe en español, sigue las reglas de terminología (Momento, kit, selección, servicio — nunca pack/plan/etapa/suscripción), y respeta el sistema de diseño actual (tokens semánticos HSL, sin cajas/bordes/sombras pesadas).
+Toda la terminología respeta las reglas: **Momento, kit, selección, servicio** (nunca etapa/pack/plan/suscripción).
 
 ---
 
-## 1. Página "Sobre nosotras" (`/sobre-nosotras`)
+## 1. Header del dashboard
 
-Refactor completo de `src/pages/AboutUs.tsx` con estructura editorial:
+`AppDashboard.tsx` — alinear con la landing:
+- Fondo crema (`bg-background`), borde inferior hairline (`border-foreground/10`), sin sombra ni blur pesado.
+- Logo a la izquierda, a la derecha: enlace "Sobre nosotras" + ícono ajustes + cerrar sesión en menú compacto.
 
-- **Hero editorial** — Eyebrow ("Quiénes somos") + H1 serif a dos líneas + párrafo breve.
-- **Manifiesto** — 2–3 párrafos cortos sobre por qué existe bebloo (borrador honesto basado en lo que ya hay en `ManifestoBand` y `MissionSection`).
-- **Bloque "Las personas detrás"** — Dos retratos en columna (fundadora + Paola) con:
-  - Foto en proporción 4/5, sin bordes ni sombras, fondo crema.
-  - Nombre · rol · 1 frase de credencial.
-  - Placeholders editoriales (silueta crema con inicial serif) marcados con comentario `{/* TODO: reemplazar con foto real */}`.
-- **Valores** — Tres pilares con hairlines (Cuidado · Honestidad · Sostenibilidad), una frase cada uno.
-- **CTA cierre** — "Habla con nosotras" → Calendly de Paola + email `info@bebloo.es`.
+## 2. Nueva jerarquía visual (4 zonas)
 
-Enlaces:
-- Añadir "Sobre nosotras" al `Header.tsx` (desktop nav) y al `Footer.tsx` (columna principal).
+Reescritura del `<main>` de `AppDashboard.tsx` en 4 bloques editoriales separados por aire (no por cards):
 
-## 2. Sección "Cómo cuidamos cada pieza" (en landing)
+**Zona 1 — Saludo + Momento actual**
+- Hero suave: eyebrow ("Tu espacio"), H1 serif "Hola, [nombre]" en Cormorant grande, párrafo con el Momento del bebé en lenguaje humano ("Tu bebé está en su Momento de 3-6 meses · 14 semanas en casa").
+- Sustituye `WelcomeHeader` + `BabyAgeCard` + `StageCard` actuales.
 
-Nuevo componente `src/components/CareProcessSection.tsx`, insertado en `src/pages/Index.tsx` **entre `MissionSection` y `ComparisonSection`** (justo antes del bloque que compara comprar vs. bebloo — refuerza la narrativa de "no es de segunda mano cualquiera").
+**Zona 2 — Tu kit ahora**
+- Nuevo componente `CurrentKitSection.tsx`: lista editorial de las piezas activas (nombre, marca, "en casa desde [fecha]"), separadas por hairlines, sin cards.
+- Si no hay servicio activo: estado vacío editorial con CTA al configurador (reemplaza `NoSubscriptionCard`).
 
-Estructura editorial en 4 pasos numerados (01–04) con tipografía serif grande para el número y descripción sans en muted:
+**Zona 3 — Próximo cambio**
+- Refactor de `ShipmentCard.tsx`: sin card, layout editorial con fecha grande serif a la izquierda + descripción a la derecha.
+- Microcopy cálido nuevo:
+  - `pending` → "Preparando tu próximo Momento"
+  - `shipped` → "En camino a casa"
+  - `delivered` → "Entregado el [fecha]"
+  - Recogidas → "Recogemos [pieza] el [fecha]"
 
-1. **Devolución y recepción** — La pieza vuelve a nuestro taller en Madrid.
-2. **Inspección manual** — Revisamos cada componente, tornillería y tejido.
-3. **Limpieza con estándares hospitalarios** — Vapor a alta temperatura, productos hipoalergénicos, textiles a 60°C.
-4. **Control de calidad** — Empaquetado individual para la próxima familia.
+**Zona 4 — Tu Maternity Nurse (permanente)**
+- Nuevo `PaolaWidget.tsx`: bloque fijo con retrato pequeño de Paola, frase corta ("¿Dudas con el sueño, lactancia o qué necesitas comprar? Habla conmigo, es gratis.") y CTA a su Calendly (URL ya en memoria).
+- Aparece siempre, haya servicio o no.
 
-Sin cajas, separados con hairlines verticales en desktop / horizontales en mobile. Microcopy al pie: *"Si una pieza no pasa el control, no vuelve a salir."*
+## 3. Timeline del bebé
 
-**Marcado claro como TODO**: el copy exacto de los 4 pasos debe validarlo la fundadora antes de publicar — borrador conservador, sin inventar certificaciones.
+Nuevo `BabyTimeline.tsx` (reemplaza `StageMilestones` + parte de `StageCard`):
+- Línea horizontal con los 5 Momentos (Recién nacido · 0-3m · 3-6m · 6-12m · 12m+).
+- Marcador coral en el Momento actual, hairlines entre Momentos.
+- Bajo cada Momento, número pequeño de piezas activas en ese tramo (cuando aplique).
+- En mobile: vertical con la misma lógica.
 
-## 3. Testimonios enriquecidos
+## 4. Microcopy editorial transversal
 
-Refactor de `src/components/TestimonialsSection.tsx`:
+Reescritura de strings en:
+- `EmotionalTip.tsx` — tono más íntimo, menos "tip".
+- `WeeklyRecommendation.tsx` — "Esta semana te sugerimos…" en lugar de etiquetas.
+- `PhoneCaptureBanner.tsx` — copy más cálido, menos transaccional.
+- Card de "¿Necesitas ayuda?" actual → reemplazada por el widget de Paola (más personal que WhatsApp soporte).
 
-- Estructura nueva por testimonio: `{ quote, name, city, moment, avatarUrl? }`.
-- Renderizado editorial: cita grande en serif → línea hairline corta → nombre · ciudad · Momento del bebé. Sin tarjetas, sin sombras.
-- Si `avatarUrl` está presente, mostrar avatar circular pequeño (40px) a la izquierda; si no, una inicial serif sobre círculo crema.
-- Mantener el contenido textual actual (asumiendo que es real) y añadir campos `city` + `moment` con valores genéricos marcados como `TODO: confirmar con clientas`.
+## 5. Polish visual transversal en dashboard
 
-## 4. Banda de sellos de confianza
-
-Nuevo componente `src/components/TrustBadgesBand.tsx`, insertado en `Index.tsx` **justo después del `Hero`** (reemplazando o complementando el `BrandLogosSection` actual si solapa).
-
-Cuatro sellos en una fila, separados por hairlines verticales, en tipografía sans uppercase muy fina:
-
-- Limpieza con estándares hospitalarios
-- Marcas oficiales (Bugaboo · Stokke · Maxi-Cosi…)
-- Envío y recogida incluidos en Madrid
-- Pago seguro · Stripe
-
-Sin iconos pesados — máximo un divisor `·` o un punto coral muy pequeño. Responsive: 2x2 en mobile.
-
-## 5. FAQ categorizada
-
-Refactor de `src/components/FAQSection.tsx`:
-
-- Cambiar la estructura de datos de `Array<{q, a}>` a `Array<{category, items: [{q, a}]}>`.
-- Cuatro categorías: **Higiene y cuidado** · **Envío y recogida** · **Cambios y devoluciones** · **Pago y facturación**.
-- UI: navegación lateral de categorías a la izquierda (sticky en desktop), preguntas a la derecha. En mobile, las categorías son acordeones de primer nivel.
-- Mantener el componente `Accordion` de shadcn ya existente con los overrides actuales (hairlines, sin cajas).
-- Reasignar las FAQs actuales a categorías + añadir 2–3 huecos por categoría marcados como `TODO: pendiente de confirmar`.
+- Quitar `Card` de shadcn donde no aporta — usar `<section>` + hairlines.
+- Tipografía: `font-serif` (Cormorant) para todos los titulares de zona, `font-sans` para cuerpo.
+- Padding generoso: `py-12 md:py-20` entre zonas.
+- Fondos siempre crema, nunca blanco puro.
+- Animación de entrada: `staggerContainer` + `lineReveal` (mismo sistema que la landing).
 
 ---
 
 ## Detalles técnicos
 
 **Archivos a crear:**
-- `src/components/CareProcessSection.tsx`
-- `src/components/TrustBadgesBand.tsx`
+- `src/components/dashboard/CurrentKitSection.tsx`
+- `src/components/dashboard/PaolaWidget.tsx`
+- `src/components/dashboard/BabyTimeline.tsx`
 
 **Archivos a modificar:**
-- `src/pages/AboutUs.tsx` — refactor completo.
-- `src/pages/Index.tsx` — insertar `TrustBadgesBand` y `CareProcessSection`.
-- `src/components/Header.tsx` — enlace "Sobre nosotras".
-- `src/components/Footer.tsx` — enlace "Sobre nosotras".
-- `src/components/TestimonialsSection.tsx` — nuevo schema + render.
-- `src/components/FAQSection.tsx` — categorización + nav lateral.
+- `src/pages/AppDashboard.tsx` — reestructuración completa del layout y header.
+- `src/components/dashboard/WelcomeHeader.tsx` — versión editorial serif.
+- `src/components/dashboard/ShipmentCard.tsx` — refactor visual + microcopy.
+- `src/components/dashboard/NoSubscriptionCard.tsx` → renombrar a estado vacío inline en `CurrentKitSection`.
+- `src/components/dashboard/EmotionalTip.tsx` — reescritura de copy y visual sin card.
+- `src/components/dashboard/WeeklyRecommendation.tsx` — reescritura de copy y visual sin card.
+- `src/components/dashboard/PhoneCaptureBanner.tsx` — copy más cálido.
+
+**Archivos a deprecar (eliminar del render, no del repo todavía):**
+- `BabyAgeCard.tsx`, `StageCard.tsx`, `StageMilestones.tsx` — funcionalidad absorbida por zona 1 + `BabyTimeline`.
 
 **Lo que NO se toca:**
-- Tokens de color en `index.css` ni `tailwind.config.ts`.
-- Lógica de negocio, configurador, dashboard, admin, edge functions.
-- Sistema de motion existente (`motion.ts`, Lenis).
+- `useBabyStage`, `useSubscription`, `useChildren`, `useAuth` — toda la lógica de datos intacta.
+- Tutorial de bienvenida (`WelcomeTutorial`), feedback de envíos, settings, admin.
+- Tokens de color, motion system, edge functions, schema BD.
 
-**Tipografía/motion:** todos los nuevos bloques usan `font-serif` para titulares, `staggerContainer` + `lineReveal` para apariciones, padding `py-24 md:py-36`, consistente con `PaolaConsultationSection`.
+**Motion/tipografía:** mismo sistema que la landing (`motion.ts`, Lenis, `font-serif` para H1/H2).
 
 ---
 
-## Lo que necesitará tu input para go-live (lo marco con `TODO` en código)
+## Lo que necesitará tu input para go-live
 
-1. Fotos reales de fundadora y Paola.
-2. Historia breve de cómo nació bebloo (1–2 párrafos).
-3. Validación literal del proceso de higiene (pasos 1–4).
-4. Ciudad + Momento del bebé de cada testimonio existente, y fotos si están disponibles.
-5. Confirmación de las marcas oficiales a citar en la banda de sellos.
+1. **Foto de Paola** para el widget permanente (placeholder editorial mientras tanto).
+2. Validar el copy del widget de Paola y de los estados de envío.
+3. Confirmar que los 5 Momentos del timeline son los correctos (Recién nacido · 0-3m · 3-6m · 6-12m · 12m+) o si quieres otra segmentación.
 
-Puedes lanzarlo con los placeholders y reemplazar a medida que tengas el material — la estructura editorial aguanta perfectamente.
+Puedes lanzarlo con placeholders y refinar después — la estructura editorial aguanta.

@@ -1,5 +1,3 @@
-import { Lightbulb } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import type { Stage } from "@/types/baby";
 
 interface WeeklyRecommendationProps {
@@ -60,22 +58,18 @@ export function WeeklyRecommendation({ stage }: WeeklyRecommendationProps) {
   const tip = pool[week % pool.length];
 
   return (
-    <Card className="border-primary/20 bg-primary/5">
-      <CardContent className="py-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-full bg-primary/10">
-            <Lightbulb className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-display font-medium text-sm text-foreground mb-1">
-              Consejo de la semana
-            </h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {tip}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <section aria-label="Sugerencia de la semana" className="py-8 md:py-12 border-t border-foreground/10">
+      <p className="eyebrow mb-5 text-[10px]">Esta semana te sugerimos</p>
+      <p
+        className="font-serif text-foreground text-balance max-w-3xl leading-snug"
+        style={{
+          fontSize: "clamp(1.25rem, 2.6vw, 1.875rem)",
+          fontWeight: 400,
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {tip}
+      </p>
+    </section>
   );
 }
