@@ -104,7 +104,9 @@ export function ShipmentCard({ shipment, feedback, onFeedback, isNext }: Shipmen
               </ul>
             ) : (
               <p className="text-sm text-muted-foreground py-2">
-                El contenido se confirmará pronto.
+                {isNext
+                  ? "Aún estamos eligiendo las piezas perfectas."
+                  : "El contenido se confirmará pronto."}
               </p>
             )}
           </div>

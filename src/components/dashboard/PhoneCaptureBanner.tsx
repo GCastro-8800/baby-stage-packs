@@ -22,7 +22,7 @@ export function PhoneCaptureBanner({ show }: Props) {
   };
 
   return (
-    <aside className="border-y border-foreground/10 py-5 flex items-start gap-4">
+    <aside className="border-t border-foreground/10 py-8 md:py-12 flex items-start gap-4">
       <div className="flex-1 text-sm">
         <p className="font-serif text-foreground text-lg leading-snug">
           ¿Nos dejas tu teléfono?

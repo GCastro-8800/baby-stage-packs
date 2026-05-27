@@ -1,32 +1,29 @@
-import { Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export function NoSubscriptionCard() {
   const navigate = useNavigate();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Calendar className="h-5 w-5 text-primary" />
-          Tu servicio
-        </CardTitle>
-        <CardDescription>Estado de tu equipamiento</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center justify-center py-6">
-          <div className="text-center">
-            <p className="text-muted-foreground text-sm mb-3">
-              Aún no tienes un servicio activo
-            </p>
-            <Button size="sm" onClick={() => navigate("/catalogo")}>
-              Explorar catálogo
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <section aria-label="Tu servicio" className="space-y-4">
+      <p className="eyebrow text-[10px]">Tu servicio</p>
+      <h3
+        className="font-serif text-foreground"
+        style={{ fontSize: "clamp(1.5rem, 2.8vw, 2rem)", fontWeight: 400, lineHeight: 1.15 }}
+      >
+        Aún no hay un Momento en marcha.
+      </h3>
+      <p className="text-sm text-muted-foreground max-w-md">
+        Cuando tú decidas, te ayudamos a montar el primero. Sin prisa.
+      </p>
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => navigate("/configurador")}
+          className="font-serif text-base text-foreground border-b border-foreground/40 hover:border-foreground transition-colors pb-0.5"
+        >
+          Ver selecciones
+        </button>
+      </div>
+    </section>
   );
 }
