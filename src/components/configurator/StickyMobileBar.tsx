@@ -11,6 +11,7 @@ import {
 import { Product } from "@/data/productCatalog";
 import { DURATION_OPTIONS } from "@/lib/constants";
 import TrustBadges from "@/components/configurator/TrustBadges";
+import { cn } from "@/lib/utils";
 
 interface StickyMobileBarProps {
   count: number;
@@ -45,18 +46,19 @@ export default function StickyMobileBar({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-card shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] p-4 flex items-center justify-between gap-4 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-foreground/15 p-4 flex items-center justify-between gap-4 md:hidden">
         <button
           onClick={() => setOpen(true)}
           className="flex items-center gap-2 text-left"
         >
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
           <div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
               {count} {count === 1 ? "producto" : "productos"}
             </p>
-            <p className="text-xl font-serif font-semibold">
-              {upfrontTotal}€<span className="text-xs font-normal text-muted-foreground ml-1">pago único</span>
+            <p className="font-display text-xl">
+              {upfrontTotal}€
+              <span className="text-xs font-sans text-muted-foreground ml-1">pago único</span>
             </p>
           </div>
         </button>
@@ -67,12 +69,12 @@ export default function StickyMobileBar({
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="bottom" className="max-h-[85vh] rounded-t-2xl p-0">
-          <SheetHeader className="px-5 pt-5 pb-3 border-b">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="font-serif text-lg">Tu selección</SheetTitle>
-              <span className="text-xs font-medium text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
+          <SheetHeader className="px-5 pt-5 pb-3 border-b border-foreground/10">
+            <div className="flex items-baseline justify-between">
+              <SheetTitle className="font-display text-xl">Tu selección</SheetTitle>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
                 {count} {count === 1 ? "producto" : "productos"}
-              </span>
+              </p>
             </div>
             <SheetDescription className="sr-only">Gestiona los productos de tu cesta</SheetDescription>
           </SheetHeader>
@@ -85,17 +87,19 @@ export default function StickyMobileBar({
               const hasDiscount = discounted < basePrice;
               const itemTotal = discounted * months;
               return (
-                <div key={p.id} className="space-y-2">
+                <div key={p.id} className="space-y-2 pb-4 border-b border-foreground/10 last:border-b-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{p.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{p.brand}</p>
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
+                        {p.brand}
+                      </p>
+                      <p className="text-sm truncate mt-0.5">{p.name}</p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {hasDiscount && (
                         <span className="text-xs text-muted-foreground line-through">{basePrice}€</span>
                       )}
-                      <span className="text-sm font-semibold">{discounted}€/mes</span>
+                      <span className="text-sm">{discounted}€/mes</span>
                       <button
                         onClick={() => onRemove(p.id)}
                         className="text-muted-foreground/60 hover:text-destructive transition-colors ml-1"
@@ -106,36 +110,33 @@ export default function StickyMobileBar({
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1.5">
                       {DURATION_OPTIONS.map((opt) => (
                         <button
                           key={opt.months}
                           onClick={() => setDuration(p.id, opt.months)}
-                          className={`px-2 py-1 rounded text-[11px] font-medium transition-colors ${
+                          className={cn(
+                            "px-2 py-0.5 rounded-full text-[11px] transition-colors border",
                             months === opt.months
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-muted-foreground hover:text-foreground"
-                          }`}
+                              ? "bg-foreground text-background border-foreground"
+                              : "bg-transparent text-muted-foreground border-foreground/20"
+                          )}
                         >
                           {opt.months}m
                         </button>
                       ))}
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      = {itemTotal}€
-                    </span>
+                    <span className="text-xs text-muted-foreground">= {itemTotal}€</span>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="border-t px-5 py-4 space-y-3">
+          <div className="border-t border-foreground/15 px-5 py-4 space-y-3">
             <div className="flex items-baseline justify-between">
-              <span className="text-sm font-medium">Pago único</span>
-              <div className="text-right">
-                <span className="text-2xl font-serif font-semibold">{upfrontTotal}€</span>
-              </div>
+              <span className="text-sm">Pago único</span>
+              <span className="font-display text-2xl">{upfrontTotal}€</span>
             </div>
             <p className="text-[10px] text-muted-foreground">
               Se cobra el importe total del compromiso de una sola vez

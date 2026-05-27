@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, ArrowRight } from "lucide-react";
+// icons removed in editorial pass
 import Header from "@/components/Header";
 import SelectionSidebar from "@/components/configurator/SelectionSidebar";
 import CategorySection from "@/components/configurator/CategorySection";
@@ -226,55 +226,35 @@ export default function Selection() {
       <main className="pt-24 pb-28 md:pb-12 px-4 md:px-6">
         <div className="container max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-6 text-center md:text-left">
-            <h1 className="text-2xl md:text-3xl font-serif text-foreground mb-2">
-              {hasState ? "Tu selección bebloo" : "Elige lo que necesitas"}
+          <div className="mb-8 text-center md:text-left space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
+              Tu selección
+            </p>
+            <h1 className="font-display text-3xl md:text-4xl text-foreground leading-tight">
+              {hasState ? "Tu kit a medida" : "Elige lo que necesitas"}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto md:mx-0">
               {hasState ? situationSummary : "Explora nuestro catálogo y monta tu selección a medida"}
             </p>
           </div>
 
-          {/* Contextual banner */}
-          {hasState ? (
-            <div className="mb-8 rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Sparkles className="h-5 w-5 text-primary-foreground shrink-0" />
-                <p className="text-sm text-foreground">
-                  Selección basada en tu cuestionario
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs shrink-0"
-                onClick={() => navigate("/configurador")}
-              >
-                Repetir cuestionario
-              </Button>
-            </div>
-          ) : (
-            <div className="mb-8 rounded-xl bg-secondary border border-border p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Sparkles className="h-5 w-5 text-primary-foreground shrink-0" />
-                <p className="text-sm text-foreground">
-                  ¿Quieres que te ayudemos a elegir?
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs shrink-0 gap-1.5"
-                onClick={() => navigate("/configurador")}
-              >
-                Hacer cuestionario
-                <ArrowRight className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
+          {/* Contextual line */}
+          <div className="mb-12 border-t border-b border-foreground/10 py-3 flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              {hasState
+                ? "Selección basada en tu cuestionario"
+                : "¿Quieres que te ayudemos a elegir?"}
+            </p>
+            <button
+              onClick={() => navigate("/configurador")}
+              className="text-xs text-foreground border-b border-foreground/40 pb-0.5 hover:border-foreground transition-colors shrink-0"
+            >
+              {hasState ? "Repetir cuestionario" : "Hacer cuestionario"}
+            </button>
+          </div>
 
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1 space-y-10">
+            <div className="flex-1 space-y-16">
               {ALL_STAGES.map((stage, i) => renderStageSection(stage, i === 0))}
 
               <div className="text-center py-4">

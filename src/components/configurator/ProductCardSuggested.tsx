@@ -1,6 +1,6 @@
-import { Plus, Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plus, X } from "lucide-react";
 import { Product } from "@/data/productCatalog";
+import { cn } from "@/lib/utils";
 import ProductImagePlaceholder from "./ProductImagePlaceholder";
 
 interface ProductCardSuggestedProps {
@@ -14,68 +14,71 @@ interface ProductCardSuggestedProps {
 
 export default function ProductCardSuggested({ product, isSelected, onAdd, onRemove, stageBadge, onPreview }: ProductCardSuggestedProps) {
   return (
-    <div className={`rounded-xl border ${isSelected ? "border-primary/30 bg-card shadow-sm" : "border-dashed border-border/60 bg-background"} overflow-hidden transition-all`}>
-      <div className="p-4 flex gap-4">
-        <div className={onPreview ? "cursor-pointer" : ""} onClick={() => onPreview?.(product)}>
+    <article className={cn(
+      "border-b border-foreground/10 py-6 transition-opacity",
+      !isSelected && "opacity-90"
+    )}>
+      <div className="flex gap-4">
+        <div className={onPreview ? "cursor-pointer shrink-0" : "shrink-0"} onClick={() => onPreview?.(product)}>
           <ProductImagePlaceholder category={product.category} image={product.image} />
         </div>
 
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
+        <div className="flex-1 min-w-0 flex flex-col justify-between gap-3">
           <div>
-            <div className="flex items-start justify-between gap-2">
-              <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
+                  {product.brand}
+                </p>
                 <p
-                  className={`font-semibold text-base text-foreground ${onPreview ? "cursor-pointer hover:text-primary transition-colors" : ""}`}
+                  className={cn(
+                    "font-display text-lg text-foreground mt-1",
+                    onPreview && "cursor-pointer hover:opacity-70 transition-opacity"
+                  )}
                   onClick={() => onPreview?.(product)}
                 >
                   {product.name}
                 </p>
-                <span className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full mt-1">
-                  {product.brand}
-                </span>
               </div>
               <div className="text-right shrink-0">
-                <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
-                  {product.prices?.[3] ?? product.pricePerMonth}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
+                <span className="font-display text-xl text-foreground">
+                  {product.prices?.[3] ?? product.pricePerMonth}€
+                  <span className="text-xs font-sans text-muted-foreground ml-0.5">/mes</span>
                 </span>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Desde 3 meses</p>
               </div>
             </div>
             {stageBadge && !isSelected && (
-              <span className="inline-block text-[11px] font-medium text-primary-foreground bg-primary/20 px-2 py-0.5 rounded-full mt-2">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50 mt-2">
                 {stageBadge}
-              </span>
+              </p>
             )}
             {product.shortReason && (
-              <p className="text-xs text-muted-foreground mt-1.5">{product.shortReason}</p>
+              <p className="text-xs text-muted-foreground italic mt-2">{product.shortReason}</p>
             )}
           </div>
 
-          <div className="mt-3">
+          <div>
             {isSelected ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 text-xs gap-1.5 text-muted-foreground hover:text-destructive"
+              <button
                 onClick={() => onRemove(product.id)}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
               >
                 <X className="h-3 w-3" />
                 Quitar
-              </Button>
+              </button>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 text-xs gap-1.5"
+              <button
                 onClick={() => onAdd(product)}
+                className="inline-flex items-center gap-1.5 text-xs text-foreground border-b border-foreground/40 pb-0.5 hover:border-foreground transition-colors"
               >
                 <Plus className="h-3 w-3" />
                 Añadir a mi selección
-              </Button>
+              </button>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
