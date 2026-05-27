@@ -254,7 +254,7 @@ export default function Selection() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1 space-y-10">
+            <div className="flex-1 space-y-16">
               {ALL_STAGES.map((stage, i) => renderStageSection(stage, i === 0))}
 
               <div className="text-center py-4">
