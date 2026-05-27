@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, Trash2, ArrowLeftRight, Sparkles } from "lucide-react";
+import { ChevronDown, Trash2, ArrowLeftRight } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
 import { Product } from "@/data/productCatalog";
 import { cn } from "@/lib/utils";
 import { DURATION_OPTIONS } from "@/lib/constants";
@@ -34,49 +33,53 @@ export default function ProductCardSelected({
   const hasDiscount = discountedPrice < product.pricePerMonth;
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-      <div className="p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
-        <div className={onPreview ? "cursor-pointer" : ""} onClick={() => onPreview?.(product)}>
+    <article className="border-b border-foreground/10 py-6">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className={onPreview ? "cursor-pointer shrink-0" : "shrink-0"} onClick={() => onPreview?.(product)}>
           <ProductImagePlaceholder category={product.category} image={product.image} />
         </div>
 
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
+        <div className="flex-1 min-w-0 flex flex-col justify-between gap-3">
           <div>
-            <div className="flex items-start justify-between gap-2">
-              <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
+                  {product.brand}
+                </p>
                 <p
-                  className={cn("font-semibold text-base text-foreground", onPreview && "cursor-pointer hover:text-primary transition-colors")}
+                  className={cn(
+                    "font-display text-lg text-foreground mt-1",
+                    onPreview && "cursor-pointer hover:opacity-70 transition-opacity"
+                  )}
                   onClick={() => onPreview?.(product)}
                 >
                   {product.name}
                 </p>
-                <span className="inline-block text-[11px] font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full mt-1">
-                  {product.brand}
-                </span>
               </div>
               <div className="text-right shrink-0">
                 {hasDiscount && (
                   <span className="block text-xs text-muted-foreground line-through">
-                    {product.pricePerMonth}€/mes
+                    {product.pricePerMonth}€
                   </span>
                 )}
-                <span className="inline-block bg-accent/10 text-foreground font-semibold text-sm px-2.5 py-1 rounded-lg">
-                  {discountedPrice}€<span className="text-xs font-normal text-muted-foreground">/mes</span>
+                <span className="font-display text-xl text-foreground">
+                  {discountedPrice}€
+                  <span className="text-xs font-sans text-muted-foreground ml-0.5">/mes</span>
                 </span>
               </div>
             </div>
 
             {/* Duration chips */}
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="flex flex-wrap gap-1.5 mt-3">
               {DURATION_OPTIONS.map((opt) => (
                 <button
                   key={opt.months}
                   onClick={() => onDurationChange(product.id, opt.months)}
                   className={cn(
-                    "px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors",
+                    "px-2.5 py-1 rounded-full text-[11px] transition-colors border",
                     duration === opt.months
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-transparent text-muted-foreground border-foreground/20 hover:border-foreground/40"
                   )}
                 >
                   {opt.label}
@@ -85,55 +88,53 @@ export default function ProductCardSelected({
             </div>
 
             {product.shortReason && (
-              <p className="text-xs text-primary-foreground/80 bg-primary/15 inline-block px-2 py-0.5 rounded-full mt-2">
+              <p className="text-xs text-muted-foreground italic mt-3">
                 {product.shortReason}
               </p>
             )}
 
             {reasons && reasons.length > 0 && (
-              <div className="mt-3 rounded-lg bg-primary/5 border border-primary/15 p-2.5">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="h-3.5 w-3.5 text-primary-foreground mt-0.5 shrink-0" />
-                  <div className="text-xs text-foreground/90">
-                    <p className="font-medium mb-1">Por qué te lo recomendamos</p>
-                    <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
-                      {reasons.map((r, i) => (
-                        <li key={i}>{r}</li>
-                      ))}
-                    </ul>
-                    {onPreview && (
-                      <button
-                        type="button"
-                        onClick={() => onPreview(product)}
-                        className="mt-1.5 text-primary-foreground underline underline-offset-2 hover:opacity-80 text-xs font-medium"
-                      >
-                        Ver ficha completa
-                      </button>
-                    )}
-                  </div>
-                </div>
+              <div className="mt-4 border-l border-foreground/20 pl-3">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
+                  Por qué te lo recomendamos
+                </p>
+                <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
+                  {reasons.map((r, i) => (
+                    <li key={i}>· {r}</li>
+                  ))}
+                </ul>
+                {onPreview && (
+                  <button
+                    type="button"
+                    onClick={() => onPreview(product)}
+                    className="mt-2 inline-block border-b border-foreground/30 text-xs text-foreground/80 hover:border-foreground transition-colors"
+                  >
+                    Ver ficha completa
+                  </button>
+                )}
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-4 pt-1">
             {alternatives.length > 0 && (
               <Collapsible open={open} onOpenChange={setOpen}>
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+                  <button className="inline-flex items-center gap-1.5 text-xs text-foreground/80 border-b border-foreground/30 pb-0.5 hover:border-foreground transition-colors">
                     <ArrowLeftRight className="h-3 w-3" />
                     Cambiar
                     <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} />
-                  </Button>
+                  </button>
                 </CollapsibleTrigger>
               </Collapsible>
             )}
             <button
               onClick={() => onRemove(product.id)}
-              className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
               aria-label={`Quitar ${product.name}`}
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-3 w-3" />
+              Quitar
             </button>
           </div>
         </div>
@@ -142,34 +143,38 @@ export default function ProductCardSelected({
       {alternatives.length > 0 && (
         <Collapsible open={open} onOpenChange={setOpen}>
           <CollapsibleContent>
-            <div className="border-t bg-muted/30 p-3 space-y-2">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Alternativas disponibles</p>
+            <div className="mt-4 border-t border-foreground/10 pt-4 space-y-1">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50 mb-2">
+                Alternativas
+              </p>
               {alternatives.map((alt) => {
                 const diff = alt.pricePerMonth - product.pricePerMonth;
                 return (
                   <button
                     key={alt.id}
                     onClick={() => { onSwap(product.id, alt); setOpen(false); }}
-                    className="w-full text-left rounded-lg border bg-card p-3 hover:border-primary/40 hover:shadow-sm transition-all flex gap-3"
+                    className="w-full text-left border-b border-foreground/10 py-3 hover:bg-foreground/5 transition-colors flex gap-3"
                   >
                     <ProductImagePlaceholder category={alt.category} image={alt.image} size="sm" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-sm font-medium">{alt.name}</p>
-                          <p className="text-xs text-muted-foreground">{alt.brand}</p>
+                        <div className="min-w-0">
+                          <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/50">
+                            {alt.brand}
+                          </p>
+                          <p className="font-display text-base mt-0.5">{alt.name}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-semibold">{alt.pricePerMonth}€</p>
+                          <p className="font-display text-base">{alt.pricePerMonth}€</p>
                           {diff !== 0 && (
-                            <p className={cn("text-xs font-medium", diff > 0 ? "text-destructive" : "text-primary")}>
+                            <p className={cn("text-[11px]", diff > 0 ? "text-destructive" : "text-foreground/70")}>
                               {diff > 0 ? `+${diff}€` : `${diff}€`}
                             </p>
                           )}
                         </div>
                       </div>
                       {alt.shortReason && (
-                        <p className="text-xs text-muted-foreground mt-1">{alt.shortReason}</p>
+                        <p className="text-xs text-muted-foreground italic mt-1">{alt.shortReason}</p>
                       )}
                     </div>
                   </button>
@@ -179,6 +184,6 @@ export default function ProductCardSelected({
           </CollapsibleContent>
         </Collapsible>
       )}
-    </div>
+    </article>
   );
 }

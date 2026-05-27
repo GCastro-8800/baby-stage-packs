@@ -39,7 +39,7 @@ function buildWhatsAppMessage(items: CheckoutProduct[], upfrontTotal: number): s
   return `¡Hola! Me gustaría contratar estos productos:\n\n${lines.join("\n")}\n\nTotal a pagar: ${upfrontTotal}€`;
 }
 
-const OPTIONS: { key: string; icon: typeof Calendar; title: string; description: string; cta: string; disabled?: boolean }[] = [
+const OPTIONS: { key: string; icon: typeof Calendar; title: string; description: string; cta: string }[] = [
   {
     key: "calendly",
     icon: Calendar,
@@ -73,7 +73,6 @@ export default function CheckoutOptionsDialog({
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Calculate upfront total
   const upfrontTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.months, 0);
 
   const handleOption = async (key: string) => {
@@ -119,14 +118,14 @@ export default function CheckoutOptionsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-serif text-xl">¿Cómo quieres continuar?</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-display text-2xl">¿Cómo quieres continuar?</DialogTitle>
+          <DialogDescription className="text-sm">
             Tu selección: {upfrontTotal}€ (pago único)
           </DialogDescription>
         </DialogHeader>
 
         {/* Breakdown */}
-        <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+        <div className="border-t border-b border-foreground/10 py-3 space-y-2">
           {items.map((i) => {
             const itemTotal = i.discountedPrice * i.months;
             const periodLabel = i.months === 1 ? "1 mes" : `${i.months} meses`;
@@ -135,37 +134,37 @@ export default function CheckoutOptionsDialog({
                 <span className="text-muted-foreground">
                   {i.product.name} — {periodLabel}
                 </span>
-                <span className="font-medium">
+                <span>
                   {i.discountedPrice}€ × {i.months} = {itemTotal}€
                 </span>
               </div>
             );
           })}
-          <div className="flex justify-between text-sm font-semibold border-t border-border pt-1.5 mt-1.5">
+          <div className="flex justify-between text-sm pt-2 border-t border-foreground/10">
             <span>Total a pagar</span>
-            <span>{upfrontTotal}€</span>
+            <span className="font-display text-lg">{upfrontTotal}€</span>
           </div>
         </div>
 
-        <div className="space-y-3 pt-2">
+        <div className="space-y-0">
           {OPTIONS.map((opt) => (
             <button
               key={opt.key}
-              disabled={opt.disabled || (opt.key === "online" && loading)}
+              disabled={opt.key === "online" && loading}
               onClick={() => handleOption(opt.key)}
-              className="w-full text-left rounded-xl border bg-card p-4 flex items-start gap-4 hover:border-primary/40 hover:shadow-sm transition-all disabled:opacity-50 disabled:pointer-events-none"
+              className="w-full text-left border-b border-foreground/10 py-4 flex items-start gap-4 hover:bg-foreground/5 transition-colors disabled:opacity-50 disabled:pointer-events-none last:border-b-0"
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="shrink-0 mt-1">
                 {opt.key === "online" && loading ? (
-                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                  <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
                 ) : (
-                  <opt.icon className="h-5 w-5 text-primary" />
+                  <opt.icon className="h-4 w-4 text-muted-foreground" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-foreground">{opt.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{opt.description}</p>
-                <span className="inline-block mt-2 text-xs font-medium text-primary">
+                <p className="font-display text-base text-foreground">{opt.title}</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{opt.description}</p>
+                <span className="inline-block mt-2 text-xs text-foreground border-b border-foreground/40 pb-0.5">
                   {opt.key === "online" && loading ? "Procesando..." : `${opt.cta} →`}
                 </span>
               </div>

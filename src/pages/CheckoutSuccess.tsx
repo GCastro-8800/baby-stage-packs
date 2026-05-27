@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -11,7 +9,6 @@ const CheckoutSuccess = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  // Invalidate subscription queries so dashboard picks up new state
   useEffect(() => {
     if (user) {
       queryClient.invalidateQueries({ queryKey: ["stripe-subscription", user.id] });
@@ -35,31 +32,30 @@ const CheckoutSuccess = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="text-center max-w-md space-y-6">
-        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-          <CheckCircle className="h-10 w-10 text-primary" />
-        </div>
+    <div className="min-h-screen bg-background flex items-center justify-center px-6">
+      <div className="max-w-md w-full space-y-10 text-center">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
+          Confirmado
+        </p>
 
-        <div className="space-y-2">
-          <h1 className="text-3xl font-serif font-bold text-foreground">
-            ¡Pedido confirmado!
+        <div className="space-y-5">
+          <h1 className="font-display text-4xl md:text-5xl leading-tight text-foreground">
+            Tu kit ya está en marcha
           </h1>
-          <p className="text-muted-foreground">
-            Tu equipamiento está en camino. Recibirás un email con los detalles
-            de tu primer envío.
+          <p className="text-base text-muted-foreground leading-relaxed">
+            Te escribimos por email con los detalles de tu primer envío. Si surge cualquier duda, estamos aquí.
           </p>
         </div>
 
-        <div className="space-y-3">
-          <Button
+        <div className="space-y-4 pt-2">
+          <button
             onClick={() => navigate("/app")}
-            className="w-full cta-tension"
+            className="inline-block border-b border-foreground/40 pb-1 text-sm text-foreground hover:border-foreground transition-colors"
           >
             Ir a mi panel
-          </Button>
+          </button>
           <p className="text-xs text-muted-foreground">
-            Redirigiendo automáticamente en {countdown}s...
+            Te llevamos automáticamente en {countdown}s
           </p>
         </div>
       </div>
