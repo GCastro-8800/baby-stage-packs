@@ -3,8 +3,10 @@ import SEO from "@/components/SEO";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import BrandLogosSection from "@/components/BrandLogosSection";
+import TrustBadgesBand from "@/components/TrustBadgesBand";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import MissionSection from "@/components/MissionSection";
+import CareProcessSection from "@/components/CareProcessSection";
 import ComparisonSection from "@/components/ComparisonSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
@@ -32,9 +34,11 @@ const Index = () => {
       />
       <Header />
       <Hero />
+      <TrustBadgesBand />
       <div className="reveal"><BrandLogosSection /></div>
       <div className="reveal"><HowItWorksSection /></div>
       <div className="reveal"><MissionSection /></div>
+      <div className="reveal"><CareProcessSection /></div>
       <div className="reveal"><ComparisonSection /></div>
       <div className="reveal"><PaolaConsultationSection /></div>
       <div className="reveal"><PricingSection /></div>
