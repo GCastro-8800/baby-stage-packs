@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, LogOut, Save, Loader2, Plus } from "lucide-react";
+import { ArrowLeft, LogOut, Loader2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useChildren } from "@/hooks/useChildren";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +23,29 @@ import { NotificationPreferences } from "@/components/settings/NotificationPrefe
 import type { Child } from "@/types/baby";
 import logo from "@/assets/logo-bebloo.png";
 
+function HairlineButton({
+  children,
+  onClick,
+  disabled,
+  loading,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex items-center gap-2 text-sm uppercase tracking-wider text-foreground border-b border-foreground/40 pb-1 hover:border-foreground transition-colors disabled:opacity-50"
+    >
+      {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+      {children}
+    </button>
+  );
+}
+
 export default function Settings() {
   const navigate = useNavigate();
   const { user, profile, signOut, refreshProfile } = useAuth();
@@ -34,11 +55,8 @@ export default function Settings() {
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [savingName, setSavingName] = useState(false);
 
-  // Child form dialog state
   const [formOpen, setFormOpen] = useState(false);
   const [editingChild, setEditingChild] = useState<Child | null>(null);
-
-  // Delete confirmation state
   const [deletingChild, setDeletingChild] = useState<Child | null>(null);
 
   const handleSaveName = async () => {
@@ -79,7 +97,6 @@ export default function Settings() {
     try {
       const wasActive = deletingChild.is_active;
       await deleteChild.mutateAsync(deletingChild.id);
-      // If deleted child was active and there are others, activate first remaining
       if (wasActive && children.length > 1) {
         const remaining = children.find((c) => c.id !== deletingChild.id);
         if (remaining) await setActiveChild.mutateAsync(remaining.id);
@@ -98,73 +115,101 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-foreground/10 sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
         <div className="container max-w-6xl px-4 md:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             <a href="/" className="flex-shrink-0">
               <img src={logo} alt="bebloo" className="h-10 md:h-12" />
             </a>
-            <Button variant="outline" onClick={handleSignOut} className="gap-2">
-              <LogOut className="h-4 w-4" />
+            <button
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-foreground/70 border-b border-foreground/30 pb-1 hover:text-foreground hover:border-foreground transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Cerrar sesión</span>
-            </Button>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="container max-w-2xl px-4 md:px-6 py-8 md:py-12">
-        <Button variant="ghost" className="gap-2 mb-6 -ml-2" onClick={() => navigate("/app")}>
-          <ArrowLeft className="h-4 w-4" />
+      <main className="container max-w-2xl px-4 md:px-6 py-12 md:py-20">
+        <button
+          onClick={() => navigate("/app")}
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-foreground/60 hover:text-foreground transition-colors mb-10"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
           Volver al inicio
-        </Button>
+        </button>
 
-        <div className="space-y-6">
-          {/* Profile name */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-display">Tu perfil</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nombre completo</Label>
-                <Input
-                  id="fullName"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Tu nombre"
-                />
-              </div>
-              <Button className="w-full gap-2" onClick={handleSaveName} disabled={savingName}>
-                {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                Guardar nombre
-              </Button>
-            </CardContent>
-          </Card>
+        <header className="space-y-3 mb-16 md:mb-20">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Tu cuenta</p>
+          <h2 className="font-display text-4xl md:text-5xl text-foreground">Ajustes</h2>
+          <p className="text-muted-foreground max-w-md">
+            Tu perfil, tus pequeños y cómo te avisamos.
+          </p>
+        </header>
 
-          {/* Children section */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="font-display">Mis hijos</CardTitle>
-                <Button
-                  size="sm"
-                  onClick={() => { setEditingChild(null); setFormOpen(true); }}
-                  disabled={!canAddMore}
-                  className="gap-1"
-                >
-                  <Plus className="h-4 w-4" />
-                  Agregar
-                </Button>
+        <div className="space-y-16 md:space-y-20">
+          {/* Profile */}
+          <section className="space-y-6">
+            <header className="space-y-3">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Perfil</p>
+              <h3 className="font-display text-2xl md:text-3xl text-foreground">Tu nombre</h3>
+            </header>
+
+            <div className="space-y-2 max-w-sm">
+              <Label htmlFor="fullName" className="text-xs uppercase tracking-wider text-foreground/70">
+                Nombre completo
+              </Label>
+              <Input
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Tu nombre"
+              />
+            </div>
+
+            <HairlineButton onClick={handleSaveName} disabled={savingName} loading={savingName}>
+              Guardar nombre
+            </HairlineButton>
+          </section>
+
+          <div className="border-t border-foreground/10" />
+
+          {/* Children */}
+          <section className="space-y-6">
+            <header className="space-y-3">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Familia</p>
+              <div className="flex items-end justify-between gap-4 flex-wrap">
+                <h3 className="font-display text-2xl md:text-3xl text-foreground">
+                  Tus pequeños
+                </h3>
+                {canAddMore && children.length > 0 && (
+                  <button
+                    onClick={() => { setEditingChild(null); setFormOpen(true); }}
+                    className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-foreground/80 border-b border-foreground/40 pb-1 hover:text-foreground hover:border-foreground transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Añadir
+                  </button>
+                )}
               </div>
               {!canAddMore && (
-                <p className="text-sm text-muted-foreground">Máximo de 5 hijos alcanzado.</p>
+                <p className="text-xs text-muted-foreground">Máximo de 5 alcanzado.</p>
               )}
-            </CardHeader>
-            <CardContent className="space-y-3">
+            </header>
+
+            <div>
               {children.length === 0 ? (
-                <p className="text-muted-foreground text-sm text-center py-4">
-                  Aún no has agregado ningún hijo/a.
-                </p>
+                <div className="space-y-5 py-4">
+                  <p className="text-muted-foreground">
+                    Aún no has añadido a nadie. Cuéntanos quién viene en camino o quién acaba de llegar.
+                  </p>
+                  <HairlineButton onClick={() => { setEditingChild(null); setFormOpen(true); }}>
+                    <Plus className="h-3.5 w-3.5" />
+                    Añadir el primero
+                  </HairlineButton>
+                </div>
               ) : (
                 children.map((child) => (
                   <ChildCard
@@ -177,14 +222,16 @@ export default function Settings() {
                   />
                 ))
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </section>
+
+          <div className="border-t border-foreground/10" />
+
           {/* Notifications */}
           <NotificationPreferences />
         </div>
       </main>
 
-      {/* Child form dialog */}
       <ChildFormDialog
         open={formOpen}
         onOpenChange={(open) => { setFormOpen(open); if (!open) setEditingChild(null); }}
@@ -193,11 +240,10 @@ export default function Settings() {
         isLoading={createChild.isPending || updateChild.isPending}
       />
 
-      {/* Delete confirmation */}
       <AlertDialog open={!!deletingChild} onOpenChange={(open) => !open && setDeletingChild(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar hijo/a?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar?</AlertDialogTitle>
             <AlertDialogDescription>
               Se eliminará {deletingChild?.name || "este registro"} de tu lista. Esta acción no se puede deshacer.
             </AlertDialogDescription>
