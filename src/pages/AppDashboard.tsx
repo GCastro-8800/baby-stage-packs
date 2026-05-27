@@ -14,6 +14,7 @@ import { PaolaWidget } from "@/components/dashboard/PaolaWidget";
 import { EmotionalTip } from "@/components/dashboard/EmotionalTip";
 import { WeeklyRecommendation } from "@/components/dashboard/WeeklyRecommendation";
 import { SubscriptionCard } from "@/components/dashboard/SubscriptionCard";
+import { NoSubscriptionCard } from "@/components/dashboard/NoSubscriptionCard";
 import { ShipmentCard } from "@/components/dashboard/ShipmentCard";
 import { WelcomeTutorial } from "@/components/dashboard/WelcomeTutorial";
 import { PhoneCaptureBanner } from "@/components/dashboard/PhoneCaptureBanner";
@@ -141,12 +142,14 @@ export default function AppDashboard() {
           />
         )}
 
-        {/* Servicio: estado + gestión (solo si hay servicio activo) */}
-        {subscription && (
-          <div className="py-8 md:py-12 border-t border-foreground/10">
+        {/* Servicio: estado + gestión */}
+        <div className="py-8 md:py-12 border-t border-foreground/10">
+          {subscription ? (
             <SubscriptionCard subscription={subscription} />
-          </div>
-        )}
+          ) : (
+            <NoSubscriptionCard />
+          )}
+        </div>
 
         {/* Pensamiento del día */}
         <EmotionalTip
