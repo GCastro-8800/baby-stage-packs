@@ -1,9 +1,7 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Baby, Star, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { Child } from "@/types/baby";
 
 interface ChildCardProps {
@@ -21,48 +19,44 @@ export function ChildCard({ child, onEdit, onDelete, onSetActive, isOnly }: Chil
     : null;
 
   return (
-    <Card className={child.is_active ? "border-primary/50 bg-primary/5" : ""}>
-      <CardContent className="py-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2 rounded-full bg-muted">
-              <Baby className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-medium truncate">
-                  {child.name || "Sin nombre"}
-                </span>
-                {child.is_active && (
-                  <Badge variant="secondary" className="text-xs shrink-0">
-                    <Star className="h-3 w-3 mr-1" />
-                    Activo
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {child.situation === "expecting" ? "En espera" : "Nacido/a"}
-                {dateFormatted && ` · ${dateFormatted}`}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            {!child.is_active && (
-              <Button variant="ghost" size="icon" onClick={onSetActive} title="Marcar como activo">
-                <Star className="h-4 w-4" />
-              </Button>
-            )}
-            <Button variant="ghost" size="icon" onClick={onEdit}>
-              <Pencil className="h-4 w-4" />
-            </Button>
-            {!isOnly && (
-              <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center justify-between gap-4 py-5 border-b border-foreground/10 last:border-b-0">
+      <div className="min-w-0">
+        <h4 className="font-display text-lg text-foreground truncate">
+          {child.name || "Sin nombre"}
+        </h4>
+        <p className="text-sm text-muted-foreground mt-1">
+          {child.is_active && (
+            <span className="text-foreground/70 uppercase tracking-wider text-[10px] mr-2">
+              Activo ·
+            </span>
+          )}
+          {child.situation === "expecting" ? "En espera" : "Nacido/a"}
+          {dateFormatted && ` · ${dateFormatted}`}
+        </p>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {!child.is_active && (
+          <button
+            onClick={onSetActive}
+            className="text-xs uppercase tracking-wider text-foreground/70 border-b border-foreground/40 pb-0.5 hover:text-foreground hover:border-foreground transition-colors"
+          >
+            Marcar activo
+          </button>
+        )}
+        <Button variant="ghost" size="icon" onClick={onEdit} className="hover:bg-transparent text-foreground/60 hover:text-foreground">
+          <Pencil className="h-4 w-4" />
+        </Button>
+        {!isOnly && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onDelete}
+            className="hover:bg-transparent text-foreground/40 hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

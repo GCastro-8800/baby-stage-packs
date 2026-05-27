@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Loader2, Save, Phone, Info } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -71,75 +69,68 @@ export function NotificationPreferences() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-display flex items-center gap-2">
-          <Phone className="h-5 w-5 text-primary-foreground" />
-          Notificaciones
-        </CardTitle>
-        <CardDescription>
-          Te avisamos cuando tu servicio termine y de las recogidas. Añade un teléfono si quieres
-          recibir avisos por WhatsApp o SMS además del correo.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono móvil</Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="+34 600 00 00 00"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground">Formato internacional con prefijo (+34…).</p>
-        </div>
+    <section className="space-y-6">
+      <header className="space-y-3">
+        <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Avisos</p>
+        <h3 className="font-display text-2xl md:text-3xl text-foreground">
+          Cómo te escribimos
+        </h3>
+        <p className="text-sm text-muted-foreground max-w-md">
+          Te avisamos cuando tu Momento esté por terminar y cuando programemos una recogida.
+        </p>
+      </header>
 
-        <div className="space-y-3 rounded-lg border bg-secondary/30 p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="font-medium text-sm">Email</p>
-              <p className="text-xs text-muted-foreground">Siempre activo. Es tu canal principal.</p>
-            </div>
-            <Switch checked disabled />
-          </div>
+      <div className="space-y-2 max-w-sm">
+        <Label htmlFor="phone" className="text-xs uppercase tracking-wider text-foreground/70">
+          Teléfono móvil
+        </Label>
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="+34 600 00 00 00"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">Formato internacional con prefijo (+34…).</p>
+      </div>
 
-          <div className="flex items-center justify-between gap-4">
+      <div>
+        {[
+          { key: "email", label: "Email", hint: "Siempre activo. Es tu canal principal.", disabled: true, checked: true },
+          { key: "whatsapp", label: "WhatsApp", hint: "Avisos importantes en tu móvil.", disabled: false, checked: prefs.whatsapp },
+          { key: "sms", label: "SMS", hint: "Como respaldo si no ves WhatsApp.", disabled: false, checked: prefs.sms },
+        ].map((row) => (
+          <div
+            key={row.key}
+            className="flex items-center justify-between gap-6 py-4 border-b border-foreground/10 last:border-b-0"
+          >
             <div>
-              <p className="font-medium text-sm">WhatsApp</p>
-              <p className="text-xs text-muted-foreground">Avisos importantes en tu móvil.</p>
-            </div>
-            <Switch
-              checked={prefs.whatsapp}
-              onCheckedChange={(v) => setPrefs((p) => ({ ...p, whatsapp: v }))}
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="font-medium text-sm">SMS</p>
-              <p className="text-xs text-muted-foreground">Como respaldo si no ves WhatsApp.</p>
+              <p className="font-display text-base text-foreground">{row.label}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{row.hint}</p>
             </div>
             <Switch
-              checked={prefs.sms}
-              onCheckedChange={(v) => setPrefs((p) => ({ ...p, sms: v }))}
+              checked={row.checked}
+              disabled={row.disabled}
+              onCheckedChange={(v) =>
+                setPrefs((p) => ({ ...p, [row.key]: v } as Prefs))
+              }
             />
           </div>
-        </div>
+        ))}
+      </div>
 
-        <div className="flex items-start gap-2 rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-foreground">
-          <Info className="h-4 w-4 text-primary-foreground shrink-0 mt-0.5" />
-          <p>
-            Los avisos por WhatsApp y SMS se activarán muy pronto. Mientras tanto, te escribimos por
-            email.
-          </p>
-        </div>
+      <p className="text-xs text-muted-foreground italic">
+        WhatsApp y SMS llegarán muy pronto. Mientras tanto, te escribimos por email.
+      </p>
 
-        <Button className="w-full gap-2" onClick={handleSave} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Guardar preferencias
-        </Button>
-      </CardContent>
-    </Card>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="inline-flex items-center gap-2 text-sm uppercase tracking-wider text-foreground border-b border-foreground/40 pb-1 hover:border-foreground transition-colors disabled:opacity-50"
+      >
+        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+        Guardar preferencias
+      </button>
+    </section>
   );
 }
