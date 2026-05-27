@@ -1,5 +1,3 @@
-import { Heart } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import type { Stage } from "@/types/baby";
 
 interface EmotionalTipProps {
@@ -10,7 +8,7 @@ interface EmotionalTipProps {
 const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
   prenatal: {
     firstTime: [
-      "Es normal tener mil preguntas. Estamos aquí para ayudarte.",
+      "Es normal tener mil preguntas. Estamos aquí para acompañarte.",
       "No necesitas tenerlo todo claro. Solo necesitas empezar.",
       "Cada día que pasa, tu bebé y tú os preparáis juntos.",
     ],
@@ -27,7 +25,7 @@ const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
       "Cada día aprendes algo nuevo. Y tu bebé también.",
     ],
     experienced: [
-      "Ya sabes que esta etapa pasa rápido. Disfrútala.",
+      "Ya sabes que este Momento pasa rápido. Disfrútalo.",
       "Con experiencia, los miedos se convierten en confianza.",
       "Cada hijo trae su propia magia. Déjate sorprender.",
     ],
@@ -40,7 +38,7 @@ const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
     ],
     experienced: [
       "Cada hijo es diferente. Disfruta las sorpresas.",
-      "Ya sabes: esta etapa tiene más risas que noches sin dormir.",
+      "Ya sabes: este Momento tiene más risas que noches sin dormir.",
       "Tu tranquilidad se la transmites. Eso vale oro.",
     ],
   },
@@ -51,7 +49,7 @@ const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
       "Cada logro suyo es también un logro tuyo.",
     ],
     experienced: [
-      "Esta etapa es mágica. Cada momento cuenta.",
+      "Este Momento es mágico. Cada instante cuenta.",
       "Ya sabes que gatear es una aventura. Disfruta verlo explorar.",
       "Tu calma le da seguridad para atreverse a más.",
     ],
@@ -60,7 +58,7 @@ const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
     firstTime: [
       "Pronto dará sus primeros pasos. Tú ya has dado muchos.",
       "Su personalidad brilla cada vez más. Conócelo sin prisa.",
-      "El primer año casi termina. Lo has hecho increíble.",
+      "El primer año casi termina. Lo estás haciendo increíble.",
     ],
     experienced: [
       "El primer año vuela. Saborea cada logro.",
@@ -83,7 +81,7 @@ const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
 };
 
 function getDayIndex(): number {
-  return new Date().getDay(); // 0-6
+  return new Date().getDay();
 }
 
 export function EmotionalTip({ stage, isFirstChild }: EmotionalTipProps) {
@@ -94,19 +92,18 @@ export function EmotionalTip({ stage, isFirstChild }: EmotionalTipProps) {
   const tip = pool[getDayIndex() % pool.length];
 
   return (
-    <Card className="bg-gradient-to-br from-rose-50/50 to-background border-rose-100/50 dark:from-rose-950/20 dark:border-rose-900/30">
-      <CardContent className="py-6">
-        <div className="flex items-start gap-4">
-          <div className="p-3 rounded-full bg-rose-100/50 dark:bg-rose-900/30">
-            <Heart className="h-5 w-5 text-rose-500" />
-          </div>
-          <div className="flex-1">
-            <p className="text-foreground font-medium leading-relaxed italic">
-              "{tip}"
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <section aria-label="Pensamiento del día" className="py-8 md:py-12">
+      <p className="eyebrow mb-5 text-[10px]">Para ti, hoy</p>
+      <blockquote
+        className="font-serif text-foreground text-balance max-w-3xl leading-snug"
+        style={{
+          fontSize: "clamp(1.5rem, 3.2vw, 2.5rem)",
+          fontWeight: 400,
+          letterSpacing: "-0.01em",
+        }}
+      >
+        "{tip}"
+      </blockquote>
+    </section>
   );
 }

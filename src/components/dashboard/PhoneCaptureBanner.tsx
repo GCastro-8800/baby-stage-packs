@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Phone, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const DISMISS_KEY = "bebloo-phone-banner-dismissed";
 
@@ -23,22 +22,31 @@ export function PhoneCaptureBanner({ show }: Props) {
   };
 
   return (
-    <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 flex items-start gap-3">
-      <Phone className="h-5 w-5 text-primary-foreground shrink-0 mt-0.5" />
+    <aside className="border-y border-foreground/10 py-5 flex items-start gap-4">
       <div className="flex-1 text-sm">
-        <p className="font-medium">Añade tu teléfono para no perderte nada</p>
-        <p className="text-muted-foreground text-xs mt-0.5">
-          Te avisaremos por WhatsApp cuando tu servicio esté por terminar o haya una recogida.
+        <p className="font-serif text-foreground text-lg leading-snug">
+          ¿Nos dejas tu teléfono?
+        </p>
+        <p className="text-muted-foreground text-sm mt-1 leading-relaxed">
+          Así te avisamos por WhatsApp cuando preparemos un cambio o programemos
+          una recogida. Nada más.
         </p>
       </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <Button size="sm" variant="outline" onClick={() => navigate("/app/settings")}>
+      <div className="flex items-center gap-4 shrink-0">
+        <button
+          onClick={() => navigate("/app/settings")}
+          className="font-serif text-base text-foreground border-b border-foreground/40 hover:border-foreground transition-colors pb-0.5"
+        >
           Añadir
-        </Button>
-        <Button size="icon" variant="ghost" onClick={handleDismiss} aria-label="Cerrar">
+        </button>
+        <button
+          onClick={handleDismiss}
+          aria-label="Cerrar"
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
           <X className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
-    </div>
+    </aside>
   );
 }
