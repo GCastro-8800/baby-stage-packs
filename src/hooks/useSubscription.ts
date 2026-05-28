@@ -58,56 +58,34 @@ export interface Feedback {
   created_at: string;
 }
 
+interface SubscriptionOverview {
+  subscription: Subscription | null;
+  shipments: Shipment[];
+  feedback: Feedback[];
+}
+
 export function useSubscription() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const subscriptionQuery = useQuery({
-    queryKey: ["subscription", user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", user!.id)
-        .in("status", ["active", "expired", "paused"])
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
+  const overviewQuery = useQuery({
+    queryKey: ["subscription-overview", user?.id],
+    queryFn: async (): Promise<SubscriptionOverview> => {
+      const { data, error } = await supabase.rpc("get_user_subscription_overview");
       if (error) throw error;
-      return data as Subscription | null;
-    },
-    enabled: !!user,
-  });
-
-  const shipmentsQuery = useQuery({
-    queryKey: ["shipments", user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("shipments")
-        .select("*")
-        .eq("user_id", user!.id)
-        .order("scheduled_date", { ascending: false });
-
-      if (error) throw error;
-      return (data || []).map((s) => ({
-        ...s,
-        items: (Array.isArray(s.items) ? s.items : []) as unknown as ShipmentItem[],
-      })) as Shipment[];
-    },
-    enabled: !!user,
-  });
-
-  const feedbackQuery = useQuery({
-    queryKey: ["feedback", user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("feedback")
-        .select("*")
-        .eq("user_id", user!.id);
-
-      if (error) throw error;
-      return (data || []) as Feedback[];
+      const raw = (data ?? {}) as {
+        subscription: Subscription | null;
+        shipments: Array<Omit<Shipment, "items"> & { items: unknown }>;
+        feedback: Feedback[];
+      };
+      return {
+        subscription: raw.subscription ?? null,
+        shipments: (raw.shipments ?? []).map((s) => ({
+          ...s,
+          items: (Array.isArray(s.items) ? s.items : []) as ShipmentItem[],
+        })),
+        feedback: raw.feedback ?? [],
+      };
     },
     enabled: !!user,
   });
@@ -133,33 +111,29 @@ export function useSubscription() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feedback", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["subscription-overview", user?.id] });
     },
   });
 
-  // Get the next upcoming shipment
+  const shipments = overviewQuery.data?.shipments ?? [];
+
   const nextShipment = useMemo(
-    () => shipmentsQuery.data?.find(
-      (s) => s.status === "scheduled" || s.status === "packed"
-    ),
-    [shipmentsQuery.data]
+    () => shipments.find((s) => s.status === "scheduled" || s.status === "packed"),
+    [shipments]
   );
 
-  // Get the most recent delivered shipment
   const lastDelivered = useMemo(
-    () => shipmentsQuery.data?.find(
-      (s) => s.status === "delivered"
-    ),
-    [shipmentsQuery.data]
+    () => shipments.find((s) => s.status === "delivered"),
+    [shipments]
   );
 
   return {
-    subscription: subscriptionQuery.data,
-    subscriptionLoading: subscriptionQuery.isLoading,
-    shipments: shipmentsQuery.data || [],
+    subscription: overviewQuery.data?.subscription ?? null,
+    subscriptionLoading: overviewQuery.isLoading,
+    shipments,
     nextShipment,
     lastDelivered,
-    feedback: feedbackQuery.data || [],
+    feedback: overviewQuery.data?.feedback ?? [],
     submitFeedback,
   };
 }
