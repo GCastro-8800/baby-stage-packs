@@ -73,7 +73,7 @@ export function useSubscription() {
     queryFn: async (): Promise<SubscriptionOverview> => {
       const { data, error } = await supabase.rpc("get_user_subscription_overview");
       if (error) throw error;
-      const raw = (data ?? {}) as {
+      const raw = (data ?? {}) as unknown as {
         subscription: Subscription | null;
         shipments: Array<Omit<Shipment, "items"> & { items: unknown }>;
         feedback: Feedback[];
