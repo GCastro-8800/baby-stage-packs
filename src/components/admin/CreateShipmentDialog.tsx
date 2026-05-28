@@ -36,6 +36,16 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
+// Group catalog products by category for selection
+const PRODUCTS_BY_CATEGORY: Record<ProductCategory, typeof PRODUCT_CATALOG> = PRODUCT_CATALOG.reduce(
+  (acc, p) => {
+    if (!acc[p.category]) acc[p.category] = [];
+    acc[p.category].push(p);
+    return acc;
+  },
+  {} as Record<ProductCategory, typeof PRODUCT_CATALOG>,
+);
+
 export function CreateShipmentDialog({ open, onOpenChange }: Props) {
   const queryClient = useQueryClient();
   const [subscriptionId, setSubscriptionId] = useState("");
@@ -69,7 +79,6 @@ export function CreateShipmentDialog({ open, onOpenChange }: Props) {
   });
 
   const selectedSub = activeSubs?.find((s) => s.id === subscriptionId);
-  const planData = selectedSub ? plansEquipment.find((p) => p.id === selectedSub.plan_name) : null;
 
   const toggleItem = (category: string, brand: string, model: string) => {
     const key = `${category}-${brand}-${model}`;
