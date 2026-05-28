@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { plansEquipment } from "@/data/planEquipment";
+import { PRODUCT_CATALOG, CATEGORY_LABELS, type ProductCategory } from "@/data/productCatalog";
 import type { Database } from "@/integrations/supabase/types";
 
 type BabyStage = Database["public"]["Enums"]["baby_stage"];
