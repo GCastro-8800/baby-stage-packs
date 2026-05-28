@@ -160,19 +160,19 @@ export function CreateShipmentDialog({ open, onOpenChange }: Props) {
             <Label>Fecha programada</Label>
             <Input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
           </div>
-          {planData && (
+          {selectedSub && (
             <div className="space-y-3">
               <Label>Items del envío</Label>
-              {planData.equipment.map((cat) => (
-                <div key={cat.category} className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">{cat.category}</p>
-                  {cat.options.map((opt) => {
-                    const key = `${cat.category}-${opt.brand}-${opt.model}`;
+              {(Object.keys(PRODUCTS_BY_CATEGORY) as ProductCategory[]).map((cat) => (
+                <div key={cat} className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">{CATEGORY_LABELS[cat]}</p>
+                  {PRODUCTS_BY_CATEGORY[cat].map((opt) => {
+                    const key = `${cat}-${opt.brand}-${opt.name}`;
                     const checked = selectedItems.some((i) => i.key === key);
                     return (
                       <label key={key} className="flex items-center gap-2 text-sm cursor-pointer py-1">
-                        <Checkbox checked={checked} onCheckedChange={() => toggleItem(cat.category, opt.brand, opt.model)} />
-                        <span>{opt.brand} {opt.model}</span>
+                        <Checkbox checked={checked} onCheckedChange={() => toggleItem(cat, opt.brand, opt.name)} />
+                        <span>{opt.brand} {opt.name}</span>
                       </label>
                     );
                   })}
