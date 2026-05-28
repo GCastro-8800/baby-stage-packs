@@ -1,43 +1,52 @@
-# Próximo paso: Issues HIGH del codebase review
+# Próximo paso: Fix #4 — Consolidar `useSubscription` en una RPC
 
-Los 3 críticos ya están resueltos (CORS whitelist, idempotencia Stripe webhook, stage enum alineado con DB). Ahora propongo atacar los 5 issues **HIGH** en este orden, priorizando los de mayor impacto y menor riesgo:
+Ya completados: #1 (useToast leak), #2 (refactor datos packs/plan), #3 (rate limiting persistente).
 
-## 1. Memory leak en `useToast` (Issue #8)
-**Archivo:** `src/hooks/use-toast.ts`
-**Problema:** `state` está en el array de dependencias del `useEffect`, lo que añade/quita listeners en cada cambio de estado y acumula listeners obsoletos.
-**Fix:** Eliminar `state` del array (usar `[]`) — patrón estándar de shadcn.
-**Riesgo:** muy bajo. Cambio puntual de 1 línea.
+Quedan 2 HIGH del review: **#4 consolidar queries** y **#7 CAPTCHA**. Propongo atacar #4 ahora (bajo riesgo, mejora real de performance) y dejar #7 para un turno aparte (alcance grande: UX + frontend + backend + secret nuevo de Turnstile).
 
-## 2. Unificar datos de equipos (Issue #5)
-**Archivos:** `src/data/packStages.ts`, `src/data/planEquipment.ts`, `src/data/productCatalog.ts`
-**Problema:** Datos de productos duplicados en 3 sitios con precios conflictivos, sin fuente única de verdad.
-**Fix:** 
-- Usar `productCatalog.ts` como única fuente de verdad (ya alineado con el Excel oficial).
-- Refactorizar `packStages.ts` y `planEquipment.ts` para que **referencien** productos por ID en lugar de duplicar `nombre`/`precio`/`imagen`.
-- Crear helper `getProduct(id)` para resolver datos.
-**Riesgo:** medio. Toca componentes que consumen estos datos; verificar configurador y dashboard.
+## Problema
 
-## 3. Rate limiting persistente (Issue #4)
-**Archivos:** `supabase/functions/chat/index.ts`, `supabase/functions/send-confirmation-email/index.ts`
-**Problema:** Rate limit en memoria se pierde al hacer cold start.
-**Fix:** Crear tabla `rate_limit_buckets (key text, window_start timestamptz, count int)` con TTL via cron, o usar `rate_limits` table compartida. Función helper en `_shared/rateLimit.ts`.
-**Riesgo:** medio. Requiere migración SQL + refactor de 2 edge functions.
+`src/hooks/useSubscription.ts` hace **3 queries separadas** en cascada cada vez que carga el dashboard:
+1. `subscriptions` (1 fila)
+2. `shipments` (lista del usuario)
+3. `feedback` (lista del usuario)
 
-## 4. Consolidar queries de `useSubscription` (Issue #6)
-**Archivo:** `src/hooks/useSubscription.ts`
-**Problema:** 3 queries separadas (subscription, shipments, feedback) que podrían ser 1 RPC.
-**Fix:** Crear función `get_user_subscription_overview(_user_id uuid)` que devuelva JSON con los 3 datasets. Refactor del hook para llamar a la RPC.
-**Riesgo:** bajo-medio. Requiere RPC + ajuste del hook.
+Son 3 round-trips secuenciales contra la DB. Para un usuario con dashboard activo se traduce en latencia visible y carga innecesaria de la API.
 
-## 5. CAPTCHA en endpoints públicos (Issue #7)
-**Endpoints:** `admin-login`, `chat`, captura de leads.
-**Fix:** Integrar Cloudflare Turnstile (gratis, sin tracking) en los formularios públicos + validación en edge functions.
-**Riesgo:** alto en alcance (UX + frontend + backend + secret nuevo). Mejor dejarlo al final o discutirlo aparte.
+## Solución
 
----
+Crear una RPC `get_user_subscription_overview()` (SECURITY DEFINER, sin parámetros, usa `auth.uid()` internamente) que devuelva un único JSON con los 3 datasets:
 
-## Recomendación
+```json
+{
+  "subscription": { ... } | null,
+  "shipments": [ ... ],
+  "feedback": [ ... ]
+}
+```
 
-Abordar **#1 + #2** en este turno (cambios de frontend acotados, sin migraciones), y dejar **#3, #4, #5** para iteraciones siguientes una vez verificado que #1 y #2 no rompen nada.
+Refactor del hook para:
+- Una sola `useQuery` que llama a la RPC.
+- Mantener la misma interfaz pública (`subscription`, `shipments`, `nextShipment`, `lastDelivered`, `feedback`, `submitFeedback`) para no tocar componentes consumidores.
+- `submitFeedback` sigue invalidando la query consolidada `["subscription-overview", user?.id]`.
 
-¿Quieres que avance con #1 y #2, o prefieres otro orden / atacar solo uno?
+## Cambios
+
+### 1. Migración SQL
+- Crear función `public.get_user_subscription_overview()`:
+  - `SECURITY DEFINER`, `STABLE`, `SET search_path = public`.
+  - Usa `auth.uid()`; si es NULL → devuelve `null`/arrays vacíos.
+  - Misma lógica que las 3 queries actuales (subscription con filtro de status + order + limit 1; shipments orden desc; feedback completo).
+  - `REVOKE EXECUTE ... FROM PUBLIC, anon`; `GRANT EXECUTE ... TO authenticated`.
+
+### 2. `src/hooks/useSubscription.ts`
+- Reemplazar las 3 `useQuery` por 1 `useQuery` que llama `supabase.rpc("get_user_subscription_overview")`.
+- Parsear el JSON al tipo existente; mantener el cast de `items` a `ShipmentItem[]`.
+- Mantener `nextShipment` / `lastDelivered` con `useMemo` igual que ahora.
+- `submitFeedback.onSuccess` → invalidar `["subscription-overview", user?.id]`.
+
+### Riesgo
+Bajo. La interfaz pública del hook no cambia → no toca componentes. La RPC respeta RLS porque filtra por `auth.uid()`.
+
+## Después de #4
+Quedaría solo **#7 CAPTCHA (Turnstile)** de la lista HIGH. Lo discutimos en su propio turno porque toca frontend, backend, UX y requiere un secret nuevo.

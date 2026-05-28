@@ -676,6 +676,7 @@ export type Database = {
           last_status: string
         }[]
       }
+      get_user_subscription_overview: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
