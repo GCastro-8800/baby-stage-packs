@@ -30,26 +30,27 @@ const STAGE_NAMES: Record<Stage, string> = {
   prenatal: "Preparándote",
   "0-3m": "Primeros días",
   "3-6m": "Descubriendo",
-  "6-9m": "Explorando",
-  "9-12m": "Creciendo",
-  "12m+": "Pequeño grande",
+  "6-12m": "Explorando",
+  "12-18m": "Creciendo",
+  "18-24m": "Pequeño grande",
 };
 
-const STAGE_RANGES: Record<Exclude<Stage, "prenatal" | "12m+">, { start: number; end: number }> = {
+const STAGE_RANGES: Record<Exclude<Stage, "prenatal" | "18-24m">, { start: number; end: number }> = {
   "0-3m": { start: 0, end: 90 },
   "3-6m": { start: 91, end: 180 },
-  "6-9m": { start: 181, end: 270 },
-  "9-12m": { start: 271, end: 365 },
+  "6-12m": { start: 181, end: 365 },
+  "12-18m": { start: 366, end: 547 },
 };
 
 const getStage = (ageInDays: number): Stage => {
   if (ageInDays < 0) return "prenatal";
   if (ageInDays <= 90) return "0-3m";
   if (ageInDays <= 180) return "3-6m";
-  if (ageInDays <= 270) return "6-9m";
-  if (ageInDays <= 365) return "9-12m";
-  return "12m+";
+  if (ageInDays <= 365) return "6-12m";
+  if (ageInDays <= 547) return "12-18m";
+  return "18-24m";
 };
+
 
 const calculateAgeText = (ageInDays: number, ageInMonths: number): string => {
   if (ageInMonths >= 12) {
@@ -126,16 +127,17 @@ export function useBabyStage(child: Child | null): BabyStageResult {
       let daysInStage = 0;
       let totalDaysInStage = 0;
 
-      if (stage !== "prenatal" && stage !== "12m+") {
+      if (stage !== "prenatal" && stage !== "18-24m") {
         const range = STAGE_RANGES[stage];
         daysInStage = ageInDays - range.start;
         totalDaysInStage = range.end - range.start;
         stageProgress = Math.min(100, Math.max(0, (daysInStage / totalDaysInStage) * 100));
-      } else if (stage === "12m+") {
+      } else if (stage === "18-24m") {
         stageProgress = 100;
-        daysInStage = ageInDays - 365;
+        daysInStage = ageInDays - 548;
         totalDaysInStage = 0;
       }
+
 
       return {
         ...defaultResult,

@@ -4,10 +4,11 @@ const MOMENTS: { id: Stage; label: string; range: string }[] = [
   { id: "prenatal", label: "En espera", range: "antes de nacer" },
   { id: "0-3m", label: "Primeros días", range: "0–3 meses" },
   { id: "3-6m", label: "Descubriendo", range: "3–6 meses" },
-  { id: "6-9m", label: "Explorando", range: "6–9 meses" },
-  { id: "9-12m", label: "Creciendo", range: "9–12 meses" },
-  { id: "12m+", label: "Pequeño grande", range: "12 meses en adelante" },
+  { id: "6-12m", label: "Explorando", range: "6–12 meses" },
+  { id: "12-18m", label: "Creciendo", range: "12–18 meses" },
+  { id: "18-24m", label: "Pequeño grande", range: "18–24 meses" },
 ];
+
 
 interface BabyTimelineProps {
   currentStage: Stage | null;

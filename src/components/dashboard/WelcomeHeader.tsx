@@ -14,10 +14,11 @@ const STAGE_SENTENCE: Record<Stage, string> = {
   prenatal: "Estás preparándote para conocer a tu bebé.",
   "0-3m": "Tu bebé está en sus primeros días.",
   "3-6m": "Tu bebé empieza a descubrir el mundo.",
-  "6-9m": "Tu bebé explora todo lo que le rodea.",
-  "9-12m": "Tu bebé está cerca de sus primeros pasos.",
-  "12m+": "Tu bebé es ya un pequeño aventurero.",
+  "6-12m": "Tu bebé explora todo lo que le rodea.",
+  "12-18m": "Tu bebé está dando sus primeros pasos.",
+  "18-24m": "Tu bebé es ya un pequeño aventurero.",
 };
+
 
 export function WelcomeHeader({
   fullName,

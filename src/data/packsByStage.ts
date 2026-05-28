@@ -113,11 +113,12 @@ export const packsByStage: StageData[] = [
     ],
   },
   {
-    id: "6-9m",
+    id: "6-12m",
     name: "Explorando",
-    ageRange: "6–9 meses",
+    ageRange: "6–12 meses",
     description:
       "Empieza a gatear, a sentarse solo y a querer tocarlo todo. El parque y la trona se convierten en protagonistas del día a día.",
+
     cta: "Sin comprar, sin acumular",
     equipment: [
       {
@@ -145,11 +146,12 @@ export const packsByStage: StageData[] = [
     ],
   },
   {
-    id: "9-12m",
+    id: "12-18m",
     name: "Creciendo",
-    ageRange: "9–12 meses",
+    ageRange: "12–18 meses",
     description:
       "Se pone de pie, da sus primeros pasos y come prácticamente de todo. El equipamiento evoluciona con él para seguir siendo útil.",
+
     cta: "Todo incluido hasta su primer cumpleaños",
     equipment: [
       {
