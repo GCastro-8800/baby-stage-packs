@@ -41,7 +41,6 @@ export default function Auth() {
 
   const locationState = location.state as {
     from?: string | { pathname: string };
-    selections?: Record<string, boolean>;
   } | null;
 
   // Determine redirect target
@@ -49,21 +48,12 @@ export default function Auth() {
     ? locationState.from
     : locationState?.from?.pathname || "/app";
 
-  const isPlanFlow = fromPath.startsWith("/packs/") && fromPath.includes("/checkout");
-
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      if (isPlanFlow) {
-        navigate(fromPath, {
-          replace: true,
-          state: { selections: locationState?.selections, fromAuth: true },
-        });
-      } else {
-        navigate(fromPath, { replace: true });
-      }
+      navigate(fromPath, { replace: true });
     }
-  }, [user, navigate, fromPath, isPlanFlow, locationState?.selections]);
+  }, [user, navigate, fromPath]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
