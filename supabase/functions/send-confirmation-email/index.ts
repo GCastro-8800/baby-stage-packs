@@ -1,36 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit, getClientIp } from "../_shared/rateLimit.ts";
 
 const GATEWAY_URL = 'https://connector-gateway.lovable.dev/resend';
 
-// Rate limiting
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+// Persistent rate limit: max 5 requests per 10 minutes per IP
+const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
 const MAX_REQUESTS_PER_WINDOW = 5;
-const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
-
-function isRateLimited(clientIp: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(clientIp);
-  if (!entry || (now - entry.windowStart) > RATE_LIMIT_WINDOW_MS) {
-    rateLimitMap.set(clientIp, { count: 1, windowStart: now });
-    return false;
-  }
-  if (entry.count >= MAX_REQUESTS_PER_WINDOW) return true;
-  entry.count++;
-  return false;
-}
-
-let requestCount = 0;
-function cleanupRateLimitMap() {
-  requestCount++;
-  if (requestCount % 100 === 0) {
-    const now = Date.now();
-    for (const [ip, entry] of rateLimitMap.entries()) {
-      if ((now - entry.windowStart) > RATE_LIMIT_WINDOW_MS) rateLimitMap.delete(ip);
-    }
-  }
-}
 
 const VALID_PLANS = ["Esencial", "Confort", "Tranquilidad Total"] as const;
 type ValidPlan = typeof VALID_PLANS[number];
