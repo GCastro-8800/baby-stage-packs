@@ -1,62 +1,24 @@
-# Fase 3c — Lenguaje editorial en Selección y Confirmación
+## Contexto
 
-Aplico el mismo lenguaje editorial (sin SaaS cards, hairlines, serif, aire) a `/mi-seleccion` y `/checkout/success`. Sin tocar lógica de negocio (hooks, precios, Stripe, recomendador).
+Has rotado `CRON_SECRET` en Lovable Cloud. Las **edge functions** (`check-expiring-subscriptions`, `process-expired-subscriptions`, `send-pickup-reminders`, `send-cart-recovery-emails`) ya leen el secret en tiempo real desde el entorno, así que automáticamente usan el valor nuevo — no hay que tocar su código.
 
-## 1) `src/pages/Selection.tsx`
-- Header de página: eyebrow "Tu selección" + h1 serif más grande (`text-3xl md:text-4xl`).
-- Banner contextual (Sparkles): quitar `bg-primary/10 border border-primary/20 rounded-xl`. Convertir en línea con `border-t border-b border-foreground/10 py-3`, sin icono cuadrado.
-- Link "Repetir cuestionario" / "Hacer cuestionario" como `border-b border-foreground/40` hairline button.
-- Aumentar aire vertical entre secciones (`space-y-16`).
+El problema: los **cron jobs de Postgres** que invocan esas funciones no leen el secret del entorno. Leen una **copia** guardada en `vault.secrets` con el nombre `cron_secret` (creada en abril). Esa copia sigue teniendo el valor viejo, por lo que las llamadas programadas empezarán a fallar con 401 hasta que la actualicemos.
 
-## 2) `src/components/configurator/CategorySection.tsx`
-- Cabecera categoría: quitar cuadrado con icono. Eyebrow uppercase tracking + título serif. Hairline `border-b border-foreground/10`.
+## Plan
 
-## 3) `src/components/configurator/ProductCardSelected.tsx`
-- Quitar `rounded-xl border bg-card shadow-sm`. Usar `<article>` con `border-b border-foreground/10 py-5`.
-- Nombre en `font-display text-lg`. Marca como eyebrow muted.
-- Precio: quitar caja `bg-accent/10 rounded-lg`. Texto plano serif.
-- Duration chips: hairline pill (`border border-foreground/20`, activo `bg-foreground text-background`).
-- Bloque "Por qué te lo recomendamos": quitar `bg-primary/5 border rounded-lg`, usar nota inline con borde izquierdo hairline.
-- Botones "Cambiar" / quitar: ghost con underline hairline.
-- Alternativas: filas con `border-b border-foreground/10`, sin tarjetas internas.
+1. **Tú me pasas el nuevo valor de `CRON_SECRET`** (el mismo que acabas de poner en Lovable Cloud → Connectors → Secrets). Pégalo en el chat cuando aprobemos esto.
+2. Ejecuto una migración que llama a `vault.update_secret(...)` para reemplazar el valor guardado en `vault.secrets` (entrada `cron_secret`).
+3. Verifico que el cambio se aplicó leyendo `vault.decrypted_secrets` (sólo para confirmar que `updated_at` cambió, no se mostrará el valor).
+4. Disparo manualmente una de las cron functions con el nuevo header para confirmar respuesta `200 ok` en lugar de `401 Unauthorized`.
 
-## 4) `src/components/configurator/ProductCardSuggested.tsx`
-- Quitar `rounded-xl border` (incluido dashed). Usar fila con `border-b border-foreground/10 py-5`, opacidad sutil cuando no seleccionado.
-- Mismo tratamiento de precio/marca que Selected.
-- Botón "Añadir a mi selección" como hairline link.
+## Notas técnicas
 
-## 5) `src/components/configurator/SelectionSidebar.tsx`
-- Sticky aside: quitar `rounded-2xl bg-card shadow-md`. Caja sutil `border-t border-b border-foreground/15 py-6` o panel `bg-card/40` muy ligero sin sombra.
-- Título "Tu selección" serif, contador como eyebrow muted (sin pill).
-- Items: filas con divisor hairline; chips duración como hairline.
-- "Pago único" serif grande, nota muted.
-- CTA "Contratar ahora" se mantiene como botón sólido (única acción primaria).
-- Card "Incluye siempre": quitar `rounded-2xl bg-card shadow-sm`. Sección con eyebrow + lista con bullets `·` y texto muted, sin cuadrados de iconos.
+- No se cambia el código de las edge functions: ya hacen `Deno.env.get("CRON_SECRET")` y comparan con `timingSafeEqual`.
+- No se modifican los `cron.job` schedules: siguen leyendo `vault.decrypted_secrets WHERE name = 'cron_secret'`. Sólo se actualiza el contenido de ese registro.
+- El valor que me pases se usará una sola vez para la migración y no quedará en texto plano en el histórico (lo enviaré a través de `vault.update_secret`, que cifra).
+- Las otras 16 secrets del proyecto no se tocan.
 
-## 6) `src/components/configurator/StickyMobileBar.tsx`
-- Barra inferior: quitar shadow grande, usar `border-t border-foreground/15 bg-background`.
-- Total serif. CTA sólido se mantiene.
-- Sheet interior: mismo tratamiento (hairlines en lugar de borders pesados, chips hairline, sin pill de contador).
+## Riesgos
 
-## 7) `src/components/configurator/CheckoutOptionsDialog.tsx`
-- Dialog header: ya usa font-serif, ok.
-- Breakdown: quitar `bg-muted/50 rounded-lg`. Lista con `border-t border-foreground/10` por fila.
-- Opciones: quitar `rounded-xl border bg-card`. Filas grandes con `border-b border-foreground/10 py-5`, sin cuadrado de icono coloreado (icono inline pequeño con muted), CTA "→" como hairline link.
-
-## 8) `src/pages/CheckoutSuccess.tsx`
-- Quitar círculo `bg-primary/10` con icono grande. Sustituir por un check sutil (icono inline) o eyebrow "Confirmado".
-- Título serif más grande, copy cálido.
-- CTA "Ir a mi panel" como hairline button (no `cta-tension`), redirección con texto muted pequeño.
-- Layout con más aire (`max-w-md space-y-10`).
-
-## Fuera de alcance
-- Lógica de `useSelection`, recomendador, Stripe, navegación, queries.
-- `ProductDetailDialog`, `ExitIntentModal`, `TrustBadges` (se mantienen tal cual; sólo el contenedor de sidebar cambia).
-- Header global y Footer.
-
-## Verificación
-- `/mi-seleccion` desktop 1280: tres etapas con aire, sin cards, sidebar editorial, CTA primario visible.
-- `/mi-seleccion` mobile 390: barra inferior limpia, sheet con hairlines, chips duración legibles.
-- Flujo: añadir/quitar producto, cambiar duración, abrir alternativas → sigue funcionando.
-- `/checkout/success`: minimal, sin caja redonda grande, redirección a 5s sigue.
-- Sin regresiones de tipo en consola.
+- Si el valor que pegues no coincide exactamente con el que está en Lovable Cloud, los crons devolverán 401 hasta corregirlo.
+- Mientras tanto (entre rotación y este paso), los crons del día siguiente fallarían — por eso conviene hacerlo ya.
