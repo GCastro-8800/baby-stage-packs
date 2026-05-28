@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { plansEquipment } from "@/data/planEquipment";
+import { PRODUCT_CATALOG, CATEGORY_LABELS, type ProductCategory } from "@/data/productCatalog";
 import type { Database } from "@/integrations/supabase/types";
 
 type BabyStage = Database["public"]["Enums"]["baby_stage"];
@@ -35,6 +35,16 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+// Group catalog products by category for selection
+const PRODUCTS_BY_CATEGORY: Record<ProductCategory, typeof PRODUCT_CATALOG> = PRODUCT_CATALOG.reduce(
+  (acc, p) => {
+    if (!acc[p.category]) acc[p.category] = [];
+    acc[p.category].push(p);
+    return acc;
+  },
+  {} as Record<ProductCategory, typeof PRODUCT_CATALOG>,
+);
 
 export function CreateShipmentDialog({ open, onOpenChange }: Props) {
   const queryClient = useQueryClient();
@@ -69,7 +79,6 @@ export function CreateShipmentDialog({ open, onOpenChange }: Props) {
   });
 
   const selectedSub = activeSubs?.find((s) => s.id === subscriptionId);
-  const planData = selectedSub ? plansEquipment.find((p) => p.id === selectedSub.plan_name) : null;
 
   const toggleItem = (category: string, brand: string, model: string) => {
     const key = `${category}-${brand}-${model}`;
@@ -151,19 +160,19 @@ export function CreateShipmentDialog({ open, onOpenChange }: Props) {
             <Label>Fecha programada</Label>
             <Input type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
           </div>
-          {planData && (
+          {selectedSub && (
             <div className="space-y-3">
               <Label>Items del envío</Label>
-              {planData.equipment.map((cat) => (
-                <div key={cat.category} className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">{cat.category}</p>
-                  {cat.options.map((opt) => {
-                    const key = `${cat.category}-${opt.brand}-${opt.model}`;
+              {(Object.keys(PRODUCTS_BY_CATEGORY) as ProductCategory[]).map((cat) => (
+                <div key={cat} className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">{CATEGORY_LABELS[cat]}</p>
+                  {PRODUCTS_BY_CATEGORY[cat].map((opt) => {
+                    const key = `${cat}-${opt.brand}-${opt.name}`;
                     const checked = selectedItems.some((i) => i.key === key);
                     return (
                       <label key={key} className="flex items-center gap-2 text-sm cursor-pointer py-1">
-                        <Checkbox checked={checked} onCheckedChange={() => toggleItem(cat.category, opt.brand, opt.model)} />
-                        <span>{opt.brand} {opt.model}</span>
+                        <Checkbox checked={checked} onCheckedChange={() => toggleItem(cat, opt.brand, opt.name)} />
+                        <span>{opt.brand} {opt.name}</span>
                       </label>
                     );
                   })}
