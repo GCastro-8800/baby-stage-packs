@@ -53,14 +53,20 @@ serve(async (req) => {
   }
 
   try {
-    // IP-based rate limiting
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-               req.headers.get("cf-connecting-ip") ||
-               "unknown";
-    if (isRateLimited(ip)) {
+    // Persistent IP-based rate limiting
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit(`chat:${ip}`, RATE_LIMIT, RATE_WINDOW_SECONDS);
+    if (rl.limited) {
       return new Response(
         JSON.stringify({ error: "Demasiadas solicitudes. Intenta de nuevo más tarde." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(rl.retryAfter || RATE_WINDOW_SECONDS),
+          },
+        }
       );
     }
 
