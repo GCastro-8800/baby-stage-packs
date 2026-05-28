@@ -40,13 +40,16 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || "unknown";
-  cleanupRateLimitMap();
-
-  if (isRateLimited(clientIp)) {
+  const clientIp = getClientIp(req);
+  const rl = await checkRateLimit(`send-confirmation-email:${clientIp}`, MAX_REQUESTS_PER_WINDOW, RATE_LIMIT_WINDOW_SECONDS);
+  if (rl.limited) {
     return new Response(JSON.stringify({ error: "Too many requests." }), {
       status: 429,
-      headers: { "Content-Type": "application/json", "Retry-After": "600", ...corsHeaders },
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(rl.retryAfter || RATE_LIMIT_WINDOW_SECONDS),
+        ...corsHeaders,
+      },
     });
   }
 
