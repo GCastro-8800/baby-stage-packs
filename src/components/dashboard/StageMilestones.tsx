@@ -22,21 +22,24 @@ const MILESTONES: Record<Stage, string[]> = {
     "Primeras risas a carcajadas",
     "Reconoce tu voz desde lejos",
   ],
-  "6-9m": [
+  "6-12m": [
     "Puede sentarse solo y explorar desde ahí",
     "Empieza a gatear o arrastrarse",
     "Muestra preferencia por personas conocidas",
-  ],
-  "9-12m": [
-    "Primeros pasos o ganas de ponerse de pie",
     "Señala lo que quiere con el dedo",
     "Entiende palabras simples como 'no' y su nombre",
   ],
-  "12m+": [
+  "12-18m": [
+    "Primeros pasos y ganas de caminar solo",
     "Dice sus primeras palabras con intención",
-    "Camina con más seguridad cada día",
     "Imita gestos y juegos: es una esponja",
   ],
+  "18-24m": [
+    "Camina con seguridad y empieza a correr",
+    "Combina dos palabras en frases sencillas",
+    "Quiere hacer cosas por sí solo: déjale intentarlo",
+  ],
+
 };
 
 export function StageMilestones({ stage }: StageMilestonesProps) {

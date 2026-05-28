@@ -28,8 +28,18 @@ export function StageCard({
     return null;
   }
 
-  const showProgress = situation === "born" && stage !== "12m+";
-  const stageLabel = stage === "prenatal" ? "Preparándote" : stage === "12m+" ? "+12 meses" : stage;
+  const showProgress = situation === "born" && stage !== "18-24m";
+  const stageLabel =
+    stage === "prenatal"
+      ? "Preparándote"
+      : stage === "6-12m"
+        ? "6–12 meses"
+        : stage === "12-18m"
+          ? "12–18 meses"
+          : stage === "18-24m"
+            ? "18–24 meses"
+            : stage;
+
 
   return (
     <Card>

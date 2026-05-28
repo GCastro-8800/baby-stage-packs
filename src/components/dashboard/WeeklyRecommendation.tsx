@@ -23,24 +23,27 @@ const RECOMMENDATIONS: Record<Stage, string[]> = {
     "Léele un cuento corto con voces. No importa que no entienda.",
     "Déjale tiempo en el suelo boca abajo. Fortalece su cuello y espalda.",
   ],
-  "6-9m": [
+  "6-12m": [
     "Dale una cuchara segura para que practique llevársela a la boca.",
     "Juega a esconder un juguete bajo una tela. Buscará debajo.",
     "Llévale al parque y deja que toque el césped y las hojas.",
     "Aplaude sus logros. Tu entusiasmo es su mejor motor.",
-  ],
-  "9-12m": [
-    "Camina con él de la mano. Cada paso cuenta.",
     "Nombra las cosas que señala. Está construyendo vocabulario.",
     "Dale recipientes para meter y sacar cosas. Le fascina.",
+  ],
+  "12-18m": [
+    "Camina con él de la mano. Cada paso cuenta.",
     "Baila con él en brazos. La música y el movimiento le estimulan.",
-  ],
-  "12m+": [
     "Déjale elegir entre dos opciones sencillas. Le da autonomía.",
-    "Pinta con los dedos. Ensuciar también es aprender.",
     "Lee juntos cada noche. Será uno de sus mejores recuerdos.",
-    "Llévale a conocer texturas nuevas: arena, agua, plastilina.",
   ],
+  "18-24m": [
+    "Pinta con los dedos. Ensuciar también es aprender.",
+    "Llévale a conocer texturas nuevas: arena, agua, plastilina.",
+    "Inventad juegos sencillos juntos. Su imaginación despierta.",
+    "Cántale canciones con gestos. Repetirá lo que pueda.",
+  ],
+
 };
 
 function getWeekOfYear(): number {

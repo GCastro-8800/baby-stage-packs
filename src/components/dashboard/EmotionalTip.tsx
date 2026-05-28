@@ -42,42 +42,45 @@ const TIPS: Record<Stage, { firstTime: string[]; experienced: string[] }> = {
       "Tu tranquilidad se la transmites. Eso vale oro.",
     ],
   },
-  "6-9m": {
+  "6-12m": {
     firstTime: [
       "La curiosidad de tu bebé crece cada día. Acompáñalo.",
       "Empezará a moverse más. Tu casa se convierte en su mundo.",
       "Cada logro suyo es también un logro tuyo.",
+      "Su personalidad brilla cada vez más. Conócelo sin prisa.",
     ],
     experienced: [
       "Este Momento es mágico. Cada instante cuenta.",
       "Ya sabes que gatear es una aventura. Disfruta verlo explorar.",
       "Tu calma le da seguridad para atreverse a más.",
+      "El primer año vuela. Saborea cada logro.",
     ],
   },
-  "9-12m": {
+  "12-18m": {
     firstTime: [
       "Pronto dará sus primeros pasos. Tú ya has dado muchos.",
-      "Su personalidad brilla cada vez más. Conócelo sin prisa.",
       "El primer año casi termina. Lo estás haciendo increíble.",
+      "Camina, habla, explora. Y tú le has dado las raíces.",
     ],
     experienced: [
-      "El primer año vuela. Saborea cada logro.",
       "Sabes que los primeros pasos llegan cuando menos los esperas.",
       "Otro pequeño a punto de caminar. La casa se llena de vida.",
+      "Cada hijo te enseña algo nuevo. Este no será la excepción.",
     ],
   },
-  "12m+": {
+  "18-24m": {
     firstTime: [
       "Ya no es un bebé pequeño. Lo estás haciendo increíble.",
-      "Camina, habla, explora. Y tú le has dado las raíces.",
-      "Mírate: un año entero siendo su mundo. Enhorabuena.",
+      "Mírate: acompañándole a descubrir el mundo. Enhorabuena.",
+      "Cada día gana autonomía. Tú le das la seguridad.",
     ],
     experienced: [
       "Otro aventurero en casa. La diversión continúa.",
-      "Cada hijo te enseña algo nuevo. Este no será la excepción.",
       "La experiencia se nota. Tu familia crece con confianza.",
+      "Disfruta verle convertirse en quien es.",
     ],
   },
+
 };
 
 function getDayIndex(): number {
