@@ -1,47 +1,43 @@
-## Estado real de los 3 issues "críticos" del codebase review
+# Próximo paso: Issues HIGH del codebase review
 
-Después de auditar el código actual, **2 de los 3 críticos ya están resueltos** (el review de marzo está desactualizado):
+Los 3 críticos ya están resueltos (CORS whitelist, idempotencia Stripe webhook, stage enum alineado con DB). Ahora propongo atacar los 5 issues **HIGH** en este orden, priorizando los de mayor impacto y menor riesgo:
 
-### ✅ Issue #2 — CORS wildcard — RESUELTO
-`supabase/functions/_shared/cors.ts` ya implementa whitelist de orígenes (`bebloo.es`, `bebloo.lovable.app`, etc.) con validación de header `Origin`. Las funciones que importan este shared module están protegidas. No hay nada que hacer aquí.
+## 1. Memory leak en `useToast` (Issue #8)
+**Archivo:** `src/hooks/use-toast.ts`
+**Problema:** `state` está en el array de dependencias del `useEffect`, lo que añade/quita listeners en cada cambio de estado y acumula listeners obsoletos.
+**Fix:** Eliminar `state` del array (usar `[]`) — patrón estándar de shadcn.
+**Riesgo:** muy bajo. Cambio puntual de 1 línea.
 
-### ✅ Issue #3 — Idempotencia de Stripe webhook — RESUELTO
-La tabla `processed_stripe_events` existe y `stripe-webhook/index.ts` (líneas 86–102) hace check + insert del `event.id` antes de procesar. Reenvíos de Stripe devuelven `{ duplicate: true }` sin duplicar suscripciones ni envíos.
+## 2. Unificar datos de equipos (Issue #5)
+**Archivos:** `src/data/packStages.ts`, `src/data/planEquipment.ts`, `src/data/productCatalog.ts`
+**Problema:** Datos de productos duplicados en 3 sitios con precios conflictivos, sin fuente única de verdad.
+**Fix:** 
+- Usar `productCatalog.ts` como única fuente de verdad (ya alineado con el Excel oficial).
+- Refactorizar `packStages.ts` y `planEquipment.ts` para que **referencien** productos por ID en lugar de duplicar `nombre`/`precio`/`imagen`.
+- Crear helper `getProduct(id)` para resolver datos.
+**Riesgo:** medio. Toca componentes que consumen estos datos; verificar configurador y dashboard.
 
-### ⚠️ Issue #1 — Stage enum mismatch — PARCIALMENTE RESUELTO
+## 3. Rate limiting persistente (Issue #4)
+**Archivos:** `supabase/functions/chat/index.ts`, `supabase/functions/send-confirmation-email/index.ts`
+**Problema:** Rate limit en memoria se pierde al hacer cold start.
+**Fix:** Crear tabla `rate_limit_buckets (key text, window_start timestamptz, count int)` con TTL via cron, o usar `rate_limits` table compartida. Función helper en `_shared/rateLimit.ts`.
+**Riesgo:** medio. Requiere migración SQL + refactor de 2 edge functions.
 
-Lo que está bien:
-- Existe `toDbStage()` / `fromDbStage()` en `src/types/baby.ts` que traduce entre los valores de la app (`6-9m`, `9-12m`, `12m+`) y los de DB (`6-12m`, `12-18m`, `18-24m`).
-- Ya no hay corrupción silenciosa: persistir un stage no falla.
+## 4. Consolidar queries de `useSubscription` (Issue #6)
+**Archivo:** `src/hooks/useSubscription.ts`
+**Problema:** 3 queries separadas (subscription, shipments, feedback) que podrían ser 1 RPC.
+**Fix:** Crear función `get_user_subscription_overview(_user_id uuid)` que devuelva JSON con los 3 datasets. Refactor del hook para llamar a la RPC.
+**Riesgo:** bajo-medio. Requiere RPC + ajuste del hook.
 
-Lo que sigue siendo un problema (pérdida de información):
-- `6-9m` y `9-12m` ambos mapean a `6-12m` en DB → al volver a leer, no sabemos si era 6-9 o 9-12.
-- `12m+` mapea a `12-18m` → perdemos el caso `18-24m` (un bebé de 20 meses queda etiquetado como 12-18).
-- El enum de DB tiene `18-24m` pero la app nunca lo usa ni lo expone.
+## 5. CAPTCHA en endpoints públicos (Issue #7)
+**Endpoints:** `admin-login`, `chat`, captura de leads.
+**Fix:** Integrar Cloudflare Turnstile (gratis, sin tracking) en los formularios públicos + validación en edge functions.
+**Riesgo:** alto en alcance (UX + frontend + backend + secret nuevo). Mejor dejarlo al final o discutirlo aparte.
 
-## Plan
+---
 
-**Único cambio propuesto**: alinear los dos enums para eliminar la lossy translation. La opción más limpia es **adoptar los valores de DB también en la app** (`6-12m`, `12-18m`, `18-24m` en lugar de `6-9m`, `9-12m`, `12m+`), porque:
-- Coincide mejor con el catálogo (Momentos del kit ya están agrupados por tramos largos).
-- El enum DB tiene más granularidad en 12m+ (12-18 y 18-24 separados).
-- Elimina las funciones de conversión y el riesgo de inconsistencia.
+## Recomendación
 
-### Pasos
+Abordar **#1 + #2** en este turno (cambios de frontend acotados, sin migraciones), y dejar **#3, #4, #5** para iteraciones siguientes una vez verificado que #1 y #2 no rompen nada.
 
-1. **Auditar uso de los strings de stage** en frontend para listar todos los archivos a tocar (`packStages.ts`, `packsByStage.ts`, `planEquipment.ts`, `recommendationEngine.ts`, `useBabyStage.ts`, componentes de configurador, copys, etc.).
-2. **Reemplazar valores** `6-9m` → `6-12m`, `9-12m` → `6-12m` (consolidación), `12m+` → `12-18m` y añadir soporte explícito a `18-24m`.
-3. **Actualizar copys visibles**: cualquier "6-9 meses" / "9-12 meses" pasa a "6-12 meses"; "+12 meses" se desdobla en "12-18 meses" y "18-24 meses".
-4. **Eliminar** `toDbStage` / `fromDbStage` y el alias `AppStage`/`DbStage`; dejar un único `Stage` que coincide con el enum de DB.
-5. **Verificar** que `useBabyStage` (calcula stage actual a partir de fecha de nacimiento) usa los nuevos tramos correctamente.
-6. **Comprobar** que los datos existentes en `subscriptions.current_stage` y `shipments.stage` siguen siendo válidos (ya están en formato DB, así que no hay migración de datos necesaria).
-
-## Notas técnicas
-
-- No requiere migración SQL: el enum de DB ya tiene los valores correctos.
-- No hay datos que reescribir; sólo código frontend.
-- Es un refactor mediano — toca ~10-15 archivos pero todos cambios mecánicos de string.
-- Riesgo bajo: si me dejo un valor viejo, TypeScript lo detecta al compilar.
-
-## Después de esto
-
-Una vez cerrado este crítico, el siguiente bloque natural sería **HIGH issues** del review (memory leak de `useToast`, consolidar datos de equipamiento duplicados, rate limiting persistente). Eso lo planificamos como siguiente iteración.
+¿Quieres que avance con #1 y #2, o prefieres otro orden / atacar solo uno?
