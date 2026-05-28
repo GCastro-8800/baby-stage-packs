@@ -1,21 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit, getClientIp } from "../_shared/rateLimit.ts";
 
-// Simple in-memory IP rate limiter: max 20 requests per hour per IP
-const ipRequests = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10;
-const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipRequests.get(ip);
-  if (!entry || now > entry.resetAt) {
-    ipRequests.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT;
-}
+const RATE_WINDOW_SECONDS = 60 * 60; // 1 hour
 
 const SYSTEM_PROMPT = `Eres el asistente virtual de bebloo, una suscripción por etapas para padres primerizos con bebés de 0 a 12 meses.
 
@@ -65,14 +53,20 @@ serve(async (req) => {
   }
 
   try {
-    // IP-based rate limiting
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-               req.headers.get("cf-connecting-ip") ||
-               "unknown";
-    if (isRateLimited(ip)) {
+    // Persistent IP-based rate limiting
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit(`chat:${ip}`, RATE_LIMIT, RATE_WINDOW_SECONDS);
+    if (rl.limited) {
       return new Response(
         JSON.stringify({ error: "Demasiadas solicitudes. Intenta de nuevo más tarde." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(rl.retryAfter || RATE_WINDOW_SECONDS),
+          },
+        }
       );
     }
 
