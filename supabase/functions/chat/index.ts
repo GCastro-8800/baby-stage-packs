@@ -1,21 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { getCorsHeaders, handleCors } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit, getClientIp } from "../_shared/rateLimit.ts";
 
-// Simple in-memory IP rate limiter: max 20 requests per hour per IP
-const ipRequests = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10;
-const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipRequests.get(ip);
-  if (!entry || now > entry.resetAt) {
-    ipRequests.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
-  }
-  entry.count++;
-  return entry.count > RATE_LIMIT;
-}
+const RATE_WINDOW_SECONDS = 60 * 60; // 1 hour
 
 const SYSTEM_PROMPT = `Eres el asistente virtual de bebloo, una suscripción por etapas para padres primerizos con bebés de 0 a 12 meses.
 
